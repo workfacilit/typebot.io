@@ -14,7 +14,7 @@ services:
       - POSTGRES_PASSWORD=typebot
 
   typebot-builder:
-    image: baptistearno/typebot-builder:latest
+    image: samuellopes123/typebot:builder
     restart: always
     depends_on:
       - typebot-db
@@ -25,7 +25,7 @@ services:
     env_file: .env
 
   typebot-viewer:
-    image: baptistearno/typebot-viewer:latest
+    image: samuellopes123/typebot:viewer
     restart: always
     ports:
       - '8081:3000'
