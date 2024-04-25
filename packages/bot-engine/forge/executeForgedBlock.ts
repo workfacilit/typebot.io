@@ -59,11 +59,8 @@ export const executeForgedBlock = async (
     ) &&
     state.isStreamEnabled &&
     !state.whatsApp &&
-    // TODO: Enable once chat api is rolling
-    isPlaneteScale() &&
-    credentials &&
-    isCredentialsV2(credentials)
-    // !process.env.VERCEL_ENV
+    (!process.env.VERCEL_ENV ||
+      (isPlaneteScale() && credentials && isCredentialsV2(credentials)))
   ) {
     return {
       outgoingEdgeId: block.outgoingEdgeId,
@@ -72,6 +69,7 @@ export const executeForgedBlock = async (
           type: 'stream',
           expectsDedicatedReply: true,
           stream: true,
+          runtime: process.env.VERCEL_ENV ? 'edge' : 'nodejs',
         },
       ],
     }
@@ -120,7 +118,8 @@ export const executeForgedBlock = async (
     : undefined
 
   const parsedOptions = deepParseVariables(
-    state.typebotsQueue[0].typebot.variables
+    state.typebotsQueue[0].typebot.variables,
+    { removeEmptyStrings: true }
   )(block.options)
   await action?.run?.server?.({
     credentials: credentialsData ?? {},
@@ -149,6 +148,9 @@ export const executeForgedBlock = async (
       ? {
           type: 'custom-embed',
           content: {
+            url: action.run.web.displayEmbedBubble.parseUrl({
+              options: parsedOptions,
+            }),
             maxBubbleWidth: action.run.web.displayEmbedBubble.maxBubbleWidth,
             initFunction: action.run.web.displayEmbedBubble.parseInitFunction({
               options: parsedOptions,

@@ -154,6 +154,7 @@ export const ConversationContainer = (props: Props) => {
     const longRequest = setTimeout(() => {
       setIsSending(true)
     }, 1000)
+    autoScrollToBottom()
     const { data, error } = await continueChatQuery({
       apiHost: props.context.apiHost,
       sessionId: props.initialChatReply.sessionId,
@@ -205,6 +206,13 @@ export const ConversationContainer = (props: Props) => {
         isNotDefined(action.lastBubbleBlockId)
       )
       await processClientSideActions(actionsBeforeFirstBubble)
+      if (
+        data.clientSideActions.length === 1 &&
+        data.clientSideActions[0].type === 'stream' &&
+        data.messages.length === 0 &&
+        data.input === undefined
+      )
+        return
     }
     setChatChunks((displayedChunks) => [
       ...displayedChunks,
@@ -216,14 +224,27 @@ export const ConversationContainer = (props: Props) => {
     ])
   }
 
-  const autoScrollToBottom = (offsetTop?: number) => {
-    const chunks = chatChunks()
-    const lastChunkWasStreaming =
-      chunks.length >= 2 && chunks[chunks.length - 2].streamingMessageId
-    if (lastChunkWasStreaming) return
-    setTimeout(() => {
-      chatContainer?.scrollTo(0, offsetTop ?? chatContainer.scrollHeight)
-    }, 50)
+  const autoScrollToBottom = (lastElement?: HTMLDivElement, offset = 0) => {
+    if (!chatContainer) return
+    if (!lastElement) {
+      setTimeout(() => {
+        chatContainer?.scrollTo(0, chatContainer.scrollHeight)
+      }, 50)
+      return
+    }
+    const lastElementRect = lastElement.getBoundingClientRect()
+    const containerRect = chatContainer.getBoundingClientRect()
+    const lastElementTopRelative =
+      lastElementRect.top - containerRect.top + chatContainer.scrollTop
+
+    const isLastElementInVisibleArea =
+      lastElementTopRelative < chatContainer.scrollTop + containerRect.height &&
+      lastElementTopRelative + lastElementRect.height > chatContainer.scrollTop
+
+    if (isLastElementInVisibleArea)
+      setTimeout(() => {
+        chatContainer?.scrollTo(0, lastElement.offsetTop - offset)
+      }, 50)
   }
 
   const handleAllBubblesDisplayed = async () => {
@@ -284,7 +305,7 @@ export const ConversationContainer = (props: Props) => {
   return (
     <div
       ref={chatContainer}
-      class="flex flex-col overflow-y-auto w-full min-h-full px-3 pt-10 relative scrollable-container typebot-chat-view scroll-smooth gap-2"
+      class="flex flex-col overflow-y-auto w-full px-3 pt-10 relative scrollable-container typebot-chat-view scroll-smooth gap-2"
     >
       <For each={chatChunks()}>
         {(chatChunk, index) => (
