@@ -348,6 +348,12 @@ const upstashRedis = {
   },
 }
 
+const wfEnv = {
+  server: {
+    WF_REQUEST_SERVER: z.string().min(1).optional(),
+  },
+}
+
 const sentryEnv = {
   client: {
     NEXT_PUBLIC_SENTRY_DSN: z.string().min(1).optional(),
@@ -422,6 +428,7 @@ export const env = createEnv({
     ...customOAuthEnv.server,
     ...sentryEnv.server,
     ...telemetryEnv.server,
+    ...wfEnv.server,
   },
   client: {
     ...baseEnv.client,
