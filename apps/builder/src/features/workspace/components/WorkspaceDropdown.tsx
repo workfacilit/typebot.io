@@ -36,6 +36,8 @@ export const WorkspaceDropdown = ({
 
   const workspaces = data?.workspaces ?? []
 
+  const activeLogoff = false
+
   return (
     <Menu placement="bottom-end">
       <MenuButton as={Button} variant="outline" px="2">
@@ -71,13 +73,17 @@ export const WorkspaceDropdown = ({
         <MenuItem onClick={onCreateNewWorkspaceClick} icon={<PlusIcon />}>
           {t('workspace.dropdown.newButton.label')}
         </MenuItem>
-        <MenuItem
-          onClick={onLogoutClick}
-          icon={<LogOutIcon />}
-          color="orange.500"
-        >
-          {t('workspace.dropdown.logoutButton.label')}
-        </MenuItem>
+        {activeLogoff && (
+          <>
+            <MenuItem
+              onClick={onLogoutClick}
+              icon={<LogOutIcon />}
+              color="orange.500"
+            >
+              {t('workspace.dropdown.logoutButton.label')}
+            </MenuItem>
+          </>
+        )}
       </MenuList>
     </Menu>
   )
