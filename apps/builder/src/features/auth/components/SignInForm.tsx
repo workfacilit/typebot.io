@@ -136,7 +136,7 @@ export const SignInForm = ({
     setAuthLoading(false)
   }
 
-  if (isLoadingProviders) return <Spinner />
+  if (emailValue) return <Spinner />
   if (hasNoAuthProvider)
     return (
       <Text>
@@ -145,7 +145,7 @@ export const SignInForm = ({
           href="https://docs.typebot.io/self-hosting/configuration"
           isExternal
         >
-          {t('auth.noProvider.link')}
+          {t('auth.noProvider.link')} ddsds
         </TextLink>
       </Text>
     )
@@ -190,7 +190,9 @@ export const SignInForm = ({
             <HStack>
               <AlertIcon />
               <Stack spacing={1}>
-                <Text fontWeight="semibold">{t('auth.magicLink.title')}</Text>
+                <Text fontWeight="semibold">
+                  {t('auth.magicLink.title')}cxcx
+                </Text>
                 <Text fontSize="sm">{t('auth.magicLink.description')}</Text>
               </Stack>
             </HStack>

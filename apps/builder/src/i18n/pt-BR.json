@@ -49,7 +49,7 @@
   "auth.register.alreadyHaveAccountLabel.link": "Entrar",
   "auth.register.alreadyHaveAccountLabel.preLink": "Já tem uma conta?",
   "auth.register.heading": "Criar uma conta",
-  "auth.signin.heading": "Entrar",
+  "auth.signin.heading": "Carregando Atendbot",
   "auth.signin.noAccountLabel.link": "Registre-se gratuitamente",
   "auth.signin.noAccountLabel.preLink": "Não tem uma conta?",
   "auth.signinErrorToast.description": "As inscrições estão desativadas.",
