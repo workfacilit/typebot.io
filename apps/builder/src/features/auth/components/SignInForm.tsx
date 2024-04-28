@@ -56,6 +56,19 @@ export const SignInForm = ({
     !isLoadingProviders && Object.keys(providers ?? {}).length === 0
 
   useEffect(() => {
+    const emailFromQuery = router.query.setEmail?.toString()
+    if (emailFromQuery) {
+      setEmailValue(emailFromQuery)
+    }
+  }, [router.isReady, router.query.setEmail])
+
+  useEffect(() => {
+    if (emailValue && router.query.setEmail) {
+      handleEmailSubmit(new Event('submit') as unknown as FormEvent) // Dispara o submit depois que emailValue é atualizado
+    }
+  }, [emailValue])
+
+  useEffect(() => {
     if (status === 'authenticated') {
       const redirectPath = router.query.redirectPath?.toString()
       router.replace(redirectPath ? sanitizeUrl(redirectPath) : '/typebots')
@@ -114,10 +127,10 @@ export const SignInForm = ({
       } else {
         setIsMagicLinkSent(true)
       }
-    } catch (e) {
+    } catch (error) {
       showToast({
         status: 'info',
-        description: 'An error occured while signing in',
+        description: 'An error occurred while signing in',
       })
     }
     setAuthLoading(false)
