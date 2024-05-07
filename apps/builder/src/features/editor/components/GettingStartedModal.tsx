@@ -10,12 +10,12 @@ import {
   List,
   ListItem,
   Text,
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
-  Box,
+  // Accordion,
+  // AccordionButton,
+  // AccordionIcon,
+  // AccordionItem,
+  // AccordionPanel,
+  // Box,
   HStack,
   Flex,
 } from '@chakra-ui/react'
@@ -121,7 +121,7 @@ export const GettingStartedModal = () => {
             </List>
           </Stack>
 
-          <Text>{t('editor.gettingStartedModal.editorBasics.list.label')}</Text>
+          {/* <Text>{t('editor.gettingStartedModal.editorBasics.list.label')}</Text>
           <Stack spacing={4}>
             <Heading fontSize="xl">
               {t('editor.gettingStartedModal.seeAction.label')} ({`<`}{' '}
@@ -166,7 +166,7 @@ export const GettingStartedModal = () => {
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
-          </Stack>
+          </Stack> */}
         </ModalBody>
       </ModalContent>
     </Modal>

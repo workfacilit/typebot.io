@@ -25,7 +25,7 @@ import { EditableTypebotName } from './EditableTypebotName'
 import Link from 'next/link'
 import { EditableEmojiOrImageIcon } from '@/components/EditableEmojiOrImageIcon'
 import { useDebouncedCallback } from 'use-debounce'
-import { ShareTypebotButton } from '@/features/share/components/ShareTypebotButton'
+// import { ShareTypebotButton } from '@/features/share/components/ShareTypebotButton'
 import { PublishButton } from '@/features/publish/components/PublishButton'
 import { headerHeight } from '../constants'
 import { RightPanel, useEditor } from '../providers/EditorProvider'
@@ -228,6 +228,8 @@ const LeftElements = ({
           onClick={onHelpClick}
           size="sm"
           iconSpacing={{ base: 0, xl: 2 }}
+          aria-label="Em Breve"
+          isDisabled={true}
         >
           <chakra.span display={{ base: 'none', xl: 'inline' }}>
             {t('editor.header.helpButton.label')}
@@ -274,9 +276,9 @@ const RightElements = ({
         typebotId={typebot?.id}
         isResultsDisplayed={isResultsDisplayed}
       />
-      <Flex pos="relative">
+      {/* <Flex pos="relative">
         <ShareTypebotButton isLoading={isNotDefined(typebot)} />
-      </Flex>
+      </Flex> */}
       {router.pathname.includes('/edit') && isNotDefined(rightPanel) && (
         <Button
           colorScheme="gray"
