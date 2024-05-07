@@ -192,7 +192,7 @@ export const WhatsAppModal = ({ isOpen, onClose }: ModalProps): JSX.Element => {
           <OrderedList spacing={4} pl="4">
             <ListItem>
               <HStack>
-                <Text>Select a phone number:</Text>
+                <Text>Selecione um número de telefone:</Text>
                 {workspace && (
                   <>
                     <WhatsAppCredentialsModal
@@ -208,7 +208,7 @@ export const WhatsAppModal = ({ isOpen, onClose }: ModalProps): JSX.Element => {
                       }
                       onCredentialsSelect={updateCredentialsId}
                       onCreateNewClick={onOpen}
-                      credentialsName="WA phone number"
+                      credentialsName="Numero do WA"
                       size="sm"
                     />
                   </>

@@ -1,6 +1,5 @@
 import { AlertInfo } from '@/components/AlertInfo'
 import { CodeEditor } from '@/components/inputs/CodeEditor'
-import { TextLink } from '@/components/TextLink'
 import {
   Modal,
   ModalOverlay,
@@ -29,7 +28,7 @@ export const ApiModal = ({
   const { typebot } = useTypebot()
 
   const replyBody = `{
-  "message": "This is my reply"
+  "message": "Esta é a minha resposta"
 }`
 
   return (
@@ -42,13 +41,14 @@ export const ApiModal = ({
         <ModalCloseButton />
         <ModalBody as={Stack} spacing="6">
           {!isPublished && (
-            <AlertInfo>You need to publish your bot first.</AlertInfo>
+            <AlertInfo>Você precisa publicar seu bot primeiro.</AlertInfo>
           )}
           <OrderedList spacing={4} pl="4">
             <ListItem>
               <Stack>
                 <Text>
-                  To start the chat, send a <Code>POST</Code> request to
+                  Para iniciar o chat, envie uma solicitação <Code>POST</Code>{' '}
+                  para
                 </Text>
                 <CodeEditor
                   isReadOnly
@@ -60,40 +60,31 @@ export const ApiModal = ({
               </Stack>
             </ListItem>
             <ListItem>
-              The first response will contain a <Code>sessionId</Code> that you
-              will need for subsequent requests.
+              A primeira resposta conterá um <Code>sessionId</Code> que você
+              precisará para solicitações subsequentes.
             </ListItem>
             <ListItem>
               <Stack>
                 <Text>
-                  To send replies, send <Code>POST</Code> requests to
+                  Para enviar respostas, envie solicitações <Code>POST</Code>{' '}
+                  para
                 </Text>
                 <CodeEditor
                   isReadOnly
                   lang={'shell'}
                   value={`${parseApiHost(
                     typebot?.customDomain
-                  )}/api/v1/sessions/<ID_FROM_FIRST_RESPONSE>/continueChat`}
+                  )}/api/v1/sessions/<ID_DA_PRIMEIRA_RESPOSTA>/continueChat`}
                 />
-                <Text>With the following JSON body:</Text>
+                <Text>Com o seguinte corpo JSON:</Text>
                 <CodeEditor isReadOnly lang={'json'} value={replyBody} />
                 <Text>
-                  Replace <Code>{'<ID_FROM_FIRST_RESPONSE>'}</Code> with{' '}
+                  Substitua <Code>{'<ID_DA_PRIMEIRA_RESPOSTA>'}</Code> pela{' '}
                   <Code>sessionId</Code>.
                 </Text>
               </Stack>
             </ListItem>
           </OrderedList>
-          <Text fontSize="sm" colorScheme="gray">
-            Check out the{' '}
-            <TextLink
-              href="https://docs.typebot.io/api-reference/chat/start-chat"
-              isExternal
-            >
-              API reference
-            </TextLink>{' '}
-            for more information
-          </Text>
         </ModalBody>
         <ModalFooter />
       </ModalContent>

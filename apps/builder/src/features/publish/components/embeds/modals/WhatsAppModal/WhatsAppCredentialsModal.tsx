@@ -45,9 +45,9 @@ import React, { useState } from 'react'
 import { createId } from '@paralleldrive/cuid2'
 
 const steps = [
-  { title: 'Requirements' },
-  { title: 'User Token' },
-  { title: 'Phone Number' },
+  { title: 'Requisitos' },
+  { title: 'Token do Usuário' },
+  { title: 'Numero' },
   { title: 'Webhook' },
 ]
 
@@ -241,7 +241,9 @@ export const WhatsAppCredentialsModal = ({
                 onClick={goToPrevious}
               />
             )}
-            <Heading size="md">Add a WhatsApp phone number</Heading>
+            <Heading size="md">
+              Adicione um número de telefone do WhatsApp
+            </Heading>
           </HStack>
         </ModalHeader>
         <ModalCloseButton />
@@ -308,14 +310,14 @@ export const WhatsAppCredentialsModal = ({
 const Requirements = () => (
   <Stack spacing={4}>
     <Text>
-      Make sure you have{' '}
+      Verifique se tem{' '}
       <TextLink
         href="https://docs.typebot.io/deploy/whatsapp/create-meta-app"
         isExternal
       >
-        created a WhatsApp Meta app
+        um aplicativo WhatsApp Meta
       </TextLink>
-      . You should be able to get to this page:
+      . Você deve acessar uma página como esta:
     </Text>
     <Image
       src="/images/whatsapp-quickstart-page.png"
@@ -334,7 +336,7 @@ const SystemUserToken = ({
 }) => (
   <OrderedList spacing={4}>
     <ListItem>
-      Go to your{' '}
+      Entre em{' '}
       <Button
         as={Link}
         href="https://business.facebook.com/settings/system-users"
@@ -342,21 +344,22 @@ const SystemUserToken = ({
         rightIcon={<ExternalLinkIcon />}
         size="sm"
       >
-        System users page
+        Página de usuários do sistema
       </Button>
     </ListItem>
     <ListItem>
-      Create a new user by clicking on <Code>Add</Code>
+      Crie um novo usuário clicando em <Code>Adicionar</Code>
     </ListItem>
     <ListItem>
-      Fill it with any name and give it the <Code>Admin</Code> role
+      Preencha-o com qualquer nome e atribua a ele a{' '}
+      <Code>função de administrador</Code>
     </ListItem>
     <ListItem>
       <Stack>
         <Text>
-          Click on <Code>Add assets</Code>. Under <Code>Apps</Code>, look for
-          your previously created app, select it and check{' '}
-          <Code>Manage app</Code>
+          Clique em <Code>Adicionar ativos</Code>. Em <Code>Aplicativos</Code>,
+          procure seu aplicativo criado anteriormente, selecione-o e verifique{' '}
+          <Code>Gerenciar aplicativo</Code>
         </Text>
         <Image
           src="/images/meta-system-user-assets.png"
@@ -368,24 +371,25 @@ const SystemUserToken = ({
     <ListItem>
       <Stack spacing={4}>
         <Text>
-          Now, click on <Code>Generate new token</Code>. Select your app.
+          Agora, clique em <Code>Gerar novo token</Code>. Selecione seu
+          aplicativo.
         </Text>
         <UnorderedList spacing={4}>
           <ListItem>
-            Token expiration: <Code>Never</Code>
+            Token expiração: <Code>Nunca</Code>
           </ListItem>
           <ListItem>
-            Available Permissions: <Code>whatsapp_business_messaging</Code>,{' '}
+            Permissões disponíveis: <Code>whatsapp_business_messaging</Code>,{' '}
             <Code>whatsapp_business_management</Code>{' '}
           </ListItem>
         </UnorderedList>
       </Stack>
     </ListItem>
-    <ListItem>Copy and paste the generated token:</ListItem>
+    <ListItem>Copie e cole o token gerado:</ListItem>
     <TextInput
       isRequired
       type="password"
-      label="System User Token"
+      label="Token de usuário do sistema"
       defaultValue={initialToken}
       onChange={(val) => setToken(val.trim())}
       withVariableButton={false}
@@ -407,7 +411,7 @@ const PhoneNumber = ({
     <ListItem>
       <HStack>
         <Text>
-          Go to your{' '}
+          Vá para sua{' '}
           <Button
             as={Link}
             href={`https://developers.facebook.com/apps/${appId}/whatsapp-business/wa-dev-console`}
@@ -421,15 +425,14 @@ const PhoneNumber = ({
       </HStack>
     </ListItem>
     <ListItem>
-      Add your phone number by clicking on the <Code>Add phone number</Code>{' '}
-      button.
+      Adicione seu número de telefone clicando no botão{' '}
+      <Code>Adicionar número de telefone</Code>
     </ListItem>
     <ListItem>
       <Stack>
         <Text>
-          Select a phone number and paste the associated{' '}
-          <Code>Phone number ID</Code> and{' '}
-          <Code>WhatsApp Business Account ID</Code>:
+          Selecione um número de telefone e cole o <Code>Phone number ID</Code>{' '}
+          e <Code>WhatsApp Business Account ID</Code>:
         </Text>
         <HStack>
           <TextInput
@@ -443,7 +446,7 @@ const PhoneNumber = ({
         </HStack>
         <Image
           src="/images/whatsapp-phone-selection.png"
-          alt="WA phone selection"
+          alt="Selecione o numero WA"
         />
       </Stack>
     </ListItem>
@@ -467,7 +470,7 @@ const Webhook = ({
   return (
     <Stack spacing={6}>
       <Text>
-        In your{' '}
+        Em{' '}
         <Button
           as={Link}
           href={`https://developers.facebook.com/apps/${appId}/whatsapp-business/wa-settings`}
@@ -475,9 +478,9 @@ const Webhook = ({
           isExternal
           size="sm"
         >
-          WhatsApp Settings page
+          Configurações do WhatsApp
         </Button>
-        , click on the Edit button and insert the following values:
+        , clique no botão Editar e insira os seguintes valores:
       </Text>
       <UnorderedList spacing={6}>
         <ListItem>
@@ -505,7 +508,7 @@ const Webhook = ({
         <ListItem>
           <HStack>
             <Text flexShrink={0}>
-              Webhook fields: check <Code>messages</Code>
+              Campos de webhook: verificar <Code>mensagens</Code>
             </Text>
           </HStack>
         </ListItem>
