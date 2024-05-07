@@ -122,7 +122,7 @@ export const GeneralSettings = ({
       <Accordion allowToggle>
         <AccordionItem>
           <AccordionButton justifyContent="space-between">
-            Progress Bar
+            Barra de Progresso
             <AccordionIcon />
           </AccordionButton>
           <AccordionPanel>

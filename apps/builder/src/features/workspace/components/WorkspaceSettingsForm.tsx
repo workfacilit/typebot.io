@@ -75,9 +75,7 @@ export const WorkspaceSettingsForm = ({ onClose }: { onClose: () => void }) => {
                 <CopyButton textToCopy={workspace.id} size="xs" />
               </InputRightElement>
             </InputGroup>
-            <FormHelperText>
-              Used when interacting with the Typebot API.
-            </FormHelperText>
+            <FormHelperText>Usado ao interagir com a API.</FormHelperText>
           </FormControl>
         </>
       )}

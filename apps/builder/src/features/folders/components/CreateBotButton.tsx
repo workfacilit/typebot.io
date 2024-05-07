@@ -25,12 +25,16 @@ export const CreateBotButton = ({
 
   return (
     <Button
-      style={{ width: '225px', height: '270px' }}
+      style={{
+        width: '225px',
+        height: '270px',
+        backgroundColor: 'rgb(227, 242, 253)',
+        color: 'rgb(17, 114, 209)',
+      }}
       onClick={handleClick}
       paddingX={6}
       whiteSpace={'normal'}
-      colorScheme="blue"
-      opacity={draggedTypebot ? 0.3 : 1}
+      opacity={draggedTypebot ? 0.6 : 5}
       {...props}
     >
       <VStack spacing="6">

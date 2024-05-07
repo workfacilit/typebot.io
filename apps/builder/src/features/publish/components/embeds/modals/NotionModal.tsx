@@ -37,7 +37,9 @@ export const NotionModal = ({
         <ModalCloseButton />
         <ModalBody>
           {!isPublished && (
-            <AlertInfo mb="4">You need to publish your bot first.</AlertInfo>
+            <AlertInfo mb="4">
+              Você precisa publicar seu bot primeiro.
+            </AlertInfo>
           )}
           <OrderedList spacing={4}>
             <ListItem>

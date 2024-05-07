@@ -32,7 +32,7 @@ export const IframeModal = ({ isPublished, isOpen, onClose }: ModalProps) => {
         <ModalCloseButton />
         <ModalBody as={Stack} spacing={4} pt="0">
           {!isPublished && (
-            <AlertInfo>You need to publish your bot first.</AlertInfo>
+            <AlertInfo>Você precisa publicar seu bot primeiro.</AlertInfo>
           )}
           <StandardSettings
             onUpdateWindowSettings={(settings) =>

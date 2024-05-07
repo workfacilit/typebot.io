@@ -48,7 +48,7 @@ export const BubbleSettings = ({
 
   return (
     <Stack spacing="4">
-      <Heading size="sm">Chat bubble settings</Heading>
+      <Heading size="sm">Configurações de balão de bate-papo</Heading>
       <Stack pl="4" spacing={4}>
         <PreviewMessageSettings
           defaultAvatar={defaultPreviewMessageAvatar}

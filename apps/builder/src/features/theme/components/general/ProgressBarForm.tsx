@@ -44,7 +44,7 @@ export const ProgressBarForm = ({
 
   return (
     <SwitchWithRelatedSettings
-      label={'Enable progress bar?'}
+      label={'Habilitar barra de progresso?'}
       initialValue={progressBar?.isEnabled ?? defaultProgressBarIsEnabled}
       onCheckChange={updateEnabled}
     >

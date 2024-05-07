@@ -124,7 +124,7 @@ export const HttpRequestAdvancedConfigForm = ({
   return (
     <>
       <SwitchWithRelatedSettings
-        label="Advanced configuration"
+        label="Configurações Avançadas"
         initialValue={
           options?.isAdvancedConfig ??
           defaultWebhookBlockOptions.isAdvancedConfig
@@ -220,7 +220,7 @@ export const HttpRequestAdvancedConfigForm = ({
           </AccordionItem>
           <AccordionItem>
             <AccordionButton justifyContent="space-between">
-              Variable values for test
+              Valores variáveis para teste
               <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pt="4">

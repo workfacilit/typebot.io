@@ -14,12 +14,12 @@ export const galleryTemplates: Pick<ThemeTemplate, 'id' | 'name' | 'theme'>[] =
   [
     {
       id: 'typebot-light',
-      name: 'Typebot Light',
+      name: 'Light',
       theme: {},
     },
     {
       id: 'typebot-dark',
-      name: 'Typebot Dark',
+      name: 'Dark',
       theme: {
         chat: {
           inputs: {

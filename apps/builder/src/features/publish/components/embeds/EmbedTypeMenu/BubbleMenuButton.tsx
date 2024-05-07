@@ -24,9 +24,9 @@ export const BubbleMenuButton = (props: Props) => {
       <BubbleIllustration />
       <Stack>
         <Text fontSize="lg" fontWeight="semibold">
-          Bubble
+          Balão
         </Text>
-        <Text textColor="gray.500">Embed in a chat bubble</Text>
+        <Text textColor="gray.500">Incorporar em um balão de bate-papo</Text>
       </Stack>
     </MotionStack>
   )
