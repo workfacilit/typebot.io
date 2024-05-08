@@ -39,7 +39,7 @@ export const IframeModal = ({ isPublished, isOpen, onClose }: ModalProps) => {
               setInputValues({ ...settings })
             }
           />
-          <Text>Paste this anywhere in your HTML code:</Text>
+          <Text>Cole isso em qualquer lugar do seu código HTML:</Text>
 
           <IframeSnippet
             widthLabel={inputValues.widthLabel ?? '100%'}

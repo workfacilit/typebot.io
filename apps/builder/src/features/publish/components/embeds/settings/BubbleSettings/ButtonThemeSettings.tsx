@@ -50,34 +50,34 @@ export const ButtonThemeSettings = ({ buttonTheme, onChange }: Props) => {
 
   return (
     <Stack spacing={4} borderWidth="1px" rounded="md" p="4">
-      <Heading size="sm">Button</Heading>
+      <Heading size="sm">Botão</Heading>
       <Stack spacing={4}>
         <HStack justify="space-between">
-          <Text>Size</Text>
+          <Text>Tamanho</Text>
           <Menu>
             <MenuButton as={Button} size="sm" rightIcon={<ChevronDownIcon />}>
               {buttonTheme?.size ?? 'medium'}
             </MenuButton>
             <MenuList>
-              <MenuItem onClick={() => updateSize('medium')}>medium</MenuItem>
-              <MenuItem onClick={() => updateSize('large')}>large</MenuItem>
+              <MenuItem onClick={() => updateSize('medium')}>Normal</MenuItem>
+              <MenuItem onClick={() => updateSize('large')}>Grande</MenuItem>
             </MenuList>
           </Menu>
         </HStack>
         <HStack justify="space-between">
-          <Text>Color</Text>
+          <Text>Cor</Text>
           <ColorPicker
             defaultValue={buttonTheme?.backgroundColor}
             onColorChange={updateBackgroundColor}
           />
         </HStack>
         <HStack justify="space-between">
-          <Text>Custom icon</Text>
+          <Text>Icone Personalizado</Text>
           <Popover isLazy>
             {({ onClose }) => (
               <>
                 <PopoverTrigger>
-                  <Button size="sm">Pick an image</Button>
+                  <Button size="sm">Escolha uma imagem</Button>
                 </PopoverTrigger>
                 <PopoverContent p="4" w="500px">
                   {workspace?.id && typebot?.id && (

@@ -49,11 +49,11 @@ export const StandardSettings = ({
 
   return (
     <Stack {...props} spacing={4}>
-      <Heading size="sm">Window settings</Heading>
+      <Heading size="sm">Configurações da janela</Heading>
 
       <Stack pl="4" spacing={4}>
         <SwitchWithLabel
-          label="Set to fullscreen?"
+          label="Definir para tela cheia?"
           initialValue={isFullscreenChecked}
           onCheckChange={() => setIsFullscreenChecked(!isFullscreenChecked)}
         />

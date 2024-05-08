@@ -46,7 +46,7 @@ export const PreviewMessageSettings = ({ defaultAvatar, onChange }: Props) => {
     setIsPreviewMessageEnabled(isChecked)
     const newPreviewMessage = {
       autoShowDelay: isAutoShowEnabled ? autoShowDelay : undefined,
-      message: previewMessage?.message ?? 'I have a question for you!',
+      message: previewMessage?.message ?? 'Eu tenho uma pergunta para você!',
       avatarUrl: previewMessage?.avatarUrl ?? defaultAvatar,
     }
     if (isChecked) setPreviewMessage(newPreviewMessage)
@@ -67,7 +67,7 @@ export const PreviewMessageSettings = ({ defaultAvatar, onChange }: Props) => {
     <Stack spacing={4}>
       <HStack justifyContent="space-between">
         <FormLabel htmlFor="preview" mb="0">
-          Preview message
+          Visualizar mensagem
         </FormLabel>
         <Switch
           id="preview"
@@ -82,11 +82,11 @@ export const PreviewMessageSettings = ({ defaultAvatar, onChange }: Props) => {
             <Input
               onChange={(e) => updateAvatarUrl(e.target.value)}
               value={previewMessage?.avatarUrl}
-              placeholder={'Paste image link (.png, .jpg)'}
+              placeholder={'Colar link da imagem (.png, .jpg)'}
             />
           </HStack>
           <HStack justify="space-between">
-            <Text>Message</Text>
+            <Text>Mensagem</Text>
             <Input
               onChange={(e) => updateMessage(e.target.value)}
               value={previewMessage?.message}
@@ -100,7 +100,7 @@ export const PreviewMessageSettings = ({ defaultAvatar, onChange }: Props) => {
             />
             {isAutoShowEnabled && (
               <>
-                <Text>After</Text>
+                <Text>Depois de</Text>
                 <NumberInput
                   size="sm"
                   w="70px"
@@ -110,7 +110,7 @@ export const PreviewMessageSettings = ({ defaultAvatar, onChange }: Props) => {
                   }
                   withVariableButton={false}
                 />
-                <Text>seconds</Text>
+                <Text>segundos</Text>
               </>
             )}
           </HStack>

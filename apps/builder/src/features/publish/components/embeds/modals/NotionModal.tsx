@@ -43,11 +43,11 @@ export const NotionModal = ({
           )}
           <OrderedList spacing={4}>
             <ListItem>
-              Type <Code>/embed</Code>
+              Ao adicionar o Tipo <Code>/embed</Code> na sua pagina
             </ListItem>
             <ListItem>
               <Stack>
-                <Text>Paste your typebot URL</Text>
+                <Text>Cole a URL do seu chatbot</Text>
                 <InputGroup size="sm">
                   <Input
                     type={'text'}
