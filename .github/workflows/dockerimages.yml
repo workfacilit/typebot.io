@@ -1,0 +1,14 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latests
+    steps:
+      - name: Get the version
+        uses: actions/checkout@v4.1.1
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:14})
