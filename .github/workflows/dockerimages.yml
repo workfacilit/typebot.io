@@ -1,9 +1,11 @@
-name: Docker Image CI
+name: Daily database cleanup
 
 on:
-  push:
-    branches:
-      - develop
+      push:
+        branches:
+          - develop
+
+          
 jobs:
   build:
     runs-on: ubuntu-latest
