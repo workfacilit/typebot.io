@@ -45,12 +45,37 @@ const templateSchema = z.object({
   }),
 })
 
-const interactiveSchema = z.object({
-  type: z.literal('button'),
-  header: headerSchema.optional(),
-  body: bodySchema.optional(),
-  action: actionSchema,
+const listSchema = z.object({
+  button: z.string().nullable().optional(), // Faz button ser opcional, pois não é usado na lista
+  sections: z.array(
+    z.object({
+      title: z.string(),
+      rows: z.array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          description: z.string(),
+        })
+      ),
+    })
+  ),
 })
+
+const interactiveSchema = z
+  .object({
+    type: z.literal('button'),
+    header: headerSchema.optional(),
+    body: bodySchema.optional(),
+    action: actionSchema,
+  })
+  .or(
+    z.object({
+      type: z.literal('list'),
+      header: headerSchema.optional(),
+      body: bodySchema.optional(),
+      action: listSchema,
+    })
+  )
 
 // https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages#message-object
 const sendingMessageSchema = z.discriminatedUnion('type', [
@@ -60,6 +85,7 @@ const sendingMessageSchema = z.discriminatedUnion('type', [
       body: z.string(),
       preview_url: z.boolean().optional(),
     }),
+    preview_url: z.boolean().optional(),
   }),
   z.object({
     type: z.literal('image'),
@@ -105,9 +131,15 @@ export const incomingMessageSchema = z.discriminatedUnion('type', [
     from: z.string(),
     type: z.literal('interactive'),
     interactive: z.object({
+      type: z.enum(['button_reply', 'list_reply']),
       button_reply: z.object({
         id: z.string(),
         title: z.string(),
+      }),
+      list_reply: z.object({
+        id: z.string(),
+        title: z.string(),
+        description: z.string(),
       }),
     }),
     timestamp: z.string(),

@@ -108,7 +108,7 @@ export const VariablesDrawer = ({ onClose }: Props) => {
 
       <Stack w="full" spacing="4">
         <CloseButton pos="absolute" right="1rem" top="1rem" onClick={onClose} />
-        <Heading fontSize="md">Variables</Heading>
+        <Heading fontSize="md">Variáveis</Heading>
         <HStack as="form" onSubmit={handleCreateSubmit}>
           <Input
             width="full"
@@ -206,8 +206,8 @@ const VariableItem = ({
             <PopoverContent>
               <PopoverBody>
                 <SwitchWithLabel
-                  label="Save in results?"
-                  moreInfoContent="Check this option if you want to save the variable value in the typebot Results table."
+                  label="Salvar nos resultados?"
+                  moreInfoContent="Marque esta opção se quiser salvar o valor da variável na tabela de resultados do typebot."
                   initialValue={!variable.isSessionVariable}
                   onCheckChange={() =>
                     onChange({
