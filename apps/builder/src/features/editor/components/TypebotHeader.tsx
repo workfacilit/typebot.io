@@ -14,6 +14,7 @@ import {
 import {
   BuoyIcon,
   ChevronLeftIcon,
+  CopyIcon,
   PlayIcon,
   RedoIcon,
   UndoIcon,
@@ -59,7 +60,7 @@ export const TypebotHeader = () => {
       justify="center"
       align="center"
       h={`${headerHeight}px`}
-      zIndex={100}
+      zIndex={1}
       pos="relative"
       bgColor={headerBgColor}
       flexShrink={0}
@@ -254,7 +255,7 @@ const RightElements = ({
 }: StackProps & { isResultsDisplayed: boolean }) => {
   const router = useRouter()
   const { t } = useTranslate()
-  const { typebot, currentUserMode, save } = useTypebot()
+  const { typebot, currentUserMode, save, isSavingLoading } = useTypebot()
   const {
     setRightPanel,
     rightPanel,
@@ -265,7 +266,7 @@ const RightElements = ({
   const handlePreviewClick = async () => {
     setStartPreviewAtGroup(undefined)
     setStartPreviewAtEvent(undefined)
-    save().then()
+    await save()
     setRightPanel(RightPanel.PREVIEW)
   }
 
@@ -279,18 +280,30 @@ const RightElements = ({
       {/* <Flex pos="relative">
         <ShareTypebotButton isLoading={isNotDefined(typebot)} />
       </Flex> */}
-      {router.pathname.includes('/edit') && isNotDefined(rightPanel) && (
+      {router.pathname.includes('/edit') &&
+        rightPanel !== RightPanel.PREVIEW && (
+          <Button
+            colorScheme="gray"
+            onClick={handlePreviewClick}
+            isLoading={isNotDefined(typebot) || isSavingLoading}
+            leftIcon={<PlayIcon />}
+            size="sm"
+            iconSpacing={{ base: 0, xl: 2 }}
+          >
+            <chakra.span display={{ base: 'none', xl: 'inline' }}>
+              {t('editor.header.previewButton.label')}
+            </chakra.span>
+          </Button>
+        )}
+      {currentUserMode === 'guest' && (
         <Button
-          colorScheme="gray"
-          onClick={handlePreviewClick}
+          as={Link}
+          href={`/typebots/${typebot?.id}/duplicate`}
+          leftIcon={<CopyIcon />}
           isLoading={isNotDefined(typebot)}
-          leftIcon={<PlayIcon />}
           size="sm"
-          iconSpacing={{ base: 0, xl: 2 }}
         >
-          <chakra.span display={{ base: 'none', xl: 'inline' }}>
-            {t('editor.header.previewButton.label')}
-          </chakra.span>
+          Duplicar
         </Button>
       )}
       {currentUserMode === 'write' && <PublishButton size="sm" />}

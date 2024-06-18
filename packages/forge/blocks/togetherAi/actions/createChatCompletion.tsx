@@ -26,6 +26,7 @@ export const createChatCompletion = createAction({
       blockId: 'anthropic',
       transform: (options) => ({
         ...options,
+        model: undefined,
         action: 'Create Chat Message',
         responseMapping: options.responseMapping?.map((res: any) =>
           res.item === 'Message content'
@@ -44,11 +45,12 @@ export const createChatCompletion = createAction({
       }),
     stream: {
       getStreamVariableId: getChatCompletionStreamVarId,
-      run: (params) =>
-        runChatCompletionStream({
+      run: async (params) => ({
+        stream: await runChatCompletionStream({
           ...params,
           config: { baseUrl: defaultTogetherOptions.baseUrl },
         }),
+      }),
     },
   },
 })

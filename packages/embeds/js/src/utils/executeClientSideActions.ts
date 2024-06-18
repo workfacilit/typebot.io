@@ -27,6 +27,7 @@ export const executeClientSideAction = async ({
 }: Props): Promise<
   | { blockedPopupUrl: string }
   | { replyToSend: string | undefined; logs?: ChatLog[] }
+  | { logs: ChatLog[] }
   | void
 > => {
   if ('chatwoot' in clientSideAction) {
@@ -54,17 +55,12 @@ export const executeClientSideAction = async ({
     'streamOpenAiChatCompletion' in clientSideAction ||
     'stream' in clientSideAction
   ) {
-    const runtime =
-      'streamOpenAiChatCompletion' in clientSideAction
-        ? clientSideAction.streamOpenAiChatCompletion.runtime
-        : clientSideAction.runtime
     const { error, message } = await streamChat(context)({
       messages:
         'streamOpenAiChatCompletion' in clientSideAction
           ? clientSideAction.streamOpenAiChatCompletion?.messages
           : undefined,
       onMessageStream,
-      runtime,
     })
     if (error)
       return {

@@ -34,6 +34,9 @@ import { saveClientLogsQuery } from '@/queries/saveClientLogsQuery'
 import { HTTPError } from 'ky'
 import { persist } from '@/utils/persist'
 
+const autoScrollBottomToleranceScreenPercent = 0.6
+const bottomSpacerHeight = 128
+
 const parseDynamicTheme = (
   initialTheme: Theme,
   dynamicTheme: ContinueChatResponse['dynamicTheme']
@@ -128,18 +131,18 @@ export const ConversationContainer = (props: Props) => {
     )
   })
 
-  const sendMessage = async (
-    message: string | undefined,
-    clientLogs?: ChatLog[]
-  ) => {
-    if (clientLogs) {
-      props.onNewLogs?.(clientLogs)
-      await saveClientLogsQuery({
-        apiHost: props.context.apiHost,
-        sessionId: props.initialChatReply.sessionId,
-        clientLogs,
-      })
-    }
+  const saveLogs = async (clientLogs?: ChatLog[]) => {
+    if (!clientLogs) return
+    props.onNewLogs?.(clientLogs)
+    if (props.context.isPreview) return
+    await saveClientLogsQuery({
+      apiHost: props.context.apiHost,
+      sessionId: props.initialChatReply.sessionId,
+      clientLogs,
+    })
+  }
+
+  const sendMessage = async (message: string | undefined) => {
     setHasError(false)
     const currentInputBlock = [...chatChunks()].pop()?.input
     if (currentInputBlock?.id && props.onAnswer && message)
@@ -226,25 +229,25 @@ export const ConversationContainer = (props: Props) => {
 
   const autoScrollToBottom = (lastElement?: HTMLDivElement, offset = 0) => {
     if (!chatContainer) return
-    if (!lastElement) {
+
+    const bottomTolerance =
+      chatContainer.clientHeight * autoScrollBottomToleranceScreenPercent -
+      bottomSpacerHeight
+
+    const isBottomOfLastElementInView =
+      chatContainer.scrollTop + chatContainer.clientHeight >=
+      chatContainer.scrollHeight - bottomTolerance
+
+    if (isBottomOfLastElementInView) {
       setTimeout(() => {
-        chatContainer?.scrollTo(0, chatContainer.scrollHeight)
+        chatContainer?.scrollTo(
+          0,
+          lastElement
+            ? lastElement.offsetTop - offset
+            : chatContainer.scrollHeight
+        )
       }, 50)
-      return
     }
-    const lastElementRect = lastElement.getBoundingClientRect()
-    const containerRect = chatContainer.getBoundingClientRect()
-    const lastElementTopRelative =
-      lastElementRect.top - containerRect.top + chatContainer.scrollTop
-
-    const isLastElementInVisibleArea =
-      lastElementTopRelative < chatContainer.scrollTop + containerRect.height &&
-      lastElementTopRelative + lastElementRect.height > chatContainer.scrollTop
-
-    if (isLastElementInVisibleArea)
-      setTimeout(() => {
-        chatContainer?.scrollTo(0, lastElement.offsetTop - offset)
-      }, 50)
   }
 
   const handleAllBubblesDisplayed = async () => {
@@ -285,9 +288,10 @@ export const ConversationContainer = (props: Props) => {
         },
         onMessageStream: streamMessage,
       })
+      if (response && 'logs' in response) saveLogs(response.logs)
       if (response && 'replyToSend' in response) {
         setIsSending(false)
-        sendMessage(response.replyToSend, response.logs)
+        sendMessage(response.replyToSend)
         return
       }
       if (response && 'blockedPopupUrl' in response)
@@ -351,6 +355,9 @@ export const ConversationContainer = (props: Props) => {
   )
 }
 
-const BottomSpacer = () => {
-  return <div class="w-full h-32 flex-shrink-0" />
-}
+const BottomSpacer = () => (
+  <div
+    class="w-full flex-shrink-0 typebot-bottom-spacer"
+    style={{ height: bottomSpacerHeight + 'px' }}
+  />
+)

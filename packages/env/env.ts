@@ -410,6 +410,15 @@ const tolgeeEnv = {
   },
 }
 
+const keycloakEnv = {
+  server: {
+    KEYCLOAK_CLIENT_ID: z.string().min(1).optional(),
+    KEYCLOAK_CLIENT_SECRET: z.string().min(1).optional(),
+    KEYCLOAK_REALM: z.string().min(1).optional(),
+    KEYCLOAK_BASE_URL: z.string().url().optional(),
+  },
+}
+
 export const env = createEnv({
   server: {
     ...baseEnv.server,
@@ -429,6 +438,7 @@ export const env = createEnv({
     ...sentryEnv.server,
     ...telemetryEnv.server,
     ...wfEnv.server,
+    ...keycloakEnv.server,
   },
   client: {
     ...baseEnv.client,

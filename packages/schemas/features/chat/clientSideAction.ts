@@ -21,6 +21,7 @@ export type StartPropsToInject = z.infer<typeof startPropsToInjectSchema>
 
 const scriptToExecuteSchema = z.object({
   content: z.string(),
+  isCode: z.boolean().optional(),
   args: z.array(
     z.object({
       id: z.string(),
@@ -110,7 +111,6 @@ export const clientSideActionSchema = z.discriminatedUnion('type', [
         messages: z.array(
           nativeMessageSchema.pick({ content: true, role: true })
         ),
-        runtime: z.enum(['edge', 'nodejs']),
       }),
     })
     .merge(clientSideActionBaseSchema)
@@ -152,7 +152,6 @@ export const clientSideActionSchema = z.discriminatedUnion('type', [
     .object({
       type: z.literal('stream'),
       stream: z.literal(true),
-      runtime: z.enum(['edge', 'nodejs']),
     })
     .merge(clientSideActionBaseSchema)
     .openapi({

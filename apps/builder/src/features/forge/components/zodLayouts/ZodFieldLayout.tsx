@@ -1,6 +1,7 @@
 import { NumberInput, TextInput, Textarea } from '@/components/inputs'
 import { z } from '@typebot.io/forge/zod'
 import { ZodLayoutMetadata } from '@typebot.io/forge/zod'
+import { evaluateIsHidden } from '@typebot.io/forge/zod/helpers/evaluateIsHidden'
 import Markdown, { Components } from 'react-markdown'
 import { ZodTypeAny } from 'zod'
 import { ForgeSelectInput } from '../ForgeSelectInput'
@@ -23,10 +24,11 @@ import {
   ForgedBlockDefinition,
   ForgedBlock,
 } from '@typebot.io/forge-repository/types'
-import { PrimitiveList } from '@/components/PrimitiveList'
 import { SwitchWithLabel } from '@/components/inputs/SwitchWithLabel'
 import { CodeEditor } from '@/components/inputs/CodeEditor'
 import { getZodInnerSchema } from '../../helpers/getZodInnerSchema'
+import { TagsInput } from '@/components/TagsInput'
+import { PrimitiveList } from '@/components/PrimitiveList'
 
 const mdComponents = {
   a: ({ href, children }) => (
@@ -64,7 +66,7 @@ export const ZodFieldLayout = ({
   const innerSchema = getZodInnerSchema(schema)
   const layout = innerSchema._def.layout
 
-  if (layout?.isHidden) return null
+  if (evaluateIsHidden(layout?.isHidden, blockOptions)) return null
 
   switch (innerSchema._def.typeName) {
     case 'ZodObject':
@@ -204,6 +206,7 @@ export const ZodFieldLayout = ({
             moreInfoTooltip={layout?.moreInfoTooltip}
             onChange={onDataChange}
             width={width}
+            withVariableButton={layout.withVariableButton ?? true}
           />
         )
       }
@@ -314,28 +317,43 @@ const ZodArrayContent = ({
   const type = schema._def.type._def.innerType?._def.typeName
   if (type === 'ZodString' || type === 'ZodNumber' || type === 'ZodEnum')
     return (
-      <Stack spacing={0}>
+      <Stack
+        spacing={0}
+        marginTop={layout?.mergeWithLastField ? '-3' : undefined}
+      >
         {layout?.label && <FormLabel>{layout.label}</FormLabel>}
-        <Stack p="4" rounded="md" flex="1" borderWidth="1px">
-          <PrimitiveList
-            onItemsChange={(items) => {
-              onDataChange(items)
-            }}
-            initialItems={data}
-            addLabel={`Add ${layout?.itemLabel ?? ''}`}
-          >
-            {({ item, onItemChange }) => (
-              <ZodFieldLayout
-                schema={schema._def.type}
-                data={item}
-                blockDef={blockDef}
-                blockOptions={blockOptions}
-                isInAccordion={isInAccordion}
-                onDataChange={onItemChange}
-                width="full"
-              />
-            )}
-          </PrimitiveList>
+        <Stack
+          p="4"
+          rounded="md"
+          flex="1"
+          borderWidth="1px"
+          borderTopWidth={layout?.mergeWithLastField ? '0' : undefined}
+          borderTopRadius={layout?.mergeWithLastField ? '0' : undefined}
+          pt={layout?.mergeWithLastField ? '5' : undefined}
+        >
+          {type === 'ZodString' ? (
+            <TagsInput items={data} onChange={onDataChange} />
+          ) : (
+            <PrimitiveList
+              onItemsChange={(items) => {
+                onDataChange(items)
+              }}
+              initialItems={data}
+              addLabel={`Add ${layout?.itemLabel ?? ''}`}
+            >
+              {({ item, onItemChange }) => (
+                <ZodFieldLayout
+                  schema={schema._def.type}
+                  data={item}
+                  blockDef={blockDef}
+                  blockOptions={blockOptions}
+                  isInAccordion={isInAccordion}
+                  onDataChange={onItemChange}
+                  width="full"
+                />
+              )}
+            </PrimitiveList>
+          )}
         </Stack>
       </Stack>
     )
