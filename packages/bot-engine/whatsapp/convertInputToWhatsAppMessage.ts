@@ -178,7 +178,7 @@ export const convertInputToWhatsAppMessages = (
                 text: lastMessageText ?? '...',
               },
               action: {
-                button: 'Selecionar uma Opção',
+                button: 'Selecione uma opção',
                 sections: [
                   {
                     title: 'Lista',
