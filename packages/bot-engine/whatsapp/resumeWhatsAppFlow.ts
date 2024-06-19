@@ -193,15 +193,12 @@ const getIncomingMessageContent = async ({
     }
     case 'document':
     case 'audio':
-      let audioId: string | undefined
-      if (message.type === 'audio') audioId = message.audio.id
-      if (!audioId) return
-      return { type: 'whatsapp media', audioId, workspaceId, accessToken }
     case 'video':
     case 'image':
       let mediaId: string | undefined
       if (message.type === 'video') mediaId = message.video.id
       if (message.type === 'image') mediaId = message.image.id
+      if (message.type === 'audio') mediaId = message.audio.id
       if (message.type === 'document') mediaId = message.document.id
       if (!mediaId) return
       return { type: 'whatsapp media', mediaId, workspaceId, accessToken }
