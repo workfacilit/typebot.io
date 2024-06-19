@@ -148,23 +148,6 @@ export const sendChatReplyToWhatsApp = async ({
     } catch (err) {
       Sentry.captureException(err, { extra: { message } })
       console.log('Failed to send message:', JSON.stringify(message, null, 2))
-      var dataRequest4 = {
-        tipo: 'sendChatReplyToWhatsApp@trySendWhatsAppMessage',
-        message
-      }
-      await fetch(
-        `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Atend-Token': 'WF',
-            Authorization:
-              'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
-          },
-          body: JSON.stringify(dataRequest4),
-        }
-      )
       if (err instanceof HTTPError)
         console.log('HTTPError', err.response.status, await err.response.text())
     }
@@ -196,23 +179,6 @@ export const sendChatReplyToWhatsApp = async ({
       } catch (err) {
         Sentry.captureException(err, { extra: { message } })
         console.log('Failed to send message:', JSON.stringify(message, null, 2))
-        var dataRequest5 = {
-          tipo: 'sendChatReplyToWhatsApp@trySendWhatsAppMessage',
-          message
-        }
-        await fetch(
-          `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Atend-Token': 'WF',
-              Authorization:
-                'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
-            },
-            body: JSON.stringify(dataRequest5),
-          }
-        )
         if (err instanceof HTTPError)
           console.log(
             'HTTPError',

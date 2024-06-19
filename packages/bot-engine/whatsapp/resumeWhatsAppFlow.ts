@@ -163,35 +163,21 @@ const getIncomingMessageContent = async ({
   workspaceId?: string
   accessToken: string
 }): Promise<Reply> => {
-  if (env.WF_REQUEST_SERVER) {
-    var dataRequest4 = {
-      tipo: 'resumeWhatsAppFlow@getIncomingMessageContent',
-      message,
-    }
-    await fetch(
-      `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Atend-Token': 'WF',
-          Authorization:
-            'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
-        },
-        body: JSON.stringify(dataRequest4),
-      }
-    )
-  }
-
   switch (message.type) {
     case 'text':
       return message.text.body
     case 'button':
       return message.button.text
     case 'interactive':
-      if (message.interactive.type === 'button_reply' && message.interactive.button_reply) {
+      if (
+        message.interactive.type === 'button_reply' &&
+        message.interactive.button_reply
+      ) {
         return message.interactive.button_reply.id
-      } else if (message.interactive.type === 'list_reply' && message.interactive.list_reply) {
+      } else if (
+        message.interactive.type === 'list_reply' &&
+        message.interactive.list_reply
+      ) {
         return message.interactive.list_reply.id
       }
       break
