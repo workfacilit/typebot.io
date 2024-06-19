@@ -185,26 +185,30 @@ const getIncomingMessageContent = async ({
 
   switch (message.type) {
     case 'text':
-      return message.text.body
+        return message.text.body;
     case 'button':
-      return message.button.text
-    case 'interactive': {
-      return message.interactive.button_reply.id
-    }
+        return message.button.text;
+    case 'interactive':
+        if (message.interactive.type === 'button_reply') {
+            return message.interactive.button_reply.id;
+        } else if (message.interactive.type === 'list_reply') {
+            return message.interactive.list_reply.id;
+        }
+        break;
     case 'document':
     case 'audio':
     case 'video':
     case 'image':
-      let mediaId: string | undefined
-      if (message.type === 'video') mediaId = message.video.id
-      if (message.type === 'image') mediaId = message.image.id
-      if (message.type === 'audio') mediaId = message.audio.id
-      if (message.type === 'document') mediaId = message.document.id
-      if (!mediaId) return
-      return { type: 'whatsapp media', mediaId, workspaceId, accessToken }
+        let mediaId: string | undefined;
+        if (message.type === 'video') mediaId = message.video.id;
+        if (message.type === 'image') mediaId = message.image.id;
+        if (message.type === 'audio') mediaId = message.audio.id;
+        if (message.type === 'document') mediaId = message.document.id;
+        if (!mediaId) return;
+        return { type: 'whatsapp media', mediaId, workspaceId, accessToken };
     case 'location':
-      return `${message.location.latitude}, ${message.location.longitude}`
-  }
+        return `${message.location.latitude}, ${message.location.longitude}`;
+}
 }
 
 const getCredentials = async ({

@@ -11,19 +11,21 @@ export const convertInputToWhatsAppMessages = (
   input: NonNullable<ContinueChatResponse['input']>,
   lastMessage: ContinueChatResponse['messages'][number] | undefined
 ): WhatsAppSendingMessage[] => {
-
   const isRichTextContent = (
-    content: { type: 'richText'; richText?: any } | { type: 'markdown'; markdown: string }
+    content:
+      | { type: 'richText'; richText?: any }
+      | { type: 'markdown'; markdown: string }
   ): content is { type: 'richText'; richText?: any } => {
-    return content.type === 'richText';
+    return content.type === 'richText'
   }
 
   const lastMessageText =
-    lastMessage?.type === BubbleBlockType.TEXT && isRichTextContent(lastMessage.content)
+    lastMessage?.type === BubbleBlockType.TEXT &&
+    isRichTextContent(lastMessage.content)
       ? convertRichTextToMarkdown(lastMessage.content.richText ?? [], {
           flavour: 'whatsapp',
         })
-      : undefined;
+      : undefined
 
   switch (input.type) {
     case InputBlockType.DATE:
@@ -121,7 +123,9 @@ export const convertInputToWhatsAppMessages = (
                     },
                   }
                 : undefined,
-              body: isEmpty(bodyText) ? undefined : { text: bodyText },
+              body: {
+                text: lastMessageText ?? '...',
+              },
               action: {
                 buttons: [
                   {
