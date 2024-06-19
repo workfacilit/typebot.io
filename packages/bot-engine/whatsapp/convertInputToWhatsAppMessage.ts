@@ -162,7 +162,7 @@ export const convertInputToWhatsAppMessages = (
                 type: 'reply',
                 reply: {
                   id: item.id,
-                  title: trimTextTo20Chars(item.content as string),
+                  title: dataProcessingContentTitleList(item.content as string),
                 },
               })),
             },
@@ -185,8 +185,12 @@ export const convertInputToWhatsAppMessages = (
                     rows: items.map((item) => {
                       return {
                         id: item.id,
-                        title: trimTextTo20Chars(item.content as string),
-                        description: ' ',
+                        title: dataProcessingContentTitleList(
+                          item.content as string
+                        ),
+                        description: dataProcessingContentDescriptionList(
+                          item.content as string
+                        ),
                       }
                     }),
                   },
@@ -212,3 +216,27 @@ const groupArrayByArraySize = <T>(arr: T[], n: number): T[][] =>
     }
     return r
   }, [])
+
+function dataProcessingContentTitleList(content: string): string {
+  const titleMatch = content.match(/\((.*?)\)/)
+  let title = titleMatch ? titleMatch[1] : content
+
+  if (!titleMatch) return content // Retorna a string original se não estiver no formato esperado
+  if (title.length > 20) {
+    title = title.substring(0, 18) + '..'
+  }
+
+  return title
+}
+
+function dataProcessingContentDescriptionList(content: string): string {
+  const descriptionMatch = content.match(/\[(.*?)\]/)
+  let description = descriptionMatch ? descriptionMatch[1] : ''
+
+  if (!descriptionMatch) return '' // Retorna string vazia se não estiver no formato esperado
+  if (description.length > 72) {
+    description = description.substring(0, 70) + '..'
+  }
+
+  return description
+}
