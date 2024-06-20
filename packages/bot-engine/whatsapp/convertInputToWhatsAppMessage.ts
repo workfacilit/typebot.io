@@ -218,16 +218,10 @@ const groupArrayByArraySize = <T>(arr: T[], n: number): T[][] =>
   }, [])
 
 function dataProcessingContentTitleList(content: string): string {
-  const titleMatch = content.match(/\((.*?)\)/)
+  const titleMatch = content.match(/^\((.*?)\)/)
   let title = titleMatch ? titleMatch[1] : content
 
-  if (!titleMatch) {
-    if (content.length > 20) {
-      return content.substring(0, 18) + '..'
-    } else {
-      return content
-    }
-  }
+  if (!titleMatch) return trimTextTo20Chars(content as string)
   if (title.length > 20) {
     title = title.substring(0, 18) + '..'
   }
