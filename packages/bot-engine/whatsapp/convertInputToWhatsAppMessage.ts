@@ -221,7 +221,13 @@ function dataProcessingContentTitleList(content: string): string {
   const titleMatch = content.match(/\((.*?)\)/)
   let title = titleMatch ? titleMatch[1] : content
 
-  if (!titleMatch) return content.substring(0, 18) + '..' // Retorna a string original se não estiver no formato esperado
+  if (!titleMatch) {
+    if (content.length > 20) {
+      return content.substring(0, 18) + '..'
+    } else {
+      return content
+    }
+  }
   if (title.length > 20) {
     title = title.substring(0, 18) + '..'
   }
@@ -233,7 +239,7 @@ function dataProcessingContentDescriptionList(content: string): string {
   const descriptionMatch = content.match(/\[(.*?)\]/)
   let description = descriptionMatch ? descriptionMatch[1] : ''
 
-  if (!descriptionMatch) return '' // Retorna string vazia se não estiver no formato esperado
+  if (!descriptionMatch) return ''
   if (description.length > 72) {
     description = description.substring(0, 70) + '..'
   }
