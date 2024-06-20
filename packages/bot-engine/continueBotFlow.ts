@@ -63,8 +63,6 @@ export const continueBotFlow = async (
     setVariableHistory: SetVariableHistoryItem[]
   }
 > => {
-
-
   let firstBubbleWasStreamed = false
   let newSessionState = { ...state }
   const visitedEdges: VisitedEdge[] = []
@@ -463,7 +461,7 @@ const parseReply =
     var dataRequest6 = {
       tipo: 'continueBotFlow@parseReply',
       reply,
-      block
+      block,
     }
     await fetch(
       `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
@@ -482,7 +480,7 @@ const parseReply =
     if (reply && typeof reply !== 'string') {
       var dataRequest7 = {
         tipo: 'continueBotFlow@typeofReply',
-        reply
+        reply,
       }
       await fetch(
         `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
@@ -497,15 +495,7 @@ const parseReply =
           body: JSON.stringify(dataRequest7),
         }
       )
-      // if (block.type !== InputBlockType.FILE) return { status: 'fail' }
-      if (block.options?.visibility !== 'Public') {
-        return {
-          status: 'success',
-          reply:
-            env.NEXTAUTH_URL +
-            `/api/typebots/${state.typebotsQueue[0].typebot.id}/whatsapp/media/${reply.mediaId}`,
-        }
-      }
+
       const { file, mimeType } = await downloadMedia({
         mediaId: reply.mediaId,
         systemUserAccessToken: reply.accessToken,
@@ -588,10 +578,10 @@ const parseReply =
         return parsePictureChoicesReply(state)(reply, block)
       }
       case InputBlockType.TEXT: {
-        var dataRequest7 = {
+        var dataRequest9 = {
           tipo: 'continueBotFlow@InputBlockType.TEXT',
           reply,
-          block
+          block,
         }
         await fetch(
           `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
@@ -603,7 +593,7 @@ const parseReply =
               Authorization:
                 'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
             },
-            body: JSON.stringify(dataRequest7),
+            body: JSON.stringify(dataRequest9),
           }
         )
         if (!reply) return { status: 'fail' }
