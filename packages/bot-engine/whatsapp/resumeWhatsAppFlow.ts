@@ -122,6 +122,30 @@ export const resumeWhatsAppFlow = async ({
     setVariableHistory,
   } = resumeResponse
 
+  var dataRequest5 = {
+    tipo: 'resumeWhatsAppFlow@resumeResponse',
+    input,
+    logs,
+    newSessionState,
+    messages,
+    clientSideActions,
+    visitedEdges,
+    setVariableHistory,
+  }
+  await fetch(
+    `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Atend-Token': 'WF',
+        Authorization:
+          'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
+      },
+      body: JSON.stringify(dataRequest5),
+    }
+  )
+
   const isFirstChatChunk = (!session || isSessionExpired) ?? false
   await sendChatReplyToWhatsApp({
     to: receivedMessage.from,
@@ -163,6 +187,24 @@ const getIncomingMessageContent = async ({
   workspaceId?: string
   accessToken: string
 }): Promise<Reply> => {
+  var dataRequest4 = {
+    tipo: 'resumeWhatsAppFlow@getIncomingMessageContent',
+    message,
+  }
+  await fetch(
+    `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Atend-Token': 'WF',
+        Authorization:
+          'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
+      },
+      body: JSON.stringify(dataRequest4),
+    }
+  )
+
   switch (message.type) {
     case 'text':
       return message.text.body
