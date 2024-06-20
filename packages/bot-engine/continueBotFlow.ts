@@ -458,44 +458,7 @@ const getOutgoingEdgeId =
 const parseReply =
   (state: SessionState) =>
   async (reply: Reply, block: InputBlock): Promise<ParsedReply> => {
-    var dataRequest6 = {
-      tipo: 'continueBotFlow@parseReply',
-      reply,
-      block,
-    }
-    await fetch(
-      `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Atend-Token': 'WF',
-          Authorization:
-            'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
-        },
-        body: JSON.stringify(dataRequest6),
-      }
-    )
-
     if (reply && typeof reply !== 'string') {
-      var dataRequest7 = {
-        tipo: 'continueBotFlow@typeofReply',
-        reply,
-      }
-      await fetch(
-        `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Atend-Token': 'WF',
-            Authorization:
-              'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
-          },
-          body: JSON.stringify(dataRequest7),
-        }
-      )
-
       const { file, mimeType } = await downloadMedia({
         mediaId: reply.mediaId,
         systemUserAccessToken: reply.accessToken,
@@ -578,24 +541,6 @@ const parseReply =
         return parsePictureChoicesReply(state)(reply, block)
       }
       case InputBlockType.TEXT: {
-        var dataRequest9 = {
-          tipo: 'continueBotFlow@InputBlockType.TEXT',
-          reply,
-          block,
-        }
-        await fetch(
-          `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Atend-Token': 'WF',
-              Authorization:
-                'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
-            },
-            body: JSON.stringify(dataRequest9),
-          }
-        )
         if (!reply) return { status: 'fail' }
         return { status: 'success', reply: reply }
       }
