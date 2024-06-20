@@ -221,7 +221,7 @@ function dataProcessingContentTitleList(content: string): string {
   const titleMatch = content.match(/\((.*?)\)/)
   let title = titleMatch ? titleMatch[1] : content
 
-  if (!titleMatch) return content // Retorna a string original se não estiver no formato esperado
+  if (!titleMatch) return content.substring(0, 18) + '..' // Retorna a string original se não estiver no formato esperado
   if (title.length > 20) {
     title = title.substring(0, 18) + '..'
   }
