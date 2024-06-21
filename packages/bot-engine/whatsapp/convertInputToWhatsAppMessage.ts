@@ -233,7 +233,7 @@ function dataProcessingContentDescriptionList(content: string): string {
   const descriptionMatch = content.match(/\[(.*?)\]/)
   let description = descriptionMatch ? descriptionMatch[1] : ''
 
-  if (!descriptionMatch) return ' '
+  if (!descriptionMatch) return '..'
   if (description.length > 72) {
     description = description.substring(0, 70) + '..'
   }
