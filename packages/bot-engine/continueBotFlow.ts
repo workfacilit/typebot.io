@@ -69,7 +69,7 @@ export const continueBotFlow = async (
 
   const setVariableHistory: SetVariableHistoryItem[] = []
 
-  console.log(textBubbleContentFormat)
+  //console.log(textBubbleContentFormat)
 
   //state.currentBlockId = 'or4k8xk06k4tzgv4qwb1vkyx'
   //console.log(typeof state.currentBlockId, state.currentBlockId)
@@ -78,11 +78,14 @@ export const continueBotFlow = async (
   //state.typebotsQueue[0].typebot.id = 'sss'
 
   let startFrom = undefined
-
   if (reply == '/sair') {
+    const group = state.typebotsQueue[0].typebot.groups.find(
+      (group) => group.title === '/sair'
+    )
+
     startFrom = {
       type: 'group',
-      groupId: 'h6ekw1dybndbqc5ku8b3lcy3',
+      groupId: group.id,
     }
   }
 
