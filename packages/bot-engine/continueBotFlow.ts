@@ -66,10 +66,28 @@ export const continueBotFlow = async (
   let firstBubbleWasStreamed = false
   let newSessionState = { ...state }
   const visitedEdges: VisitedEdge[] = []
+
   const setVariableHistory: SetVariableHistoryItem[] = []
 
-  if (!newSessionState.currentBlockId)
-    return startBotFlow({ state, version, textBubbleContentFormat })
+  console.log(textBubbleContentFormat)
+
+  //state.currentBlockId = 'or4k8xk06k4tzgv4qwb1vkyx'
+  //console.log(typeof state.currentBlockId, state.currentBlockId)
+
+  //state.currentBlockId = 'h6ekw1dybndbqc5ku8b3lcy3'
+  //state.typebotsQueue[0].typebot.id = 'sss'
+
+  let startFrom = undefined
+
+  if (reply == '/sair') {
+    startFrom = {
+      type: 'group',
+      groupId: 'h6ekw1dybndbqc5ku8b3lcy3',
+    }
+  }
+
+  if (!newSessionState.currentBlockId || startFrom != undefined)
+    return startBotFlow({ state, version, textBubbleContentFormat, startFrom })
 
   const { block, group, blockIndex } = getBlockById(
     newSessionState.currentBlockId,
