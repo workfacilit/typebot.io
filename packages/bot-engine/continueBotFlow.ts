@@ -77,20 +77,22 @@ export const continueBotFlow = async (
   //state.currentBlockId = 'h6ekw1dybndbqc5ku8b3lcy3'
   //state.typebotsQueue[0].typebot.id = 'sss'
 
-  let startFrom = undefined
-  if (reply == '/sair') {
+  if (reply === '/sair') {
     const group = state.typebotsQueue[0].typebot.groups.find(
-      (group) => group.title === '/sair'
+      (g) => g.title === '/sair'
     )
-
-    startFrom = {
-      type: 'group',
-      groupId: group.id,
+    if (group) {
+      return startBotFlow({
+        state,
+        version,
+        textBubbleContentFormat,
+        startFrom: { type: 'group', groupId: group.id },
+      })
     }
   }
 
-  if (!newSessionState.currentBlockId || startFrom != undefined)
-    return startBotFlow({ state, version, textBubbleContentFormat, startFrom })
+  if (!newSessionState.currentBlockId)
+    return startBotFlow({ state, version, textBubbleContentFormat })
 
   const { block, group, blockIndex } = getBlockById(
     newSessionState.currentBlockId,
