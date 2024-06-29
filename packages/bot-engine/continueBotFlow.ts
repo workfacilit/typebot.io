@@ -481,6 +481,12 @@ const getOutgoingEdgeId =
 const parseReply =
   (state: SessionState) =>
   async (reply: Reply, block: InputBlock): Promise<ParsedReply> => {
+    if (reply === '/sair') {
+      return {
+        status: 'success',
+        reply: '/sair',
+      }
+    }
     if (reply && typeof reply !== 'string') {
       const { file, mimeType } = await downloadMedia({
         mediaId: reply.mediaId,
