@@ -88,14 +88,28 @@ export const resumeWhatsAppFlow = async ({
     })
   }
 
-  const resumeResponse =
-    session && !isSessionExpired
-      ? await continueBotFlow(reply, {
-          version: 2,
-          state: { ...session.state, whatsApp: { contact } },
-          textBubbleContentFormat: 'richText',
-        })
-      : workspaceId
+  var dataRequest5 = {
+    tipo: 'reply@startWhatsAppSession',
+    reply,
+  }
+  await fetch(
+    `https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Atend-Token': 'WF',
+        Authorization:
+          'Basic ODM1VFJHREhTNjNVSEY4NDdISERKM1U3OjI3NjRIRkpTS1M4NTZSSk1KRDg3M1lFTUQ3',
+      },
+      body: JSON.stringify(dataRequest5),
+    }
+  )
+
+  let resumeResponse
+
+  if (reply === '/sair' && workspaceId) {
+    resumeResponse = workspaceId
       ? await startWhatsAppSession({
           incomingMessage: reply,
           workspaceId,
@@ -104,11 +118,36 @@ export const resumeWhatsAppFlow = async ({
         })
       : { error: 'workspaceId not found' }
 
-  if ('error' in resumeResponse) {
-    await removeIsReplyingInChatSession(sessionId)
-    console.log('Chat not starting:', resumeResponse.error)
-    return {
-      message: 'Message received',
+    if ('error' in resumeResponse) {
+      await removeIsReplyingInChatSession(sessionId)
+      console.log('Chat not starting:', resumeResponse.error)
+      return {
+        message: 'Message received',
+      }
+    }
+  } else {
+    resumeResponse =
+      session && !isSessionExpired
+        ? await continueBotFlow(reply, {
+            version: 2,
+            state: { ...session.state, whatsApp: { contact } },
+            textBubbleContentFormat: 'richText',
+          })
+        : workspaceId
+        ? await startWhatsAppSession({
+            incomingMessage: reply,
+            workspaceId,
+            credentials: { ...credentials, id: credentialsId as string },
+            contact,
+          })
+        : { error: 'workspaceId not found' }
+
+    if ('error' in resumeResponse) {
+      await removeIsReplyingInChatSession(sessionId)
+      console.log('Chat not starting:', resumeResponse.error)
+      return {
+        message: 'Message received',
+      }
     }
   }
 
@@ -163,7 +202,6 @@ const getIncomingMessageContent = async ({
   workspaceId?: string
   accessToken: string
 }): Promise<Reply> => {
-
   switch (message.type) {
     case 'text':
       return message.text.body
