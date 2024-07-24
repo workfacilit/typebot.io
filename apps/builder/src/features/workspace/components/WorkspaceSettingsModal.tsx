@@ -19,6 +19,7 @@ import { UserPreferencesForm } from '@/features/account/components/UserPreferenc
 import { MyAccountForm } from '@/features/account/components/MyAccountForm'
 import { BillingSettingsLayout } from '@/features/billing/components/BillingSettingsLayout'
 import { useTranslate } from '@tolgee/react'
+import { useParentModal } from '@/features/graph/providers/ParentModalProvider'
 
 type Props = {
   isOpen: boolean
@@ -40,6 +41,7 @@ export const WorkspaceSettingsModal = ({
   onClose,
 }: Props) => {
   const { t } = useTranslate()
+  const { ref } = useParentModal()
   const { currentRole } = useWorkspace()
   const [selectedTab, setSelectedTab] = useState<SettingsTab>('my-account')
 
@@ -48,7 +50,7 @@ export const WorkspaceSettingsModal = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="4xl">
       <ModalOverlay />
-      <ModalContent minH="600px" flexDir="row">
+      <ModalContent minH="600px" flexDir="row" ref={ref}>
         <Stack
           spacing={8}
           w="180px"

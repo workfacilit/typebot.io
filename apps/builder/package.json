@@ -56,7 +56,6 @@
     "@uiw/codemirror-theme-tokyo-night": "4.21.24",
     "@uiw/react-codemirror": "4.21.24",
     "@upstash/ratelimit": "0.4.3",
-    "@upstash/redis": "1.22.0",
     "@use-gesture/react": "10.2.27",
     "browser-image-compression": "2.0.2",
     "canvas-confetti": "1.6.0",
@@ -69,7 +68,8 @@
     "google-auth-library": "8.9.0",
     "google-spreadsheet": "4.1.1",
     "immer": "10.0.2",
-    "isolated-vm": "4.7.2",
+    "ioredis": "^5.4.1",
+    "isolated-vm": "5.0.1",
     "jsonwebtoken": "9.0.1",
     "ky": "1.2.4",
     "libphonenumber-js": "1.10.37",
@@ -131,6 +131,7 @@
     "next-runtime-env": "1.6.2",
     "superjson": "1.12.4",
     "typescript": "5.4.5",
-    "zod": "3.22.4"
+    "zod": "3.22.4",
+    "@typebot.io/variables": "workspace:*"
   }
 }

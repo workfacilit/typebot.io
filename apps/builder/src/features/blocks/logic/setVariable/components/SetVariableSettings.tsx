@@ -132,6 +132,14 @@ const SetVariableValue = ({
       isExecutedOnClient,
     })
 
+  const updateListVariableId = (variable?: Pick<Variable, 'id'>) => {
+    if (!options || (options.type !== 'Pop' && options.type !== 'Shift')) return
+    onOptionsChange({
+      ...options,
+      saveItemInVariableId: variable?.id,
+    })
+  }
+
   const updateItemVariableId = (variable?: Pick<Variable, 'id'>) => {
     if (!options || options.type !== 'Map item with same index') return
     onOptionsChange({
@@ -206,7 +214,7 @@ const SetVariableValue = ({
               }
               onSelect={updateIsCode}
             />
-            {options?.isCode === undefined || options.isCode ? (
+            {options?.isCode ? (
               <CodeEditor
                 defaultValue={options?.expressionToEvaluate ?? ''}
                 onChange={updateExpression}
@@ -221,6 +229,17 @@ const SetVariableValue = ({
             )}
           </Stack>
         </>
+      )
+    case 'Pop':
+    case 'Shift':
+      return (
+        <VariableSearchInput
+          initialVariableId={options.saveItemInVariableId}
+          onSelectVariable={updateListVariableId}
+          placeholder={
+            options.type === 'Shift' ? 'Shifted item' : 'Popped item'
+          }
+        />
       )
     case 'Map item with same index': {
       return (

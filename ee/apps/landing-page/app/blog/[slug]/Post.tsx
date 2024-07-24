@@ -64,7 +64,10 @@ export const Post = ({ metadata, mdxSource }: Props) => (
           link: (props: any) => <Link {...props} />,
           Image: (props) => (
             <Image
-              style={{ borderRadius: '.5rem', ...props.style }}
+              style={{
+                borderRadius: '.5rem',
+                ...props.style,
+              }}
               {...props}
             />
           ),

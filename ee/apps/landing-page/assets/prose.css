@@ -20,6 +20,16 @@
   margin-right: auto;
 }
 
+@media screen and (max-width: 768px) {
+  .prose > * {
+    max-width: 100%;
+  }
+}
+
 .prose > *:not(img) {
   width: 100%;
+}
+
+.prose > iframe {
+  border-radius: 0.5rem;
 }

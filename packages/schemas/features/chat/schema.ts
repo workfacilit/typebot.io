@@ -16,7 +16,6 @@ import {
 import { logSchema } from '../result'
 import { settingsSchema, themeSchema } from '../typebot'
 import {
-  textBubbleContentSchema,
   imageBubbleContentSchema,
   videoBubbleContentSchema,
   audioBubbleContentSchema,
@@ -29,6 +28,23 @@ import { typebotV5Schema, typebotV6Schema } from '../typebot/typebot'
 import { BubbleBlockType } from '../blocks/bubbles/constants'
 import { clientSideActionSchema } from './clientSideAction'
 import { ChatSession as ChatSessionFromPrisma } from '@typebot.io/prisma'
+
+export const messageSchema = z.preprocess(
+  (val) => (typeof val === 'string' ? { type: 'text', text: val } : val),
+  z.discriminatedUnion('type', [
+    z.object({
+      type: z.literal('text'),
+      text: z.string(),
+      attachedFileUrls: z
+        .array(z.string())
+        .optional()
+        .describe(
+          'Can only be provided if current input block is a text input block that allows attachments'
+        ),
+    }),
+  ])
+)
+export type Message = z.infer<typeof messageSchema>
 
 const chatSessionSchema = z.object({
   id: z.string(),
@@ -184,8 +200,7 @@ export const startChatInputSchema = z.object({
     .describe(
       "[Where to find my bot's public ID?](../how-to#how-to-find-my-publicid)"
     ),
-  message: z
-    .string()
+  message: messageSchema
     .optional()
     .describe(
       "Only provide it if your flow starts with an input block and you'd like to directly provide an answer to it."
@@ -243,7 +258,7 @@ export const startPreviewChatInputSchema = z.object({
       "[Where to find my bot's ID?](../how-to#how-to-find-my-typebotid)"
     ),
   isStreamEnabled: z.boolean().optional().default(false),
-  message: z.string().optional(),
+  message: messageSchema.optional(),
   isOnlyRegistering: z
     .boolean()
     .optional()
