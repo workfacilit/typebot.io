@@ -69,7 +69,7 @@ export const SetVariableSettings = ({ options, onOptionsChange }: Props) => {
     <Stack spacing={4}>
       <Stack>
         <FormLabel mb="0" htmlFor="variable-search">
-          Search or create variable:
+          Pesquise ou crie variável:
         </FormLabel>
         <VariableSearchInput
           onSelectVariable={updateVariableId}
@@ -81,7 +81,7 @@ export const SetVariableSettings = ({ options, onOptionsChange }: Props) => {
       <Stack spacing="4">
         <Stack>
           <Text mb="0" fontWeight="medium">
-            Value:
+            Valor:
           </Text>
           <Select
             selectedItem={options?.type ?? defaultSetVariableOptions.type}
@@ -195,8 +195,8 @@ const SetVariableValue = ({
       return (
         <>
           <SwitchWithLabel
-            label="Execute on client?"
-            moreInfoContent="Check this if you need access to client-only variables like `window` or `document`."
+            label="Executar no cliente?"
+            moreInfoContent="Marque isto se você precisar de acesso a variáveis ​​somente de cliente como `window` ou `document`."
             initialValue={
               options?.isExecutedOnClient ??
               defaultSetVariableOptions.isExecutedOnClient
