@@ -13,7 +13,7 @@ export const WithVariableContent = ({ variableId, ...props }: Props) => {
 
   return (
     <Text w="calc(100% - 25px)" {...props}>
-      Collect{' '}
+      Coletar{' '}
       <chakra.span
         bgColor="orange.400"
         color="white"
