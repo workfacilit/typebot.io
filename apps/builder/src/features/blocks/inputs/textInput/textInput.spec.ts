@@ -53,7 +53,7 @@ test.describe.parallel('Text input block', () => {
     await page.goto(`/typebots/${typebotId}/edit`)
 
     await page.click(`text=${defaultTextInputOptions.labels.placeholder}`)
-    await page.getByText('Allow attachments').click()
+    await page.getByText('Permitir anexos').click()
     await page.locator('[data-testid="variables-input"]').first().click()
     await page.getByText('var1').click()
     await page.getByRole('button', { name: 'Test' }).click()
