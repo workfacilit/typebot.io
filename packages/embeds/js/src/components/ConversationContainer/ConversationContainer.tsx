@@ -73,7 +73,7 @@ type Props = {
 
 export const ConversationContainer = (props: Props) => {
   let chatContainer: HTMLDivElement | undefined
-  const [chatChunks, setChatChunks, isRecovered] = persist(
+  const [chatChunks, setChatChunks, isRecovered, setIsRecovered] = persist(
     createSignal<ChatChunkType[]>([
       {
         input: props.initialChatReply.input,
@@ -146,6 +146,7 @@ export const ConversationContainer = (props: Props) => {
     message?: string,
     attachments?: Answer['attachments']
   ) => {
+    setIsRecovered(false)
     setHasError(false)
     const currentInputBlock = [...chatChunks()].pop()?.input
     if (currentInputBlock?.id && props.onAnswer && message)

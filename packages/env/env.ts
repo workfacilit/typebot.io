@@ -322,6 +322,17 @@ const unsplashEnv = {
   },
 }
 
+const pexelsEnv = {
+  client: {
+    NEXT_PUBLIC_PEXELS_API_KEY: z.string().min(1).optional(),
+  },
+  runtimeEnv: {
+    NEXT_PUBLIC_PEXELS_API_KEY: getRuntimeVariable(
+      'NEXT_PUBLIC_PEXELS_API_KEY'
+    ),
+  },
+}
+
 const whatsAppEnv = {
   server: {
     META_SYSTEM_USER_TOKEN: z.string().min(1).optional(),
@@ -448,6 +459,7 @@ export const env = createEnv({
     ...giphyEnv.client,
     ...vercelEnv.client,
     ...unsplashEnv.client,
+    ...pexelsEnv.client,
     ...sentryEnv.client,
     ...posthogEnv.client,
     ...tolgeeEnv.client,
@@ -460,6 +472,7 @@ export const env = createEnv({
     ...giphyEnv.runtimeEnv,
     ...vercelEnv.runtimeEnv,
     ...unsplashEnv.runtimeEnv,
+    ...pexelsEnv.runtimeEnv,
     ...sentryEnv.runtimeEnv,
     ...posthogEnv.runtimeEnv,
     ...tolgeeEnv.runtimeEnv,

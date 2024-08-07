@@ -1,4 +1,5 @@
 import {
+  AsyncVariableStore,
   LogsStore,
   VariableStore,
   createAction,
@@ -11,9 +12,9 @@ import { baseOptions } from '../baseOptions'
 import { executeFunction } from '@typebot.io/variables/executeFunction'
 import { readDataStream } from 'ai'
 import { deprecatedAskAssistantOptions } from '../deprecated'
-import { OpenAIAssistantStream } from '../helpers/OpenAIAssistantStream'
+import { AssistantStream } from '../helpers/AssistantStream'
 import { isModelCompatibleWithVision } from '../helpers/isModelCompatibleWithVision'
-import { splitUserTextMessageIntoBlocks } from '../helpers/splitUserTextMessageIntoBlocks'
+import { splitUserTextMessageIntoOpenAIBlocks } from '../helpers/splitUserTextMessageIntoOpenAIBlocks'
 
 export const askAssistant = createAction({
   auth,
@@ -237,7 +238,7 @@ const createAssistantStream = async ({
     variableId?: string | undefined
   }[]
   logs?: LogsStore
-  variables: VariableStore
+  variables: AsyncVariableStore | VariableStore
 }): Promise<ReadableStream | undefined> => {
   if (isEmpty(assistantId)) {
     logs?.add('Assistant ID is empty')
@@ -277,8 +278,9 @@ const createAssistantStream = async ({
       (mapping) => mapping.item === 'Thread ID'
     )
     if (threadIdResponseMapping?.variableId)
-      variables.set(threadIdResponseMapping.variableId, currentThreadId)
-    else if (threadVariableId) variables.set(threadVariableId, currentThreadId)
+      await variables.set(threadIdResponseMapping.variableId, currentThreadId)
+    else if (threadVariableId)
+      await variables.set(threadVariableId, currentThreadId)
   }
 
   if (!currentThreadId) {
@@ -294,19 +296,16 @@ const createAssistantStream = async ({
     {
       role: 'user',
       content: isModelCompatibleWithVision(assistant.model)
-        ? await splitUserTextMessageIntoBlocks(message)
+        ? await splitUserTextMessageIntoOpenAIBlocks(message)
         : message,
     }
   )
-  return OpenAIAssistantStream(
+  return AssistantStream(
     { threadId: currentThreadId, messageId: createdMessage.id },
     async ({ forwardStream }) => {
-      const runStream = openai.beta.threads.runs.createAndStream(
-        currentThreadId,
-        {
-          assistant_id: assistantId,
-        }
-      )
+      const runStream = openai.beta.threads.runs.stream(currentThreadId, {
+        assistant_id: assistantId,
+      })
 
       let runResult = await forwardStream(runStream)
 
@@ -334,9 +333,9 @@ const createAssistantStream = async ({
                   args: parameters,
                 })
 
-                newVariables?.forEach((variable) => {
-                  variables.set(variable.id, variable.value)
-                })
+                for (const variable of newVariables ?? []) {
+                  await variables.set(variable.id, variable.value)
+                }
 
                 return {
                   tool_call_id: toolCall.id,
