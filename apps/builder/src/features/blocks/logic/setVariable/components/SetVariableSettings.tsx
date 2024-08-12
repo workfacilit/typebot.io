@@ -101,7 +101,7 @@ export const SetVariableSettings = ({ options, onOptionsChange }: Props) => {
           <SwitchWithLabel
             key={selectedVariable.id}
             label="Salvar nos resultados?"
-            moreInfoContent="Por padrão, a variável é salva apenas para a sessão de chat do usuário. Marque esta opção se quiser também armazenar a variável na tabela de resultados do typebot."
+            moreInfoContent="Por padrão, a variável é salva apenas para a sessão de chat do usuário. Marque esta opção se quiser também armazenar a variável na tabela de resultados."
             initialValue={!selectedVariable.isSessionVariable}
             onCheckChange={updateIsSessionVariable}
           />
