@@ -20,6 +20,8 @@ import { downloadMedia } from './downloadMedia'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { uploadFileToBucket } from '@typebot.io/lib/s3/uploadFileToBucket'
 import { getBlockById } from '@typebot.io/schemas/helpers'
+import { sendLogRequest } from '../logWF'
+import { logMessage } from '../queries/saveMessageLog'
 
 const incomingMessageDebounce = 3000
 
@@ -121,6 +123,21 @@ export const resumeWhatsAppFlow = async ({
     block,
   })
 
+  const resultIdWA =
+    session?.state.typebotsQueue[0].resultId ?? receivedMessage.from
+
+  await sendLogRequest('getIncomingMessageContent@resumeWhatsAppFlow', reply)
+
+  if (workspaceId) {
+    await logMessage(
+      workspaceId,
+      resultIdWA,
+      'inbound',
+      reply?.text ?? reply?.attachedFileUrls,
+      receivedMessage.from
+    )
+  }
+
   let resumeResponse
 
   if (reply?.text === '/sair' && workspaceId) {
@@ -166,6 +183,8 @@ export const resumeWhatsAppFlow = async ({
     }
   }
 
+  await sendLogRequest('resumeResponse@resumeWhatsAppFlow', resumeResponse)
+
   const {
     input,
     logs,
@@ -186,6 +205,8 @@ export const resumeWhatsAppFlow = async ({
     clientSideActions,
     credentials,
     state: newSessionState,
+    workspaceId,
+    resultIdWA,
   })
 
   await saveStateToDatabase({
@@ -250,8 +271,7 @@ const getIncomingMessageContent = async ({
           ) {
             text += `\n\n${message.interactive.list_reply.id}`
           }
-        } 
-        else {
+        } else {
           if (
             message.interactive.type === 'button_reply' &&
             message.interactive.button_reply
@@ -263,7 +283,7 @@ const getIncomingMessageContent = async ({
           ) {
             text = message.interactive.list_reply.id
           }
-        } 
+        }
         break
       }
       case 'document':
@@ -276,49 +296,61 @@ const getIncomingMessageContent = async ({
         if (message.type === 'audio') mediaId = message.audio.id
         if (message.type === 'document') mediaId = message.document.id
         if (!mediaId) return
-        const fileVisibility =
-          block?.type === InputBlockType.FILE
-            ? block.options?.visibility
-            : block?.type === InputBlockType.TEXT
-            ? block.options?.attachments?.visibility
-            : undefined
-        let fileUrl
-        if (fileVisibility !== 'Public') {
-          fileUrl =
-            env.NEXTAUTH_URL +
-            `/api/typebots/${typebotId}/whatsapp/media/${
-              workspaceId ? `` : 'preview/'
-            }${mediaId}`
-        } else {
-          const { file, mimeType } = await downloadMedia({
-            mediaId,
-            systemUserAccessToken: accessToken,
-          })
-          const url = await uploadFileToBucket({
-            file,
-            key:
-              resultId && workspaceId && typebotId
-                ? `public/workspaces/${workspaceId}/typebots/${typebotId}/results/${resultId}/${mediaId}`
-                : `tmp/whatsapp/media/${mediaId}`,
-            mimeType,
-          })
-          fileUrl = url
+
+        try {
+          const fileVisibility =
+            block?.type === InputBlockType.FILE
+              ? block.options?.visibility
+              : block?.type === InputBlockType.TEXT
+              ? block.options?.attachments?.visibility
+              : undefined
+          let fileUrl
+          if (fileVisibility !== 'Public') {
+            fileUrl =
+              env.NEXTAUTH_URL +
+              `/api/typebots/${typebotId}/whatsapp/media/${
+                workspaceId ? `` : 'preview/'
+              }${mediaId}`
+          } else {
+            const { file, mimeType } = await downloadMedia({
+              mediaId,
+              systemUserAccessToken: accessToken,
+            })
+            const url = await uploadFileToBucket({
+              file,
+              key:
+                resultId && workspaceId && typebotId
+                  ? `public/workspaces/${workspaceId}/typebots/${typebotId}/results/${resultId}/${mediaId}`
+                  : `tmp/whatsapp/media/${mediaId}`,
+              mimeType,
+            })
+            fileUrl = url
+          }
+          if (block?.type === InputBlockType.FILE) {
+            if (text !== '') text += `, ${fileUrl}`
+            else text = fileUrl
+          } else if (block?.type === InputBlockType.TEXT) {
+            let caption: string | undefined
+            if (message.type === 'document' && message.document.caption) {
+              if (!/^[\w,\s-]+\.[A-Za-z]{3}$/.test(message.document.caption))
+                caption = message.document.caption
+            } else if (message.type === 'image' && message.image.caption)
+              caption = message.image.caption
+            else if (message.type === 'video' && message.video.caption)
+              caption = message.video.caption
+            if (caption) text = text === '' ? caption : `${text}\n\n${caption}`
+            attachedFileUrls.push(fileUrl)
+          }
+
+          await sendLogRequest(
+            'mediaId@sendChatReplyToWhatsApp',
+            attachedFileUrls
+          )
+        } catch (error) {
+          await sendLogRequest('errorMediaId@sendChatReplyToWhatsApp', error)
+          text = ''
         }
-        if (block?.type === InputBlockType.FILE) {
-          if (text !== '') text += `, ${fileUrl}`
-          else text = fileUrl
-        } else if (block?.type === InputBlockType.TEXT) {
-          let caption: string | undefined
-          if (message.type === 'document' && message.document.caption) {
-            if (!/^[\w,\s-]+\.[A-Za-z]{3}$/.test(message.document.caption))
-              caption = message.document.caption
-          } else if (message.type === 'image' && message.image.caption)
-            caption = message.image.caption
-          else if (message.type === 'video' && message.video.caption)
-            caption = message.video.caption
-          if (caption) text = text === '' ? caption : `${text}\n\n${caption}`
-          attachedFileUrls.push(fileUrl)
-        }
+
         break
       }
       case 'location': {
