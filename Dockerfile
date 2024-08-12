@@ -11,7 +11,7 @@ RUN apt-get -qy update \
 RUN npm --global install pnpm@9.5.0
 
 FROM base AS pruner
-RUN npm --global install turbo@2.0.5
+RUN npm --global install turbo@1.11.3
 WORKDIR /app
 COPY . .
 RUN turbo prune ${SCOPE} --docker
@@ -27,7 +27,7 @@ RUN pnpm install
 COPY --from=pruner /app/out/full/ .
 COPY turbo.json turbo.json
 
-RUN SKIP_ENV_CHECK=true pnpm turbo run build --filter=${SCOPE}...
+RUN export NODE_OPTIONS="--max-old-space-size=4096" && SKIP_ENV_CHECK=true pnpm turbo run build --filter=${SCOPE}
 
 FROM base AS runner
 WORKDIR /app
