@@ -98,6 +98,7 @@ model Workspace {
   isPastDue                     Boolean               @default(false)
   isVerified                    Boolean?
   themeTemplates                ThemeTemplate[]
+  messageLogs                   MessageLog[]
 }
 
 model MemberInWorkspace {
@@ -250,6 +251,7 @@ model Result {
   logs               Log[]
   edges              VisitedEdge[]
   setVariableHistory SetVariableHistoryItem[]
+  messageLogs        MessageLog[]
 
   @@index([typebotId, hasStarted, createdAt(sort: Desc)])
   @@index([typebotId, isCompleted])
@@ -377,6 +379,18 @@ model BannedIp {
   userId               String
 }
 
+model MessageLog {
+  id          Int       @id @default(autoincrement())
+  timestamp   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+  result      Result    @relation(fields: [resultId], references: [id])
+  resultId    String
+  identifier  String?
+  direction   Direction
+  message     String?
+}
+
 enum WorkspaceRole {
   ADMIN
   MEMBER
@@ -402,4 +416,9 @@ enum CollaborationType {
   READ
   WRITE
   FULL_ACCESS
+}
+
+enum Direction {
+  inbound
+  outbound
 }
