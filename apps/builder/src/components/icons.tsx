@@ -703,3 +703,15 @@ export const WalletIcon = (props: IconProps) => (
     <path d="M3 11h3c.8 0 1.6.3 2.1.9l1.1.9c1.6 1.6 4.1 1.6 5.7 0l1.1-.9c.5-.5 1.3-.9 2.1-.9H21" />
   </Icon>
 )
+
+export const SendMessage = (props: IconProps) => (
+  <Icon viewBox="0 0 24 24" {...featherIconsBaseProps} {...props}>
+    <path fill="currentColor" d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
+  </Icon>
+)
+
+export const ReceiveMessage = (props: IconProps) => (
+  <Icon viewBox="0 0 24 24" {...featherIconsBaseProps} {...props}>
+    <path fill="currentColor" d="M22,21L1,12L22,3V10L7,12L22,14V21Z" />
+  </Icon>
+)

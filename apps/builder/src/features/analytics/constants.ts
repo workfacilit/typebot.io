@@ -12,13 +12,13 @@ export const timeFilterLabels: Record<
   (typeof timeFilterValues)[number],
   string
 > = {
-  today: 'Today',
-  last7Days: 'Last 7 days',
-  last30Days: 'Last 30 days',
-  monthToDate: 'Month to date',
-  lastMonth: 'Last month',
-  yearToDate: 'Year to date',
-  allTime: 'All time',
+  today: 'Hoje',
+  last7Days: 'Últimos 7 dias',
+  last30Days: 'Últimos 30 dias',
+  monthToDate: 'Do mês até hoje',
+  lastMonth: 'Mês passado',
+  yearToDate: 'Do ano até hoje',
+  allTime: 'Todos',
 }
 
 export const defaultTimeFilter = 'last7Days' as const

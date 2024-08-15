@@ -35,7 +35,7 @@ export const StatsCards = ({
 
   return (
     <SimpleGrid
-      columns={{ base: 1, md: 4 }}
+      columns={{ base: 1, md: 5 }}
       spacing="6"
       alignItems="center"
       {...props}
@@ -65,6 +65,20 @@ export const StatsCards = ({
               stats.totalStarts
             )}
           </StatNumber>
+        ) : (
+          <Skeleton w="50%" h="10px" mt="2" />
+        )}
+      </Stat>
+      <Stat bgColor={bg} p="4" rounded="md" boxShadow="md">
+        <StatLabel>Mensagens Enviadas</StatLabel>
+        {stats ? (
+          <StatNumber>{stats.totalOutbound}</StatNumber>
+        ) : (
+          <Skeleton w="50%" h="10px" mt="2" />
+        )}
+        <StatLabel>Mensagens Recebidas</StatLabel>
+        {stats ? (
+          <StatNumber>{stats.totalInbound}</StatNumber>
         ) : (
           <Skeleton w="50%" h="10px" mt="2" />
         )}
