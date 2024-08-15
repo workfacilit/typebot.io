@@ -10,7 +10,9 @@ import {
 import {
   HardDriveIcon,
   SettingsIcon,
-  // UsersIcon
+  // UsersIcon,
+  InfoIcon,
+  GlobeIcon,
 } from '@/components/icons'
 import { EmojiOrImageIcon } from '@/components/EmojiOrImageIcon'
 import { User, WorkspaceRole } from '@typebot.io/prisma'
@@ -101,23 +103,24 @@ export const WorkspaceSettingsModal = ({
               <Button
                 variant={selectedTab === 'my-account' ? 'solid' : 'ghost'}
                 onClick={() => setSelectedTab('my-account')}
-                leftIcon={<SettingsIcon />}
+                leftIcon={<GlobeIcon />}
                 size="sm"
                 justifyContent="flex-start"
                 pl="4"
               >
                 {t('workspace.settings.modal.menu.myAccount.label')}
               </Button>
-              {/* <Button
-                variant={selectedTab === 'members' ? 'solid' : 'ghost'}
-                onClick={() => setSelectedTab('members')}
-                leftIcon={<UsersIcon />}
+              <Button
+                variant={selectedTab === 'billing' ? 'solid' : 'ghost'}
+                onClick={() => setSelectedTab('billing')}
+                leftIcon={<InfoIcon />}
                 size="sm"
                 justifyContent="flex-start"
                 pl="4"
               >
-                {t('workspace.settings.modal.menu.members.label')}
-              </Button> */}
+                {/* {t('workspace.settings.modal.menu.members.label')} */}
+                Monitorar Uso
+              </Button>
             </Stack>
           </Stack>
 

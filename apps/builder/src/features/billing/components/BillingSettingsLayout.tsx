@@ -1,9 +1,7 @@
-import { Stack } from '@chakra-ui/react'
+import { Stack, Heading, Text } from '@chakra-ui/react'
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider'
 import React from 'react'
-import { InvoicesList } from './InvoicesList'
 import { ChangePlanForm } from './ChangePlanForm'
-import { UsageProgressBars } from './UsageProgressBars'
 import { CurrentSubscriptionSummary } from './CurrentSubscriptionSummary'
 
 export const BillingSettingsLayout = () => {
@@ -12,13 +10,15 @@ export const BillingSettingsLayout = () => {
   if (!workspace) return null
   return (
     <Stack spacing="10" w="full">
-      <UsageProgressBars workspace={workspace} />
+      <Heading fontSize="2xl">Uso de Mensagens</Heading>
+      <Text>
+        Veja o número de mensagens enviadas e recebidas em todos os fluxos deste
+        workspace.
+      </Text>
       <Stack spacing="4">
         <CurrentSubscriptionSummary workspace={workspace} />
         <ChangePlanForm workspace={workspace} currentRole={currentRole} />
       </Stack>
-
-      {workspace.stripeId && <InvoicesList workspaceId={workspace.id} />}
     </Stack>
   )
 }
