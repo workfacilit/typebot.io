@@ -193,6 +193,7 @@ model Typebot {
   whatsAppCredentialsId   String?
   riskLevel               Int?
   bannedIps               BannedIp[]
+  messageLogs             MessageLog[]
 
   @@index([workspaceId])
   @@index([isArchived, createdAt(sort: Desc)])
@@ -251,7 +252,6 @@ model Result {
   logs               Log[]
   edges              VisitedEdge[]
   setVariableHistory SetVariableHistoryItem[]
-  messageLogs        MessageLog[]
 
   @@index([typebotId, hasStarted, createdAt(sort: Desc)])
   @@index([typebotId, isCompleted])
@@ -384,11 +384,13 @@ model MessageLog {
   timestamp   DateTime  @default(now())
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId String
-  result      Result    @relation(fields: [resultId], references: [id])
-  resultId    String
+  resultId    String?
+  typebot     Typebot   @relation(fields: [typebotId], references: [id])
+  typebotId   String
   identifier  String?
   direction   Direction
   message     String?
+  channel     String?
 }
 
 enum WorkspaceRole {

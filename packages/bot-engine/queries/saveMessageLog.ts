@@ -2,17 +2,21 @@ import prisma from '@typebot.io/lib/prisma'
 
 export const logMessage = async (
   workspaceId: string,
-  resultId: string,
+  typebotId: string,
   direction: 'inbound' | 'outbound',
+  resultId?: string,
   message?: any,
-  identifier?: string
+  identifier?: string,
+  channel?: string
 ) =>
   await prisma.messageLog.create({
     data: {
       workspaceId,
-      resultId,
+      typebotId,
       direction,
+      ...(resultId && { resultId }),
       message,
       identifier,
+      channel,
     },
   })
