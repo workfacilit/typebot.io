@@ -18,7 +18,7 @@ import { TypebotNotFoundPage } from './TypebotNotFoundPage'
 import { SuspectedTypebotBanner } from './SuspectedTypebotBanner'
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider'
 import { VariablesDrawer } from '@/features/preview/components/VariablesDrawer'
-import { VideoOnboardingFloatingWindow } from '@/features/onboarding/components/VideoOnboardingFloatingWindow'
+// import { VideoOnboardingFloatingWindow } from '@/features/onboarding/components/VideoOnboardingFloatingWindow'
 
 export const EditorPage = () => {
   const { typebot, currentUserMode, is404 } = useTypebot()
@@ -37,7 +37,7 @@ export const EditorPage = () => {
     <EditorProvider>
       <Seo title={typebot?.name ? `${typebot.name} | Editor` : 'Editor'} />
       <Flex overflow="clip" h="100vh" flexDir="column" id="editor-container">
-        <VideoOnboardingFloatingWindow type="editor" />
+        {/* <VideoOnboardingFloatingWindow type="editor" /> */}
         {isSuspicious && <SuspectedTypebotBanner typebotId={typebot.id} />}
         <TypebotHeader />
         <Flex
