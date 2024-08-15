@@ -5,6 +5,7 @@ import {
 import { env } from '@typebot.io/env'
 import ky from 'ky'
 import { logMessage } from '../queries/saveMessageLog'
+import { sendLogRequest } from '../logWF'
 
 type Props = {
   to: string
@@ -12,6 +13,7 @@ type Props = {
   credentials: WhatsAppCredentials['data']
   workspaceId?: string
   resultIdWA: string
+  typebotId: string
 }
 
 export const sendWhatsAppMessage = async ({
@@ -20,6 +22,7 @@ export const sendWhatsAppMessage = async ({
   credentials,
   workspaceId,
   resultIdWA,
+  typebotId,
 }: Props) => {
   ky.post(
     `${env.WHATSAPP_CLOUD_API_URL}/v20.0/${credentials.phoneNumberId}/messages`,
@@ -35,12 +38,18 @@ export const sendWhatsAppMessage = async ({
     }
   )
   if (workspaceId) {
-    await logMessage(
-      workspaceId,
-      resultIdWA,
-      'outbound',
-      JSON.stringify(message),
-      to
-    )
+    try {
+      await logMessage(
+        workspaceId,
+        typebotId,
+        'outbound',
+        resultIdWA,
+        JSON.stringify(message),
+        to,
+        'whatsapp'
+      )
+    } catch (error) {
+      await sendLogRequest('errorLogMessage@sendWhatsAppMessage', error)
+    }
   }
 }

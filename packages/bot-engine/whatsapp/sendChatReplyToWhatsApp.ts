@@ -18,7 +18,6 @@ import { continueBotFlow } from '../continueBotFlow'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { defaultSettings } from '@typebot.io/schemas/features/typebot/settings/constants'
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
-import { sendLogRequest } from '../logWF'
 
 // Media can take some time to be delivered. This make sure we don't send a message before the media is delivered.
 const messageAfterMediaTimeout = 5000
@@ -31,6 +30,7 @@ type Props = {
   state: SessionState
   workspaceId?: string
   resultIdWA: string
+  typebotId: string
 } & Pick<ContinueChatResponse, 'messages' | 'input' | 'clientSideActions'>
 
 export const sendChatReplyToWhatsApp = async ({
@@ -44,6 +44,7 @@ export const sendChatReplyToWhatsApp = async ({
   state,
   workspaceId,
   resultIdWA,
+  typebotId,
 }: Props): Promise<void> => {
   const messagesBeforeInput = isLastMessageIncludedInInput(
     input,
@@ -63,6 +64,7 @@ export const sendChatReplyToWhatsApp = async ({
     const result = await executeClientSideAction(
       { to, credentials },
       resultIdWA,
+      typebotId,
       workspaceId
     )(action)
     if (!result) continue
@@ -88,6 +90,7 @@ export const sendChatReplyToWhatsApp = async ({
       credentials,
       state: newSessionState,
       resultIdWA,
+      typebotId,
     })
   }
 
@@ -108,11 +111,6 @@ export const sendChatReplyToWhatsApp = async ({
       )
     }
     const whatsAppMessage = convertMessageToWhatsAppMessage(message)
-
-    await sendLogRequest(
-      'whatsAppMessage@sendChatReplyToWhatsApp',
-      whatsAppMessage
-    )
 
     if (isNotDefined(whatsAppMessage)) continue
     const lastSentMessageIsMedia = ['audio', 'video', 'image'].includes(
@@ -139,6 +137,7 @@ export const sendChatReplyToWhatsApp = async ({
         credentials,
         workspaceId,
         resultIdWA,
+        typebotId,
       })
 
       sentMessages.push(whatsAppMessage)
@@ -150,6 +149,7 @@ export const sendChatReplyToWhatsApp = async ({
         const result = await executeClientSideAction(
           { to, credentials },
           resultIdWA,
+          typebotId,
           workspaceId
         )(action)
         if (!result) continue
@@ -175,6 +175,7 @@ export const sendChatReplyToWhatsApp = async ({
           credentials,
           state: newSessionState,
           resultIdWA,
+          typebotId,
         })
       }
     } catch (err) {
@@ -191,11 +192,6 @@ export const sendChatReplyToWhatsApp = async ({
       messages.at(-1)
     )
     for (const message of inputWhatsAppMessages) {
-      await sendLogRequest(
-        'inputWhatsAppMessages@sendChatReplyToWhatsApp',
-        message
-      )
-
       try {
         const lastSentMessageIsMedia = ['audio', 'video', 'image'].includes(
           sentMessages.at(-1)?.type ?? ''
@@ -214,6 +210,7 @@ export const sendChatReplyToWhatsApp = async ({
           credentials,
           workspaceId,
           resultIdWA,
+          typebotId,
         })
       } catch (err) {
         Sentry.captureException(err, { extra: { message } })
@@ -271,6 +268,7 @@ const executeClientSideAction =
   (
     context: { to: string; credentials: WhatsAppCredentials['data'] },
     resultIdWA: string,
+    typebotId: string,
     workspaceId?: string
   ) =>
   async (
@@ -299,17 +297,13 @@ const executeClientSideAction =
         },
       } satisfies WhatsAppSendingMessage
       try {
-        await sendLogRequest(
-          'executeClientSideAction@sendChatReplyToWhatsApp',
-          message
-        )
-
         await sendWhatsAppMessage({
           to: context.to,
           message,
           credentials: context.credentials,
           workspaceId,
           resultIdWA,
+          typebotId,
         })
       } catch (err) {
         Sentry.captureException(err, { extra: { message } })

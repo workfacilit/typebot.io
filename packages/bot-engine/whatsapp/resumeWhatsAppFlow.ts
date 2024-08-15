@@ -123,21 +123,6 @@ export const resumeWhatsAppFlow = async ({
     block,
   })
 
-  const resultIdWA =
-    session?.state.typebotsQueue[0].resultId ?? receivedMessage.from
-
-  await sendLogRequest('getIncomingMessageContent@resumeWhatsAppFlow', reply)
-
-  if (workspaceId) {
-    await logMessage(
-      workspaceId,
-      resultIdWA,
-      'inbound',
-      reply?.text ?? reply?.attachedFileUrls,
-      receivedMessage.from
-    )
-  }
-
   let resumeResponse
 
   if (reply?.text === '/sair' && workspaceId) {
@@ -183,8 +168,6 @@ export const resumeWhatsAppFlow = async ({
     }
   }
 
-  await sendLogRequest('resumeResponse@resumeWhatsAppFlow', resumeResponse)
-
   const {
     input,
     logs,
@@ -194,6 +177,31 @@ export const resumeWhatsAppFlow = async ({
     visitedEdges,
     setVariableHistory,
   } = resumeResponse
+
+  const typebotId =
+    currentTypebot?.id ?? newSessionState.typebotsQueue[0].typebot.id
+
+  const resultId =
+    session?.state.typebotsQueue[0].resultId ??
+    newSessionState.typebotsQueue[0].resultId
+
+  const resultIdWA = resultId ?? receivedMessage.from
+
+  if (workspaceId && resultIdWA) {
+    try {
+      await logMessage(
+        workspaceId,
+        typebotId,
+        'inbound',
+        resultIdWA,
+        reply?.text ?? reply?.attachedFileUrls,
+        receivedMessage.from,
+        'whatsapp'
+      )
+    } catch (error) {
+      await sendLogRequest('errorLogMessage@resumeWhatsAppFlow', error)
+    }
+  }
 
   const isFirstChatChunk = (!session || isSessionExpired) ?? false
   await sendChatReplyToWhatsApp({
@@ -207,6 +215,7 @@ export const resumeWhatsAppFlow = async ({
     state: newSessionState,
     workspaceId,
     resultIdWA,
+    typebotId,
   })
 
   await saveStateToDatabase({
@@ -341,11 +350,6 @@ const getIncomingMessageContent = async ({
             if (caption) text = text === '' ? caption : `${text}\n\n${caption}`
             attachedFileUrls.push(fileUrl)
           }
-
-          await sendLogRequest(
-            'mediaId@sendChatReplyToWhatsApp',
-            attachedFileUrls
-          )
         } catch (error) {
           await sendLogRequest('errorMediaId@sendChatReplyToWhatsApp', error)
           text = ''

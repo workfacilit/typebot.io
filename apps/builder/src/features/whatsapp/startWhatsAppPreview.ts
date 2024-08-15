@@ -56,6 +56,7 @@ export const startWhatsAppPreview = authenticatedProcedure
         id: typebotId,
       },
       select: {
+        workspaceId: true,
         id: true,
         workspace: {
           select: {
@@ -123,6 +124,8 @@ export const startWhatsAppPreview = authenticatedProcedure
       },
     })
 
+    const workspaceId: string = existingTypebot.workspaceId
+    const resultIdWA = ''
     if (canSendDirectMessagesToUser) {
       await sendChatReplyToWhatsApp({
         to,
@@ -136,6 +139,9 @@ export const startWhatsAppPreview = authenticatedProcedure
           systemUserAccessToken: env.META_SYSTEM_USER_TOKEN,
         },
         state: newSessionState,
+        workspaceId,
+        resultIdWA,
+        typebotId,
       })
       await saveStateToDatabase({
         clientSideActions: [],
@@ -169,6 +175,9 @@ export const startWhatsAppPreview = authenticatedProcedure
             phoneNumberId: env.WHATSAPP_PREVIEW_FROM_PHONE_NUMBER_ID,
             systemUserAccessToken: env.META_SYSTEM_USER_TOKEN,
           },
+          workspaceId,
+          resultIdWA,
+          typebotId,
         })
       } catch (err) {
         if (err instanceof HTTPError) console.log(await err.response.text())
