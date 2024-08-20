@@ -458,6 +458,10 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
         ),
       }
     } catch (error) {
+      await sendLogRequest(
+        'aggregateParallelMediaMessagesIfRedisEnabled@resumeWhatsAppFlow',
+        error
+      )
       console.error('Failed to process webhook event:', error, receivedMessage)
     }
   }
