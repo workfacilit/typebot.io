@@ -61,14 +61,12 @@ type StartParams =
 
 type Props = {
   version: 1 | 2
-  message: Reply
   startParams: StartParams
   initialSessionState?: Pick<SessionState, 'whatsApp' | 'expiryTimeout'>
 }
 
 export const startSession = async ({
   version,
-  message,
   startParams,
   initialSessionState,
 }: Props): Promise<
@@ -164,8 +162,7 @@ export const startSession = async ({
       typebot: {
         id: typebot.id,
         settings: deepParseVariables(
-          initialState.typebotsQueue[0].typebot.variables,
-          { removeEmptyStrings: true }
+          initialState.typebotsQueue[0].typebot.variables
         )(typebot.settings),
         theme: sanitizeAndParseTheme(typebot.theme, {
           variables: initialState.typebotsQueue[0].typebot.variables,
@@ -188,7 +185,7 @@ export const startSession = async ({
   })
 
   // If params has message and first block is an input block, we can directly continue the bot flow
-  if (message) {
+  if (startParams.message) {
     const firstEdgeId = getFirstEdgeId({
       typebot: chatReply.newSessionState.typebotsQueue[0].typebot,
       startEventId:
@@ -213,7 +210,7 @@ export const startSession = async ({
           resultId,
           typebot: newSessionState.typebotsQueue[0].typebot,
         })
-      chatReply = await continueBotFlow(message, {
+      chatReply = await continueBotFlow(startParams.message, {
         version,
         state: {
           ...newSessionState,
@@ -276,8 +273,7 @@ export const startSession = async ({
       typebot: {
         id: typebot.id,
         settings: deepParseVariables(
-          newSessionState.typebotsQueue[0].typebot.variables,
-          { removeEmptyStrings: true }
+          newSessionState.typebotsQueue[0].typebot.variables
         )(typebot.settings),
         theme: sanitizeAndParseTheme(typebot.theme, {
           variables: initialState.typebotsQueue[0].typebot.variables,
@@ -295,8 +291,7 @@ export const startSession = async ({
     typebot: {
       id: typebot.id,
       settings: deepParseVariables(
-        newSessionState.typebotsQueue[0].typebot.variables,
-        { removeEmptyStrings: true }
+        newSessionState.typebotsQueue[0].typebot.variables
       )(typebot.settings),
       theme: sanitizeAndParseTheme(typebot.theme, {
         variables: initialState.typebotsQueue[0].typebot.variables,
@@ -474,11 +469,9 @@ const sanitizeAndParseTheme = (
   { variables }: { variables: Variable[] }
 ): Theme => ({
   general: theme.general
-    ? deepParseVariables(variables, { removeEmptyStrings: true })(theme.general)
+    ? deepParseVariables(variables)(theme.general)
     : undefined,
-  chat: theme.chat
-    ? deepParseVariables(variables, { removeEmptyStrings: true })(theme.chat)
-    : undefined,
+  chat: theme.chat ? deepParseVariables(variables)(theme.chat) : undefined,
   customCss: theme.customCss
     ? removeLiteBadgeCss(parseVariables(variables)(theme.customCss))
     : undefined,

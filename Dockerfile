@@ -1,4 +1,4 @@
-FROM node:18-bullseye-slim AS base
+FROM node:20-bullseye-slim AS base
 WORKDIR /app
 ARG SCOPE
 ENV SCOPE=${SCOPE}
@@ -8,13 +8,13 @@ RUN apt-get -qy update \
     && apt-get autoremove -yq \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-RUN npm --global install pnpm@8.15.4
+RUN npm --global install pnpm@9.5.0
 
 FROM base AS pruner
 RUN npm --global install turbo@1.11.3
 WORKDIR /app
 COPY . .
-RUN turbo prune --scope=${SCOPE} --docker
+RUN turbo prune ${SCOPE} --docker
 
 FROM base AS builder
 RUN apt-get -qy update && apt-get -qy --no-install-recommends install openssl git python3 g++ build-essential
@@ -27,7 +27,7 @@ RUN pnpm install
 COPY --from=pruner /app/out/full/ .
 COPY turbo.json turbo.json
 
-RUN SKIP_ENV_CHECK=true pnpm turbo run build --filter=${SCOPE}...
+RUN export NODE_OPTIONS="--max-old-space-size=4096" && SKIP_ENV_CHECK=true pnpm turbo run build --filter=${SCOPE}
 
 FROM base AS runner
 WORKDIR /app

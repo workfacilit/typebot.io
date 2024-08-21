@@ -98,6 +98,7 @@ model Workspace {
   isPastDue                     Boolean               @default(false)
   isVerified                    Boolean?
   themeTemplates                ThemeTemplate[]
+  messageLogs                   MessageLog[]
 }
 
 model MemberInWorkspace {
@@ -192,6 +193,7 @@ model Typebot {
   whatsAppCredentialsId   String?
   riskLevel               Int?
   bannedIps               BannedIp[]
+  messageLogs             MessageLog[]
 
   @@index([workspaceId])
   @@index([isArchived, createdAt(sort: Desc)])
@@ -300,12 +302,13 @@ model Answer {
 }
 
 model AnswerV2 {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  blockId   String
-  content   String
-  resultId  String
-  result    Result   @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  id               Int      @id @default(autoincrement())
+  createdAt        DateTime @default(now())
+  blockId          String
+  content          String
+  attachedFileUrls Json?
+  resultId         String
+  result           Result   @relation(fields: [resultId], references: [id], onDelete: Cascade)
 
   @@index([blockId])
 }
@@ -376,6 +379,20 @@ model BannedIp {
   userId               String
 }
 
+model MessageLog {
+  id          Int       @id @default(autoincrement())
+  timestamp   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+  resultId    String?
+  typebot     Typebot   @relation(fields: [typebotId], references: [id])
+  typebotId   String
+  identifier  String?
+  direction   Direction
+  message     String?
+  channel     String?
+}
+
 enum WorkspaceRole {
   ADMIN
   MEMBER
@@ -401,4 +418,9 @@ enum CollaborationType {
   READ
   WRITE
   FULL_ACCESS
+}
+
+enum Direction {
+  inbound
+  outbound
 }

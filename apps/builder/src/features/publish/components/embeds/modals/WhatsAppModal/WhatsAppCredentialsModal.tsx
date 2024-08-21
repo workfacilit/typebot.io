@@ -1,11 +1,12 @@
 import { CopyButton } from '@/components/CopyButton'
-import { TextLink } from '@/components/TextLink'
 import { ChevronLeftIcon, ExternalLinkIcon } from '@/components/icons'
 import { TextInput } from '@/components/inputs/TextInput'
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider'
 import { useToast } from '@/hooks/useToast'
 import { trpc, trpcVanilla } from '@/lib/trpc'
 import {
+  Alert,
+  AlertIcon,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -38,6 +39,11 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
 } from '@chakra-ui/react'
 import { env } from '@typebot.io/env'
 import { isEmpty, isNotEmpty } from '@typebot.io/lib/utils'
@@ -64,6 +70,21 @@ export const WhatsAppCredentialsModal = ({
   onClose,
   onNewCredentials,
 }: Props) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} size="3xl">
+      <ModalOverlay />
+      <WhatsAppCreateModalContent
+        onNewCredentials={onNewCredentials}
+        onClose={onClose}
+      />
+    </Modal>
+  )
+}
+
+export const WhatsAppCreateModalContent = ({
+  onNewCredentials,
+  onClose,
+}: Pick<Props, 'onNewCredentials' | 'onClose'>) => {
   const { workspace } = useWorkspace()
   const { showToast } = useToast()
   const { activeStep, goToNext, goToPrevious, setActiveStep } = useSteps({
@@ -226,98 +247,160 @@ export const WhatsAppCredentialsModal = ({
 
     goToNext()
   }
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl">
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>
-          <HStack h="40px">
-            {activeStep > 0 && (
-              <IconButton
-                icon={<ChevronLeftIcon />}
-                aria-label={'Go back'}
-                variant="ghost"
-                onClick={goToPrevious}
-              />
-            )}
-            <Heading size="md">
-              Adicione um número de telefone do WhatsApp
-            </Heading>
-          </HStack>
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody as={Stack} spacing="10">
-          <Stepper index={activeStep} size="sm" pt="4">
-            {steps.map((step, index) => (
-              <Step key={index}>
-                <StepIndicator>
-                  <StepStatus
-                    complete={<StepIcon />}
-                    incomplete={<StepNumber />}
-                    active={<StepNumber />}
-                  />
-                </StepIndicator>
+    <ModalContent>
+      <ModalHeader>
+        <HStack h="40px">
+          {activeStep > 0 && (
+            <IconButton
+              icon={<ChevronLeftIcon />}
+              aria-label={'Go back'}
+              variant="ghost"
+              onClick={goToPrevious}
+            />
+          )}
+          <Heading size="md">
+            Adicione um número de telefone do WhatsApp
+          </Heading>
+        </HStack>
+      </ModalHeader>
+      <ModalCloseButton />
+      <ModalBody as={Stack} spacing="10">
+        <Stepper index={activeStep} size="sm" pt="4">
+          {steps.map((step, index) => (
+            <Step key={index}>
+              <StepIndicator>
+                <StepStatus
+                  complete={<StepIcon />}
+                  incomplete={<StepNumber />}
+                  active={<StepNumber />}
+                />
+              </StepIndicator>
 
-                <Box flexShrink="0">
-                  <StepTitle>{step.title}</StepTitle>
-                </Box>
+              <Box flexShrink="0">
+                <StepTitle>{step.title}</StepTitle>
+              </Box>
 
-                <StepSeparator />
-              </Step>
-            ))}
-          </Stepper>
-          {activeStep === 0 && <Requirements />}
-          {activeStep === 1 && (
-            <SystemUserToken
-              initialToken={systemUserAccessToken}
-              setToken={setSystemUserAccessToken}
-            />
-          )}
-          {activeStep === 2 && (
-            <PhoneNumber
-              appId={tokenInfoData?.appId}
-              initialPhoneNumberId={phoneNumberId}
-              setPhoneNumberId={setPhoneNumberId}
-            />
-          )}
-          {activeStep === 3 && (
-            <Webhook
-              appId={tokenInfoData?.appId}
-              verificationToken={verificationToken}
-              credentialsId={credentialsId}
-            />
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            onClick={goToNextStep}
-            colorScheme="blue"
-            isDisabled={
-              (activeStep === 1 && isEmpty(systemUserAccessToken)) ||
-              (activeStep === 2 && isEmpty(phoneNumberId))
-            }
-            isLoading={isVerifying || isCreating}
-          >
-            {activeStep === steps.length - 1 ? 'Submit' : 'Continue'}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+              <StepSeparator />
+            </Step>
+          ))}
+        </Stepper>
+        {activeStep === 0 && <Requirements />}
+        {activeStep === 1 && (
+          <SystemUserToken
+            initialToken={systemUserAccessToken}
+            setToken={setSystemUserAccessToken}
+          />
+        )}
+        {activeStep === 2 && (
+          <PhoneNumber
+            appId={tokenInfoData?.appId}
+            initialPhoneNumberId={phoneNumberId}
+            setPhoneNumberId={setPhoneNumberId}
+          />
+        )}
+        {activeStep === 3 && (
+          <Webhook
+            appId={tokenInfoData?.appId}
+            verificationToken={verificationToken}
+            credentialsId={credentialsId}
+          />
+        )}
+      </ModalBody>
+      <ModalFooter>
+        <Button
+          onClick={goToNextStep}
+          colorScheme="blue"
+          isDisabled={
+            (activeStep === 1 && isEmpty(systemUserAccessToken)) ||
+            (activeStep === 2 && isEmpty(phoneNumberId))
+          }
+          isLoading={isVerifying || isCreating}
+        >
+          {activeStep === steps.length - 1 ? 'Submit' : 'Continue'}
+        </Button>
+      </ModalFooter>
+    </ModalContent>
   )
 }
 
 const Requirements = () => (
   <Stack spacing={4}>
+    <Text>Clique no Tutorial abaixo se ainda não tem um aplicativo Meta:</Text>
+    <Accordion allowToggle>
+      <AccordionItem>
+        <AccordionButton justifyContent="space-between">
+          Crie um aplicativo WhatsApp Meta
+          <AccordionIcon />
+        </AccordionButton>
+        <AccordionPanel as={Stack} spacing="4" pt="4">
+          <Text fontSize="lg" as="b">
+            Crie uma conta comercial no Facebook
+          </Text>
+          <OrderedList spacing={4}>
+            <ListItem>
+              Acesse
+              <Button
+                as={Link}
+                href="https://business.facebook.com"
+                isExternal
+                rightIcon={<ExternalLinkIcon />}
+                size="sm"
+              >
+                Acessar conta Comercial Meta
+              </Button>{' '}
+              e faça login
+            </ListItem>
+            <ListItem>
+              <Text>
+                Crie uma nova conta comercial na barra lateral esquerda
+              </Text>
+            </ListItem>
+            <Alert status="info">
+              <AlertIcon />É possível que o Meta restrinja automaticamente sua
+              conta Business recém-criada. Nesse caso, certifique-se de
+              verificar sua identidade para prosseguir.
+            </Alert>
+          </OrderedList>
+          <Text fontSize="lg" as="b">
+            Crie um aplicativo Meta
+          </Text>
+          <OrderedList spacing={4}>
+            <ListItem>
+              Acesse
+              <Button
+                as={Link}
+                href="https://developers.facebook.com/apps"
+                isExternal
+                rightIcon={<ExternalLinkIcon />}
+                size="sm"
+              >
+                Página de Apps da Meta
+              </Button>
+            </ListItem>
+            <ListItem>Clique em Criar aplicativo</ListItem>
+            <ListItem>
+              “O que você quer que seu aplicativo faça?”, selecione{' '}
+              <Code>Outro</Code>.
+            </ListItem>
+            <ListItem>
+              Selecione o tipo <Code>Empresa</Code>.
+            </ListItem>
+            <ListItem>
+              Dê a ele qualquer nome e selecione sua conta comercial
+              recém-criada
+            </ListItem>
+            <ListItem>
+              Na página do aplicativo, procure o produto <Code>WhatsApp</Code> e
+              ative-o
+            </ListItem>
+          </OrderedList>
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
     <Text>
-      Verifique se tem{' '}
-      <TextLink
-        href="https://docs.typebot.io/deploy/whatsapp/create-meta-app"
-        isExternal
-      >
-        um aplicativo WhatsApp Meta
-      </TextLink>
-      . Você deve acessar uma página como esta:
+      Se tiver um aplicativo Meta você deve ver uma página parecida como na
+      imagem abaixo:
     </Text>
     <Image
       src="/images/whatsapp-quickstart-page.png"
@@ -431,8 +514,7 @@ const PhoneNumber = ({
     <ListItem>
       <Stack>
         <Text>
-          Selecione um número de telefone e cole o <Code>Phone number ID</Code>{' '}
-          e <Code>WhatsApp Business Account ID</Code>:
+          Selecione um número de telefone e cole o <Code>Phone number ID</Code>:
         </Text>
         <HStack>
           <TextInput

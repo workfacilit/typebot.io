@@ -22,13 +22,7 @@ import { EditIcon, PlusIcon, TrashIcon } from '@/components/icons'
 import { useTypebot } from '@/features/editor/providers/TypebotProvider'
 import { createId } from '@paralleldrive/cuid2'
 import { Variable } from '@typebot.io/schemas'
-import React, {
-  useState,
-  useRef,
-  ChangeEvent,
-  useEffect,
-  ReactNode,
-} from 'react'
+import React, { useState, useRef, ChangeEvent, ReactNode } from 'react'
 import { byId, isDefined, isNotDefined } from '@typebot.io/lib'
 import { useOutsideClick } from '@/hooks/useOutsideClick'
 import { useParentModal } from '@/features/graph/providers/ParentModalProvider'
@@ -63,7 +57,9 @@ export const VariableSearchInput = ({
   ...inputProps
 }: Props) => {
   const focusedItemBgColor = useColorModeValue('gray.200', 'gray.700')
-  const { onOpen, onClose, isOpen } = useDisclosure()
+  const { onOpen, onClose, isOpen } = useDisclosure({
+    defaultIsOpen: autoFocus,
+  })
   const { typebot, createVariable, deleteVariable, updateVariable } =
     useTypebot()
   const variables = typebot?.variables ?? []
@@ -85,13 +81,12 @@ export const VariableSearchInput = ({
 
   useOutsideClick({
     ref: dropdownRef,
-    handler: onClose,
+    handler: () => {
+      onClose()
+      setInputValue(variables.find(byId(initialVariableId))?.name ?? '')
+    },
     isEnabled: isOpen,
   })
-
-  useEffect(() => {
-    if (autoFocus) onOpen()
-  }, [autoFocus, onOpen])
 
   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
@@ -244,6 +239,7 @@ export const VariableSearchInput = ({
             >
               {isCreateVariableButtonDisplayed && (
                 <Button
+                  as="li"
                   ref={createVariableItemRef}
                   role="menuitem"
                   minH="40px"
@@ -277,6 +273,8 @@ export const VariableSearchInput = ({
                       : idx
                     return (
                       <Button
+                        as="li"
+                        cursor="pointer"
                         ref={(el) => (itemsRef.current[idx] = el)}
                         role="menuitem"
                         minH="40px"

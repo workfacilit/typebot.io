@@ -16,6 +16,7 @@ import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/con
 import { defaultVideoBubbleContent } from '@typebot.io/schemas/features/blocks/bubbles/video/constants'
 import { convertMarkdownToRichText } from '@typebot.io/lib/markdown/convertMarkdownToRichText'
 import { convertRichTextToMarkdown } from '@typebot.io/lib/markdown/convertRichTextToMarkdown'
+import { isSingleVariable } from '@typebot.io/variables/isSingleVariable'
 
 type Params = {
   version: 1 | 2
@@ -65,9 +66,7 @@ export const parseBubbleBlock = (
     }
 
     case BubbleBlockType.EMBED: {
-      const message = deepParseVariables(variables, {
-        removeEmptyStrings: true,
-      })(block)
+      const message = deepParseVariables(variables)(block)
       return {
         ...message,
         content: {
@@ -81,9 +80,7 @@ export const parseBubbleBlock = (
     }
     case BubbleBlockType.VIDEO: {
       const parsedContent = block.content
-        ? deepParseVariables(variables, { removeEmptyStrings: true })(
-            block.content
-          )
+        ? deepParseVariables(variables)(block.content)
         : undefined
 
       return {
@@ -99,7 +96,7 @@ export const parseBubbleBlock = (
       }
     }
     default:
-      return deepParseVariables(variables, { removeEmptyStrings: true })(block)
+      return deepParseVariables(variables)(block)
   }
 }
 
@@ -144,7 +141,9 @@ export const parseVariablesInRichText = (
             : undefined
         lastTextEndIndex = variableInText.endIndex
         const isStandaloneElement =
-          isEmpty(textBeforeVariable) && isEmpty(textAfterVariable)
+          isEmpty(textBeforeVariable) &&
+          isEmpty(textAfterVariable) &&
+          variablesInText.length === 1
         const variableElements = convertMarkdownToRichText(
           isStandaloneElement
             ? variableInText.value
@@ -193,8 +192,7 @@ export const parseVariablesInRichText = (
     const type =
       element.children.length === 1 &&
       'text' in element.children[0] &&
-      (element.children[0].text as string).startsWith('{{') &&
-      (element.children[0].text as string).endsWith('}}') &&
+      isSingleVariable(element.children[0].text as string) &&
       element.type !== 'a'
         ? 'variable'
         : element.type

@@ -43,52 +43,83 @@ export const getStats = authenticatedProcedure
       const fromDate = parseFromDateFromTimeFilter(timeFilter, timeZone)
       const toDate = parseToDateFromTimeFilter(timeFilter, timeZone)
 
-      const [totalViews, totalStarts, totalCompleted] =
-        await prisma.$transaction([
-          prisma.result.count({
-            where: {
-              typebotId: typebot.id,
-              isArchived: false,
-              createdAt: fromDate
-                ? {
-                    gte: fromDate,
-                    lte: toDate ?? undefined,
-                  }
-                : undefined,
-            },
-          }),
-          prisma.result.count({
-            where: {
-              typebotId: typebot.id,
-              isArchived: false,
-              hasStarted: true,
-              createdAt: fromDate
-                ? {
-                    gte: fromDate,
-                    lte: toDate ?? undefined,
-                  }
-                : undefined,
-            },
-          }),
-          prisma.result.count({
-            where: {
-              typebotId: typebot.id,
-              isArchived: false,
-              isCompleted: true,
-              createdAt: fromDate
-                ? {
-                    gte: fromDate,
-                    lte: toDate ?? undefined,
-                  }
-                : undefined,
-            },
-          }),
-        ])
+      const [
+        totalViews,
+        totalStarts,
+        totalCompleted,
+        totalOutbound,
+        totalInbound,
+      ] = await prisma.$transaction([
+        prisma.result.count({
+          where: {
+            typebotId: typebot.id,
+            isArchived: false,
+            createdAt: fromDate
+              ? {
+                  gte: fromDate,
+                  lte: toDate ?? undefined,
+                }
+              : undefined,
+          },
+        }),
+        prisma.result.count({
+          where: {
+            typebotId: typebot.id,
+            isArchived: false,
+            hasStarted: true,
+            createdAt: fromDate
+              ? {
+                  gte: fromDate,
+                  lte: toDate ?? undefined,
+                }
+              : undefined,
+          },
+        }),
+        prisma.result.count({
+          where: {
+            typebotId: typebot.id,
+            isArchived: false,
+            isCompleted: true,
+            createdAt: fromDate
+              ? {
+                  gte: fromDate,
+                  lte: toDate ?? undefined,
+                }
+              : undefined,
+          },
+        }),
+        prisma.messageLog.count({
+          where: {
+            typebotId: typebot.id,
+            direction: 'outbound',
+            timestamp: fromDate
+              ? {
+                  gte: fromDate,
+                  lte: toDate ?? undefined,
+                }
+              : undefined,
+          },
+        }),
+        prisma.messageLog.count({
+          where: {
+            typebotId: typebot.id,
+            direction: 'inbound',
+            timestamp: fromDate
+              ? {
+                  gte: fromDate,
+                  lte: toDate ?? undefined,
+                }
+              : undefined,
+          },
+        }),
+      ])
 
       const stats: Stats = {
         totalViews,
         totalStarts,
         totalCompleted,
+        totalOutbound,
+        totalInbound,
       }
 
       return {

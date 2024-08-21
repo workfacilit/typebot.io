@@ -1,8 +1,12 @@
 {
-  "i18n-ally.localesPaths": ["apps/builder/src/i18n"],
+  "i18n-ally.localesPaths": [
+    "apps/builder/src/i18n"
+  ],
   "i18n-ally.keystyle": "flat",
   "i18n-ally.displayLanguage": "en",
-  "i18n-ally.enabledFrameworks": ["custom"],
+  "i18n-ally.enabledFrameworks": [
+    "custom"
+  ],
   "i18n-ally.sortKeys": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
@@ -13,5 +17,6 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
-  }
+  },
+  "i18n-ally.sourceLanguage": "pt-BR"
 }

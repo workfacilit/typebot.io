@@ -122,7 +122,6 @@
                 "editor/blocks/integrations/chatwoot",
                 "editor/blocks/integrations/meta-pixel",
                 "editor/blocks/integrations/openai",
-                "editor/blocks/integrations/zemantic-ai",
                 "editor/blocks/integrations/mistral",
                 "editor/blocks/integrations/elevenlabs",
                 "editor/blocks/integrations/anthropic",
@@ -177,6 +176,11 @@
             "deploy/whatsapp/overview",
             "deploy/whatsapp/create-meta-app"
           ]
+        },
+        {
+          "group": "API",
+          "icon": "code-simple",
+          "pages": ["deploy/api/overview"]
         }
       ]
     },
@@ -265,6 +269,7 @@
         "api-reference/chat/start-preview-chat",
         "api-reference/chat/continue-chat",
         "api-reference/chat/save-logs",
+        "api-reference/chat/generate-upload-url",
         "api-reference/chat/update-typebot-in-session"
       ]
     },

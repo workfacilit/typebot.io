@@ -13,6 +13,7 @@ const answerV1Schema = z.object({
 export const answerSchema = z.object({
   blockId: z.string(),
   content: z.string(),
+  attachedFileUrls: z.array(z.string()).optional(),
 })
 
 export const answerInputSchema = answerV1Schema
@@ -29,9 +30,18 @@ export const statsSchema = z.object({
   totalViews: z.number(),
   totalStarts: z.number(),
   totalCompleted: z.number(),
+  totalOutbound: z.number(),
+  totalInbound: z.number(),
+})
+
+export const statsWorkspaceCountSchema = z.object({
+  totalOutbound: z.number(),
+  totalInbound: z.number(),
 })
 
 export type Stats = z.infer<typeof statsSchema>
+
+export type StatsWorkspaceCount = z.infer<typeof statsWorkspaceCountSchema>
 
 export type Answer = z.infer<typeof answerSchema>
 

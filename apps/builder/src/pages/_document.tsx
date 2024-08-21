@@ -18,6 +18,25 @@ const Document = () => (
       <ColorModeScript initialColorMode={customTheme.config.initialColorMode} />
       <Main />
       <NextScript />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.fbAsyncInit = function() {
+              FB.init({
+                appId: '1029092605216725',
+                xfbml: true,
+                version: 'v20.0'
+              });
+            };
+          `,
+        }}
+      />
+      <script
+        async
+        defer
+        crossOrigin="anonymous"
+        src="https://connect.facebook.net/en_US/sdk.js"
+      ></script>
     </body>
   </Html>
 )

@@ -1,64 +1,67 @@
 import {
-  Text,
-  HStack,
   Stack,
-  Heading,
-  Alert,
-  AlertIcon,
+  Stat,
+  StatLabel,
+  StatNumber,
+  Skeleton,
+  useColorModeValue,
+  SimpleGrid,
 } from '@chakra-ui/react'
-import { Plan } from '@typebot.io/prisma'
-import React from 'react'
-import { PlanTag } from './PlanTag'
-import { BillingPortalButton } from './BillingPortalButton'
+import { useState } from 'react'
 import { trpc } from '@/lib/trpc'
 import { Workspace } from '@typebot.io/schemas'
-import { useTranslate } from '@tolgee/react'
+import { TimeFilterDropdown } from '@/features/analytics/components/TimeFilterDropdown'
+import {
+  defaultTimeFilter,
+  timeFilterValues,
+} from '@/features/analytics/constants'
 
 type Props = {
   workspace: Pick<Workspace, 'id' | 'plan' | 'stripeId'>
 }
 
 export const CurrentSubscriptionSummary = ({ workspace }: Props) => {
-  const { t } = useTranslate()
+  const bg = useColorModeValue('white', 'gray.900')
 
-  const { data } = trpc.billing.getSubscription.useQuery({
-    workspaceId: workspace.id,
-  })
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 
-  const isSubscribed =
-    (workspace.plan === Plan.STARTER || workspace.plan === Plan.PRO) &&
-    workspace.stripeId
+  const [timeFilter, setTimeFilter] =
+    useState<(typeof timeFilterValues)[number]>(defaultTimeFilter)
+
+  const { data: { stats } = {} } =
+    trpc.analytics.getTotalWorkspaceMessages.useQuery({
+      workspaceId: workspace.id as string,
+      timeFilter,
+      timeZone,
+    })
 
   return (
     <Stack spacing="4">
-      <Heading fontSize="3xl">
-        {t('billing.currentSubscription.heading')}
-      </Heading>
-      <HStack data-testid="current-subscription">
-        <Text>{t('billing.currentSubscription.subheading')} </Text>
-        <PlanTag plan={workspace.plan} />
-        {data?.subscription?.cancelDate && (
-          <Text fontSize="sm">
-            ({t('billing.currentSubscription.cancelDate')}{' '}
-            {data.subscription.cancelDate.toDateString()})
-          </Text>
-        )}
-      </HStack>
-      {data?.subscription?.status === 'past_due' && (
-        <Alert fontSize="sm" status="error">
-          <AlertIcon />
-          {t('billing.currentSubscription.pastDueAlert')}
-        </Alert>
-      )}
+      <TimeFilterDropdown
+        timeFilter={timeFilter}
+        onTimeFilterChange={setTimeFilter}
+        backgroundColor={bg}
+        boxShadow="md"
+      />
 
-      {isSubscribed && (
-        <BillingPortalButton
-          workspaceId={workspace.id}
-          colorScheme={
-            data?.subscription?.status === 'past_due' ? 'blue' : undefined
-          }
-        />
-      )}
+      <SimpleGrid columns={2} spacing={10}>
+        <Stat bgColor={bg} p="4" rounded="md" boxShadow="md">
+          <StatLabel>Mensagens Enviadas</StatLabel>
+          {stats ? (
+            <StatNumber>{stats.totalOutbound}</StatNumber>
+          ) : (
+            <Skeleton w="50%" h="10px" mt="2" />
+          )}
+        </Stat>
+        <Stat bgColor={bg} p="4" rounded="md" boxShadow="md">
+          <StatLabel>Mensagens Recebidas</StatLabel>
+          {stats ? (
+            <StatNumber>{stats.totalInbound}</StatNumber>
+          ) : (
+            <Skeleton w="50%" h="10px" mt="2" />
+          )}
+        </Stat>
+      </SimpleGrid>
     </Stack>
   )
 }

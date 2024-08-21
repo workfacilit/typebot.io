@@ -19,35 +19,53 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     if (!typebot) return res.status(404).send({ message: 'Typebot not found' })
 
-    const [totalViews, totalStarts, totalCompleted] = await prisma.$transaction(
-      [
-        prisma.result.count({
-          where: {
-            typebotId: typebot.id,
-            isArchived: false,
-          },
-        }),
-        prisma.result.count({
-          where: {
-            typebotId: typebot.id,
-            isArchived: false,
-            hasStarted: true,
-          },
-        }),
-        prisma.result.count({
-          where: {
-            typebotId: typebot.id,
-            isArchived: false,
-            isCompleted: true,
-          },
-        }),
-      ]
-    )
+    const [
+      totalViews,
+      totalStarts,
+      totalCompleted,
+      totalOutbound,
+      totalInbound,
+    ] = await prisma.$transaction([
+      prisma.result.count({
+        where: {
+          typebotId: typebot.id,
+          isArchived: false,
+        },
+      }),
+      prisma.result.count({
+        where: {
+          typebotId: typebot.id,
+          isArchived: false,
+          hasStarted: true,
+        },
+      }),
+      prisma.result.count({
+        where: {
+          typebotId: typebot.id,
+          isArchived: false,
+          isCompleted: true,
+        },
+      }),
+      prisma.messageLog.count({
+        where: {
+          typebotId: typebot.id,
+          direction: 'outbound',
+        },
+      }),
+      prisma.messageLog.count({
+        where: {
+          typebotId: typebot.id,
+          direction: 'inbound',
+        },
+      }),
+    ])
 
     const stats: Stats = {
       totalViews,
       totalStarts,
       totalCompleted,
+      totalOutbound,
+      totalInbound,
     }
     return res.status(200).send({ stats })
   }

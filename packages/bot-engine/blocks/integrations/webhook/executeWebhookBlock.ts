@@ -142,7 +142,8 @@ export const parseWebhookAttributes = async ({
     typebot.variables
   ) as ExecutableHttpRequest['headers'] | undefined
   const queryParams = stringify(
-    convertKeyValueTableToObject(webhook.queryParams, typebot.variables)
+    convertKeyValueTableToObject(webhook.queryParams, typebot.variables, true),
+    { indices: false }
   )
   const bodyContent = await getBodyContent({
     body: webhook.body,
@@ -197,13 +198,11 @@ export const executeWebhook = async (
 
   if (isFormData && isJson) body = parseFormDataBody(body as object)
 
-  const request = {
+  const baseRequest = {
     url,
     method,
     headers: headers ?? {},
     ...(basicAuth ?? {}),
-    json: !isFormData && body && isJson ? body : undefined,
-    body: (isFormData && body ? body : undefined) as any,
     timeout: isNotDefined(env.CHAT_API_TIMEOUT)
       ? false
       : params.timeout && params.timeout !== defaultTimeout
@@ -211,7 +210,13 @@ export const executeWebhook = async (
       : isLongRequest
       ? maxTimeout * 1000
       : defaultTimeout * 1000,
-  } satisfies Options & { url: string; body: any }
+  } satisfies Options & { url: string }
+
+  const request = body
+    ? !isFormData && isJson
+      ? { ...baseRequest, json: body }
+      : { ...baseRequest, body }
+    : baseRequest
 
   try {
     const response = await ky(request.url, omit(request, 'url'))
@@ -321,17 +326,19 @@ const getBodyContent = async ({
 
 export const convertKeyValueTableToObject = (
   keyValues: KeyValue[] | undefined,
-  variables: Variable[]
+  variables: Variable[],
+  concatDuplicateInArray = false
 ) => {
   if (!keyValues) return
-  return keyValues.reduce((object, item) => {
+  return keyValues.reduce<Record<string, string | string[]>>((object, item) => {
     const key = parseVariables(variables)(item.key)
     const value = parseVariables(variables)(item.value)
     if (isEmpty(key) || isEmpty(value)) return object
-    return {
-      ...object,
-      [key]: value,
-    }
+    if (object[key] && concatDuplicateInArray) {
+      if (Array.isArray(object[key])) (object[key] as string[]).push(value)
+      else object[key] = [object[key] as string, value]
+    } else object[key] = value
+    return object
   }, {})
 }
 

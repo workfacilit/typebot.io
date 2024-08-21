@@ -4,7 +4,7 @@ import { isDefined, isNotDefined, isNotEmpty } from '@typebot.io/lib'
 import { startChatQuery } from '@/queries/startChatQuery'
 import { ConversationContainer } from './ConversationContainer'
 import { setIsMobile } from '@/utils/isMobileSignal'
-import { BotContext, InitialChatReply, OutgoingLog } from '@/types'
+import { BotContext, OutgoingLog } from '@/types'
 import { ErrorMessage } from './ErrorMessage'
 import {
   getExistingResultIdFromStorage,
@@ -15,7 +15,12 @@ import {
 } from '@/utils/storage'
 import { setCssVariablesValue } from '@/utils/setCssVariablesValue'
 import immutableCss from '../assets/immutable.css'
-import { Font, InputBlock, StartFrom } from '@typebot.io/schemas'
+import {
+  Font,
+  InputBlock,
+  StartChatResponse,
+  StartFrom,
+} from '@typebot.io/schemas'
 import { clsx } from 'clsx'
 import { HTTPError } from 'ky'
 import { injectFont } from '@/utils/injectFont'
@@ -29,6 +34,10 @@ import {
   defaultFontType,
   defaultProgressBarPosition,
 } from '@typebot.io/schemas/features/typebot/theme/constants'
+import { CorsError } from '@/utils/CorsError'
+import { Toaster, Toast } from '@ark-ui/solid'
+import { CloseIcon } from './icons/CloseIcon'
+import { toaster } from '@/utils/toaster'
 
 export type BotProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,7 +60,7 @@ export type BotProps = {
 
 export const Bot = (props: BotProps & { class?: string }) => {
   const [initialChatReply, setInitialChatReply] = createSignal<
-    InitialChatReply | undefined
+    StartChatResponse | undefined
   >()
   const [customCss, setCustomCss] = createSignal('')
   const [isInitialized, setIsInitialized] = createSignal(false)
@@ -104,6 +113,10 @@ export const Bot = (props: BotProps & { class?: string }) => {
           `Error! Couldn't initiate the chat. (${error.response.statusText})`
         )
       )
+    }
+
+    if (error instanceof CorsError) {
+      return setError(new Error(error.message))
     }
 
     if (!data) {
@@ -237,7 +250,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
 }
 
 type BotContentProps = {
-  initialChatReply: InitialChatReply
+  initialChatReply: StartChatResponse
   context: BotContext
   class?: string
   progressBarRef?: HTMLDivElement
@@ -330,6 +343,17 @@ const BotContent = (props: BotContentProps) => {
       >
         <LiteBadge botContainer={botContainer} />
       </Show>
+      <Toaster toaster={toaster}>
+        {(toast) => (
+          <Toast.Root>
+            <Toast.Title>{toast().title}</Toast.Title>
+            <Toast.Description>{toast().description}</Toast.Description>
+            <Toast.CloseTrigger class="absolute right-2 top-2">
+              <CloseIcon class="w-4 h-4" />
+            </Toast.CloseTrigger>
+          </Toast.Root>
+        )}
+      </Toaster>
     </div>
   )
 }

@@ -69,7 +69,7 @@ export const SetVariableSettings = ({ options, onOptionsChange }: Props) => {
     <Stack spacing={4}>
       <Stack>
         <FormLabel mb="0" htmlFor="variable-search">
-          Search or create variable:
+          Pesquise ou crie variável:
         </FormLabel>
         <VariableSearchInput
           onSelectVariable={updateVariableId}
@@ -81,7 +81,7 @@ export const SetVariableSettings = ({ options, onOptionsChange }: Props) => {
       <Stack spacing="4">
         <Stack>
           <Text mb="0" fontWeight="medium">
-            Value:
+            Valor:
           </Text>
           <Select
             selectedItem={options?.type ?? defaultSetVariableOptions.type}
@@ -101,7 +101,7 @@ export const SetVariableSettings = ({ options, onOptionsChange }: Props) => {
           <SwitchWithLabel
             key={selectedVariable.id}
             label="Salvar nos resultados?"
-            moreInfoContent="Por padrão, a variável é salva apenas para a sessão de chat do usuário. Marque esta opção se quiser também armazenar a variável na tabela de resultados do typebot."
+            moreInfoContent="Por padrão, a variável é salva apenas para a sessão de chat do usuário. Marque esta opção se quiser também armazenar a variável na tabela de resultados."
             initialValue={!selectedVariable.isSessionVariable}
             onCheckChange={updateIsSessionVariable}
           />
@@ -131,6 +131,14 @@ const SetVariableValue = ({
       ...options,
       isExecutedOnClient,
     })
+
+  const updateListVariableId = (variable?: Pick<Variable, 'id'>) => {
+    if (!options || (options.type !== 'Pop' && options.type !== 'Shift')) return
+    onOptionsChange({
+      ...options,
+      saveItemInVariableId: variable?.id,
+    })
+  }
 
   const updateItemVariableId = (variable?: Pick<Variable, 'id'>) => {
     if (!options || options.type !== 'Map item with same index') return
@@ -187,8 +195,8 @@ const SetVariableValue = ({
       return (
         <>
           <SwitchWithLabel
-            label="Execute on client?"
-            moreInfoContent="Check this if you need access to client-only variables like `window` or `document`."
+            label="Executar no cliente?"
+            moreInfoContent="Marque isto se você precisar de acesso a variáveis ​​somente de cliente como `window` ou `document`."
             initialValue={
               options?.isExecutedOnClient ??
               defaultSetVariableOptions.isExecutedOnClient
@@ -206,7 +214,7 @@ const SetVariableValue = ({
               }
               onSelect={updateIsCode}
             />
-            {options?.isCode === undefined || options.isCode ? (
+            {options?.isCode ? (
               <CodeEditor
                 defaultValue={options?.expressionToEvaluate ?? ''}
                 onChange={updateExpression}
@@ -221,6 +229,17 @@ const SetVariableValue = ({
             )}
           </Stack>
         </>
+      )
+    case 'Pop':
+    case 'Shift':
+      return (
+        <VariableSearchInput
+          initialVariableId={options.saveItemInVariableId}
+          onSelectVariable={updateListVariableId}
+          placeholder={
+            options.type === 'Shift' ? 'Shifted item' : 'Popped item'
+          }
+        />
       )
     case 'Map item with same index': {
       return (

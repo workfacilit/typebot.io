@@ -7,7 +7,13 @@ import {
   Button,
   Flex,
 } from '@chakra-ui/react'
-import { HardDriveIcon, SettingsIcon } from '@/components/icons'
+import {
+  HardDriveIcon,
+  SettingsIcon,
+  // UsersIcon,
+  InfoIcon,
+  GlobeIcon,
+} from '@/components/icons'
 import { EmojiOrImageIcon } from '@/components/EmojiOrImageIcon'
 import { User, WorkspaceRole } from '@typebot.io/prisma'
 import { useState } from 'react'
@@ -19,11 +25,14 @@ import { UserPreferencesForm } from '@/features/account/components/UserPreferenc
 import { MyAccountForm } from '@/features/account/components/MyAccountForm'
 import { BillingSettingsLayout } from '@/features/billing/components/BillingSettingsLayout'
 import { useTranslate } from '@tolgee/react'
+import { useParentModal } from '@/features/graph/providers/ParentModalProvider'
+import { CredentialsSettingsForm } from '@/features/credentials/components/CredentialsSettingsForm'
 
 type Props = {
   isOpen: boolean
   user: User
   workspace: WorkspaceInApp
+  defaultTab?: SettingsTab
   onClose: () => void
 }
 
@@ -33,22 +42,25 @@ type SettingsTab =
   | 'workspace-settings'
   | 'members'
   | 'billing'
+  | 'credentials'
 
 export const WorkspaceSettingsModal = ({
   isOpen,
   workspace,
+  defaultTab = 'my-account',
   onClose,
 }: Props) => {
   const { t } = useTranslate()
+  const { ref } = useParentModal()
   const { currentRole } = useWorkspace()
-  const [selectedTab, setSelectedTab] = useState<SettingsTab>('my-account')
+  const [selectedTab, setSelectedTab] = useState<SettingsTab>(defaultTab)
 
   const canEditWorkspace = currentRole === WorkspaceRole.ADMIN
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="4xl">
       <ModalOverlay />
-      <ModalContent minH="600px" flexDir="row">
+      <ModalContent minH="600px" flexDir="row" ref={ref}>
         <Stack
           spacing={8}
           w="180px"
@@ -91,12 +103,23 @@ export const WorkspaceSettingsModal = ({
               <Button
                 variant={selectedTab === 'my-account' ? 'solid' : 'ghost'}
                 onClick={() => setSelectedTab('my-account')}
-                leftIcon={<SettingsIcon />}
+                leftIcon={<GlobeIcon />}
                 size="sm"
                 justifyContent="flex-start"
                 pl="4"
               >
                 {t('workspace.settings.modal.menu.myAccount.label')}
+              </Button>
+              <Button
+                variant={selectedTab === 'billing' ? 'solid' : 'ghost'}
+                onClick={() => setSelectedTab('billing')}
+                leftIcon={<InfoIcon />}
+                size="sm"
+                justifyContent="flex-start"
+                pl="4"
+              >
+                {/* {t('workspace.settings.modal.menu.members.label')} */}
+                Monitorar Uso
               </Button>
             </Stack>
           </Stack>
@@ -138,6 +161,8 @@ const SettingsContent = ({
       return <MembersList />
     case 'billing':
       return <BillingSettingsLayout />
+    case 'credentials':
+      return <CredentialsSettingsForm />
     default:
       return null
   }

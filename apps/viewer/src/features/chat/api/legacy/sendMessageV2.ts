@@ -11,6 +11,7 @@ import {
   chatReplySchema,
   sendMessageInputSchema,
 } from '@typebot.io/schemas/features/chat/legacy/schema'
+import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
 
 export const sendMessageV2 = publicProcedure
   .meta({
@@ -90,7 +91,9 @@ export const sendMessageV2 = publicProcedure
                     typeof startParams.typebot === 'string'
                       ? undefined
                       : startParams.typebot,
-                  message,
+                  message: message
+                    ? { type: 'text', text: message }
+                    : undefined,
                   userId: user?.id,
                   textBubbleContentFormat: 'richText',
                 }
@@ -101,10 +104,11 @@ export const sendMessageV2 = publicProcedure
                   publicId: startParams.typebot,
                   prefilledVariables: startParams.prefilledVariables,
                   resultId: startParams.resultId,
-                  message,
+                  message: message
+                    ? { type: 'text', text: message }
+                    : undefined,
                   textBubbleContentFormat: 'richText',
                 },
-          message,
         })
 
         if (startParams.isPreview || typeof startParams.typebot !== 'string') {
@@ -136,8 +140,11 @@ export const sendMessageV2 = publicProcedure
               logs: allLogs,
               clientSideActions,
               visitedEdges,
-              hasCustomEmbedBubble: messages.some(
-                (message) => message.type === 'custom-embed'
+              hasEmbedBubbleWithWaitEvent: messages.some(
+                (message) =>
+                  message.type === 'custom-embed' ||
+                  (message.type === BubbleBlockType.EMBED &&
+                    message.content.waitForEvent?.isEnabled)
               ),
               setVariableHistory,
             })
@@ -180,11 +187,14 @@ export const sendMessageV2 = publicProcedure
           lastMessageNewFormat,
           visitedEdges,
           setVariableHistory,
-        } = await continueBotFlow(message, {
-          version: 2,
-          state: session.state,
-          textBubbleContentFormat: 'richText',
-        })
+        } = await continueBotFlow(
+          message ? { type: 'text', text: message } : undefined,
+          {
+            version: 2,
+            state: session.state,
+            textBubbleContentFormat: 'richText',
+          }
+        )
 
         const allLogs = clientLogs ? [...(logs ?? []), ...clientLogs] : logs
 
@@ -198,8 +208,11 @@ export const sendMessageV2 = publicProcedure
             logs: allLogs,
             clientSideActions,
             visitedEdges,
-            hasCustomEmbedBubble: messages.some(
-              (message) => message.type === 'custom-embed'
+            hasEmbedBubbleWithWaitEvent: messages.some(
+              (message) =>
+                message.type === 'custom-embed' ||
+                (message.type === BubbleBlockType.EMBED &&
+                  message.content.waitForEvent?.isEnabled)
             ),
             setVariableHistory,
           })

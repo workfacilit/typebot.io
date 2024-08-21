@@ -28,6 +28,9 @@ type Props = {
   typingEmulation: SessionState['typingEmulation']
   credentials: WhatsAppCredentials['data']
   state: SessionState
+  workspaceId?: string
+  resultIdWA: string
+  typebotId: string
 } & Pick<ContinueChatResponse, 'messages' | 'input' | 'clientSideActions'>
 
 export const sendChatReplyToWhatsApp = async ({
@@ -39,6 +42,9 @@ export const sendChatReplyToWhatsApp = async ({
   clientSideActions,
   credentials,
   state,
+  workspaceId,
+  resultIdWA,
+  typebotId,
 }: Props): Promise<void> => {
   const messagesBeforeInput = isLastMessageIncludedInInput(
     input,
@@ -55,14 +61,24 @@ export const sendChatReplyToWhatsApp = async ({
     ) ?? []
 
   for (const action of clientSideActionsBeforeMessages) {
-    const result = await executeClientSideAction({ to, credentials })(action)
+    const result = await executeClientSideAction(
+      { to, credentials },
+      resultIdWA,
+      typebotId,
+      workspaceId
+    )(action)
     if (!result) continue
     const { input, newSessionState, messages, clientSideActions } =
-      await continueBotFlow(result.replyToSend, {
-        version: 2,
-        state,
-        textBubbleContentFormat: 'richText',
-      })
+      await continueBotFlow(
+        result.replyToSend
+          ? { type: 'text', text: result.replyToSend }
+          : undefined,
+        {
+          version: 2,
+          state,
+          textBubbleContentFormat: 'richText',
+        }
+      )
 
     return sendChatReplyToWhatsApp({
       to,
@@ -73,6 +89,8 @@ export const sendChatReplyToWhatsApp = async ({
       clientSideActions,
       credentials,
       state: newSessionState,
+      resultIdWA,
+      typebotId,
     })
   }
 
@@ -93,6 +111,7 @@ export const sendChatReplyToWhatsApp = async ({
       )
     }
     const whatsAppMessage = convertMessageToWhatsAppMessage(message)
+
     if (isNotDefined(whatsAppMessage)) continue
     const lastSentMessageIsMedia = ['audio', 'video', 'image'].includes(
       sentMessages.at(-1)?.type ?? ''
@@ -116,23 +135,35 @@ export const sendChatReplyToWhatsApp = async ({
         to,
         message: whatsAppMessage,
         credentials,
+        workspaceId,
+        resultIdWA,
+        typebotId,
       })
+
       sentMessages.push(whatsAppMessage)
       const clientSideActionsAfterMessage =
         clientSideActions?.filter(
           (action) => action.lastBubbleBlockId === message.id
         ) ?? []
       for (const action of clientSideActionsAfterMessage) {
-        const result = await executeClientSideAction({ to, credentials })(
-          action
-        )
+        const result = await executeClientSideAction(
+          { to, credentials },
+          resultIdWA,
+          typebotId,
+          workspaceId
+        )(action)
         if (!result) continue
         const { input, newSessionState, messages, clientSideActions } =
-          await continueBotFlow(result.replyToSend, {
-            version: 2,
-            state,
-            textBubbleContentFormat: 'richText',
-          })
+          await continueBotFlow(
+            result.replyToSend
+              ? { type: 'text', text: result.replyToSend }
+              : undefined,
+            {
+              version: 2,
+              state,
+              textBubbleContentFormat: 'richText',
+            }
+          )
 
         return sendChatReplyToWhatsApp({
           to,
@@ -143,6 +174,8 @@ export const sendChatReplyToWhatsApp = async ({
           clientSideActions,
           credentials,
           state: newSessionState,
+          resultIdWA,
+          typebotId,
         })
       }
     } catch (err) {
@@ -175,6 +208,9 @@ export const sendChatReplyToWhatsApp = async ({
           to,
           message,
           credentials,
+          workspaceId,
+          resultIdWA,
+          typebotId,
         })
       } catch (err) {
         Sentry.captureException(err, { extra: { message } })
@@ -229,7 +265,12 @@ const isLastMessageIncludedInInput = (
 }
 
 const executeClientSideAction =
-  (context: { to: string; credentials: WhatsAppCredentials['data'] }) =>
+  (
+    context: { to: string; credentials: WhatsAppCredentials['data'] },
+    resultIdWA: string,
+    typebotId: string,
+    workspaceId?: string
+  ) =>
   async (
     clientSideAction: NonNullable<
       ContinueChatResponse['clientSideActions']
@@ -260,6 +301,9 @@ const executeClientSideAction =
           to: context.to,
           message,
           credentials: context.credentials,
+          workspaceId,
+          resultIdWA,
+          typebotId,
         })
       } catch (err) {
         Sentry.captureException(err, { extra: { message } })
