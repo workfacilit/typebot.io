@@ -49,6 +49,26 @@ export const TextInputSettings = ({ options, onOptionsChange }: Props) => {
       attachments: { ...options?.attachments, visibility },
     })
 
+  const updateAudioClipEnabled = (isEnabled: boolean) =>
+    onOptionsChange({
+      ...options,
+      audioClip: { ...options?.audioClip, isEnabled },
+    })
+
+  const updateAudioClipSaveVariableId = (variable?: Pick<Variable, 'id'>) =>
+    onOptionsChange({
+      ...options,
+      audioClip: { ...options?.audioClip, saveVariableId: variable?.id },
+    })
+
+  const updateAudioClipVisibility = (
+    visibility: (typeof fileVisibilityOptions)[number]
+  ) =>
+    onOptionsChange({
+      ...options,
+      audioClip: { ...options?.audioClip, visibility },
+    })
+
   return (
     <Stack spacing={4}>
       <SwitchWithLabel
@@ -71,6 +91,34 @@ export const TextInputSettings = ({ options, onOptionsChange }: Props) => {
         }
         onChange={updateButtonLabel}
       />
+      <SwitchWithRelatedSettings
+        label={'Permitir resposta em áudio'}
+        initialValue={
+          options?.audioClip?.isEnabled ??
+          defaultTextInputOptions.audioClip.isEnabled
+        }
+        onCheckChange={updateAudioClipEnabled}
+      >
+        <Stack>
+          <FormLabel mb="0" htmlFor="variable">
+            Salve os URLs em uma variável:
+          </FormLabel>
+          <VariableSearchInput
+            initialVariableId={options?.audioClip?.saveVariableId}
+            onSelectVariable={updateAudioClipSaveVariableId}
+          />
+        </Stack>
+        <DropdownList
+          label="Visibilidade:"
+          moreInfoTooltip='Esta configuração determina quem pode ver os arquivos enviados. “Público” significa que qualquer pessoa que tenha o link pode ver os arquivos. "Privado" significa que apenas os membros deste espaço de trabalho podem ver os arquivos.'
+          currentItem={
+            options?.audioClip?.visibility ??
+            defaultTextInputOptions.audioClip.visibility
+          }
+          onItemSelect={updateAudioClipVisibility}
+          items={fileVisibilityOptions}
+        />
+      </SwitchWithRelatedSettings>
       <SwitchWithRelatedSettings
         label={'Permitir anexos'}
         initialValue={

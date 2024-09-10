@@ -35,6 +35,7 @@ export const createChatCompletion = createAction({
         ),
       }),
     },
+    { blockId: 'groq' },
   ],
   getSetVariableIds: getChatCompletionSetVarIds,
   run: {

@@ -42,6 +42,14 @@ export const messageSchema = z.preprocess(
           'Can only be provided if current input block is a text input block that allows attachments'
         ),
     }),
+    z
+      .object({
+        type: z.literal('audio'),
+        url: z.string(),
+      })
+      .describe(
+        'Can only be provided if current input block is a text input that allows audio clips'
+      ),
   ])
 )
 export type Message = z.infer<typeof messageSchema>
@@ -170,6 +178,7 @@ const startTypebotPick = {
   variables: true,
   settings: true,
   theme: true,
+  updatedAt: true,
 } as const
 export const startTypebotSchema = z.preprocess(
   preprocessTypebot,
@@ -381,6 +390,7 @@ export const startChatResponseSchema = z
       id: z.string(),
       theme: themeSchema,
       settings: settingsSchema,
+      publishedAt: z.coerce.date().optional(),
     }),
   })
   .merge(chatResponseBaseSchema)
