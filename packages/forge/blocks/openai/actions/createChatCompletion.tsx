@@ -26,6 +26,7 @@ export const createChatCompletion = createAction({
       blockId: 'together-ai',
     },
     { blockId: 'mistral' },
+    { blockId: 'groq' },
     {
       blockId: 'anthropic',
       transform: (options) => ({
@@ -47,7 +48,7 @@ export const createChatCompletion = createAction({
       fetch: ({ credentials, options }) =>
         fetchGPTModels({
           apiKey: credentials?.apiKey,
-          baseUrl: options.baseUrl,
+          baseUrl: credentials?.baseUrl ?? options.baseUrl,
           apiVersion: options.apiVersion,
         }),
     },
@@ -57,7 +58,7 @@ export const createChatCompletion = createAction({
       runOpenAIChatCompletion({
         ...params,
         config: {
-          baseUrl: defaultOpenAIOptions.baseUrl,
+          baseUrl: params.credentials.baseUrl,
           defaultModel: defaultOpenAIOptions.model,
         },
         compatibility: 'strict',
@@ -68,7 +69,7 @@ export const createChatCompletion = createAction({
         runOpenAIChatCompletionStream({
           ...params,
           config: {
-            baseUrl: defaultOpenAIOptions.baseUrl,
+            baseUrl: params.credentials.baseUrl,
             defaultModel: defaultOpenAIOptions.model,
           },
           compatibility: 'strict',

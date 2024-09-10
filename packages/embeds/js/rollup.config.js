@@ -36,7 +36,9 @@ const indexConfig = {
       extensions,
     }),
     typescriptPaths({ preserveExtensions: true }),
-    typescript(),
+    typescript({
+      noEmitOnError: !process.env.ROLLUP_WATCH,
+    }),
     postcss({
       plugins: [autoprefixer(), tailwindcss()],
       extract: false,
@@ -68,10 +70,7 @@ const configs = [
 ]
 
 function onwarn(warning, warn) {
-  if (
-    warning.code === 'CIRCULAR_DEPENDENCY' &&
-    warning.ids.some((id) => id.includes('@internationalized+date'))
-  ) {
+  if (warning.code === 'CIRCULAR_DEPENDENCY') {
     return
   }
 
