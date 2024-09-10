@@ -3,7 +3,7 @@ import { TextInputBlock } from './schema'
 
 export const defaultTextInputOptions = {
   isLong: false,
-  labels: { button: defaultButtonLabel, placeholder: 'Type your answer...' },
+  labels: { button: defaultButtonLabel, placeholder: 'Digite sua resposta...' },
   audioClip: {
     isEnabled: false,
     visibility: 'Auto',

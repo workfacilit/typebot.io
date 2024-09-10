@@ -92,7 +92,7 @@ export const TextInputSettings = ({ options, onOptionsChange }: Props) => {
         onChange={updateButtonLabel}
       />
       <SwitchWithRelatedSettings
-        label={'Allow audio clip'}
+        label={'Permitir resposta em áudio'}
         initialValue={
           options?.audioClip?.isEnabled ??
           defaultTextInputOptions.audioClip.isEnabled
@@ -101,7 +101,7 @@ export const TextInputSettings = ({ options, onOptionsChange }: Props) => {
       >
         <Stack>
           <FormLabel mb="0" htmlFor="variable">
-            Save the URL in a variable:
+            Salve os URLs em uma variável:
           </FormLabel>
           <VariableSearchInput
             initialVariableId={options?.audioClip?.saveVariableId}
@@ -109,36 +109,8 @@ export const TextInputSettings = ({ options, onOptionsChange }: Props) => {
           />
         </Stack>
         <DropdownList
-          label="Visibility:"
-          moreInfoTooltip='This setting determines who can see the uploaded files. "Public" means that anyone who has the link can see the files. "Private" means that only a members of this workspace can see the files.'
-          currentItem={
-            options?.audioClip?.visibility ??
-            defaultTextInputOptions.audioClip.visibility
-          }
-          onItemSelect={updateAudioClipVisibility}
-          items={fileVisibilityOptions}
-        />
-      </SwitchWithRelatedSettings>
-      <SwitchWithRelatedSettings
-        label={'Allow audio clip'}
-        initialValue={
-          options?.audioClip?.isEnabled ??
-          defaultTextInputOptions.audioClip.isEnabled
-        }
-        onCheckChange={updateAudioClipEnabled}
-      >
-        <Stack>
-          <FormLabel mb="0" htmlFor="variable">
-            Save the URL in a variable:
-          </FormLabel>
-          <VariableSearchInput
-            initialVariableId={options?.audioClip?.saveVariableId}
-            onSelectVariable={updateAudioClipSaveVariableId}
-          />
-        </Stack>
-        <DropdownList
-          label="Visibility:"
-          moreInfoTooltip='This setting determines who can see the uploaded files. "Public" means that anyone who has the link can see the files. "Private" means that only a members of this workspace can see the files.'
+          label="Visibilidade:"
+          moreInfoTooltip='Esta configuração determina quem pode ver os arquivos enviados. “Público” significa que qualquer pessoa que tenha o link pode ver os arquivos. "Privado" significa que apenas os membros deste espaço de trabalho podem ver os arquivos.'
           currentItem={
             options?.audioClip?.visibility ??
             defaultTextInputOptions.audioClip.visibility
