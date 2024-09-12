@@ -51,6 +51,8 @@ model User {
   referral                    String?
   graphNavigation             GraphNavigation?
   preferredAppAppearance      String?
+  token                       String?
+  profile                     Int?
   accounts                    Account[]
   apiTokens                   ApiToken[]
   CollaboratorsOnTypebots     CollaboratorsOnTypebots[]
@@ -99,6 +101,7 @@ model Workspace {
   isVerified                    Boolean?
   themeTemplates                ThemeTemplate[]
   messageLogs                   MessageLog[]
+  ProfileInWorkspace            ProfileInWorkspace[]
 }
 
 model MemberInWorkspace {
@@ -111,6 +114,16 @@ model MemberInWorkspace {
   workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, workspaceId])
+}
+
+model ProfileInWorkspace {
+  profileId   String
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, workspaceId])
 }
 
 model WorkspaceInvitation {
