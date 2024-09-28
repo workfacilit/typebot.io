@@ -53,6 +53,7 @@ model User {
   preferredAppAppearance      String?
   token                       String?
   profile                     Int?
+  profilePermission           ProfilePermission?
   accounts                    Account[]
   apiTokens                   ApiToken[]
   CollaboratorsOnTypebots     CollaboratorsOnTypebots[]
@@ -405,6 +406,19 @@ model MessageLog {
   direction   Direction
   message     String?
   channel     String?
+}
+
+model ProfilePermission {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  canCreateFlowOrFolder    Boolean @default(false)
+  canViewSettings          Boolean @default(false)
+  canCreateNewWorkspace    Boolean @default(false)
+  canConfigureTheme        Boolean @default(false)
+  canConfigureFlowSettings Boolean @default(false)
+  canShareFlow             Boolean @default(false)
+  canPublish               Boolean @default(false)
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum WorkspaceRole {
