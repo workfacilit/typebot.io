@@ -103,6 +103,7 @@ model Workspace {
   themeTemplates                ThemeTemplate[]
   messageLogs                   MessageLog[]
   ProfileInWorkspace            ProfileInWorkspace[]
+  profilePermissions            ProfilePermission?
 }
 
 model MemberInWorkspace {
@@ -409,16 +410,18 @@ model MessageLog {
 }
 
 model ProfilePermission {
-  id                       String  @id @default(cuid())
-  userId                   String  @unique
-  canCreateFlowOrFolder    Boolean @default(false)
-  canViewSettings          Boolean @default(false)
-  canCreateNewWorkspace    Boolean @default(false)
-  canConfigureTheme        Boolean @default(false)
-  canConfigureFlowSettings Boolean @default(false)
-  canShareFlow             Boolean @default(false)
-  canPublish               Boolean @default(false)
-  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                       String    @id @default(cuid())
+  workspaceId              String    @unique
+  userId                   String    @unique
+  canCreateFlowOrFolder    Boolean   @default(false)
+  canViewSettings          Boolean   @default(false)
+  canCreateNewWorkspace    Boolean   @default(false)
+  canConfigureTheme        Boolean   @default(false)
+  canConfigureFlowSettings Boolean   @default(false)
+  canShareFlow             Boolean   @default(false)
+  canPublish               Boolean   @default(false)
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace                Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
 enum WorkspaceRole {

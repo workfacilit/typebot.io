@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import { byId } from '@typebot.io/lib'
-import { WorkspaceRole } from '@typebot.io/prisma'
+import { WorkspaceRole, ProfilePermission } from '@typebot.io/prisma'
 import { useRouter } from 'next/router'
 import { trpc } from '@/lib/trpc'
 import { Workspace } from '@typebot.io/schemas'
@@ -33,6 +33,7 @@ const workspaceContext = createContext<{
   workspaces: Pick<Workspace, 'id' | 'name' | 'icon' | 'plan'>[]
   workspace?: WorkspaceInApp
   currentRole?: WorkspaceRole
+  permissions?: ProfilePermission
   switchWorkspace: (workspaceId: string) => void
   createWorkspace: (name?: string) => Promise<void>
   updateWorkspace: (updates: { icon?: string; name?: string }) => void
@@ -82,6 +83,7 @@ export const WorkspaceProvider = ({
 
   const workspace = workspaceData?.workspace
   const members = membersData?.members
+  const permissions = workspaceData?.permissions
 
   const { showToast } = useToast()
 
@@ -192,6 +194,7 @@ export const WorkspaceProvider = ({
         workspaces,
         workspace,
         currentRole,
+        permissions,
         switchWorkspace,
         createWorkspace,
         updateWorkspace,

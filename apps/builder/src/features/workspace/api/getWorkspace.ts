@@ -36,18 +36,53 @@ export const getWorkspace = authenticatedProcedure
         additionalStorageIndex: true,
         isQuarantined: true,
       }),
+      permissions: z.object({
+        id: z.string(),
+        workspaceId: z.string(),
+        userId: z.string(),
+        canCreateFlowOrFolder: z.boolean(),
+        canViewSettings: z.boolean(),
+        canCreateNewWorkspace: z.boolean(),
+        canConfigureTheme: z.boolean(),
+        canConfigureFlowSettings: z.boolean(),
+        canShareFlow: z.boolean(),
+        canPublish: z.boolean(),
+      }),
     })
   )
   .query(async ({ input: { workspaceId }, ctx: { user } }) => {
     const workspace = await prisma.workspace.findFirst({
       where: { id: workspaceId },
-      include: { members: true },
+      include: {
+        members: true,
+      },
     })
+
+    const permissions = (await prisma.profilePermission.findFirst({
+      where: {
+        userId: user.id,
+        workspace: {
+          id: workspaceId,
+        },
+      },
+    })) || {
+      id: '',
+      workspaceId: '',
+      userId: '',
+      canCreateFlowOrFolder: false,
+      canViewSettings: false,
+      canCreateNewWorkspace: false,
+      canConfigureTheme: false,
+      canConfigureFlowSettings: false,
+      canShareFlow: false,
+      canPublish: false,
+    }
 
     if (!workspace || isReadWorkspaceFobidden(workspace, user))
       throw new TRPCError({ code: 'NOT_FOUND', message: 'No workspaces found' })
 
     return {
       workspace,
+      permissions,
     }
   })
