@@ -47,6 +47,9 @@ export const getWorkspace = authenticatedProcedure
         canConfigureFlowSettings: z.boolean(),
         canShareFlow: z.boolean(),
         canPublish: z.boolean(),
+        canViewResults: z.boolean(),
+        canDuplicateAndExport: z.boolean(),
+        canDeleteFlow: z.boolean(),
       }),
     })
   )
@@ -76,6 +79,9 @@ export const getWorkspace = authenticatedProcedure
       canConfigureFlowSettings: false,
       canShareFlow: false,
       canPublish: false,
+      canViewResults: false,
+      canDuplicateAndExport: false,
+      canDeleteFlow: false,
     }
 
     if (!workspace || isReadWorkspaceFobidden(workspace, user))
