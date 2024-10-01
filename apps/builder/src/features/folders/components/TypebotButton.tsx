@@ -29,6 +29,7 @@ import {
   NodePosition,
   useDragDistance,
 } from '@/features/graph/providers/GraphDndProvider'
+import WithPermission from '@/components/WithPermission'
 
 type Props = {
   typebot: TypebotInDashboard
@@ -181,16 +182,22 @@ const TypebotButton = ({
             aria-label={t('folders.typebotButton.showMoreOptions')}
           >
             {typebot.publishedTypebotId && (
-              <MenuItem onClick={handleUnpublishClick}>
-                {t('folders.typebotButton.unpublish')}
-              </MenuItem>
+              <WithPermission permission="canPublish">
+                <MenuItem onClick={handleUnpublishClick}>
+                  {t('folders.typebotButton.unpublish')}
+                </MenuItem>
+              </WithPermission>
             )}
-            <MenuItem onClick={handleDuplicateClick}>
-              {t('folders.typebotButton.duplicate')}
-            </MenuItem>
-            <MenuItem color="red.400" onClick={handleDeleteClick}>
-              {t('folders.typebotButton.delete')}
-            </MenuItem>
+            <WithPermission permission="canDuplicateAndExport">
+              <MenuItem onClick={handleDuplicateClick}>
+                {t('folders.typebotButton.duplicate')}
+              </MenuItem>
+            </WithPermission>
+            <WithPermission permission="canDeleteFlow">
+              <MenuItem color="red.400" onClick={handleDeleteClick}>
+                {t('folders.typebotButton.delete')}
+              </MenuItem>
+            </WithPermission>
           </MoreButton>
         </>
       )}

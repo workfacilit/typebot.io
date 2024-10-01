@@ -372,15 +372,17 @@ const TypebotNav = ({
         </Button>
       </WithPermission>
       {isResultsDisplayed && (
-        <Button
-          as={Link}
-          href={`/typebots/${typebotId}/results`}
-          colorScheme={router.pathname.includes('results') ? 'blue' : 'gray'}
-          variant={router.pathname.includes('results') ? 'outline' : 'ghost'}
-          size="sm"
-        >
-          {t('editor.header.resultsButton.label')}
-        </Button>
+        <WithPermission permission="canViewResults">
+          <Button
+            as={Link}
+            href={`/typebots/${typebotId}/results`}
+            colorScheme={router.pathname.includes('results') ? 'blue' : 'gray'}
+            variant={router.pathname.includes('results') ? 'outline' : 'ghost'}
+            size="sm"
+          >
+            {t('editor.header.resultsButton.label')}
+          </Button>
+        </WithPermission>
       )}
     </HStack>
   )

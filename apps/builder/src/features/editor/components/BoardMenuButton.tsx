@@ -23,6 +23,7 @@ import { EditorSettingsModal } from './EditorSettingsModal'
 import { parseDefaultPublicId } from '@/features/publish/helpers/parseDefaultPublicId'
 import { useTranslate } from '@tolgee/react'
 import { RightPanel, useEditor } from '../providers/EditorProvider'
+import WithPermission from '@/components/WithPermission'
 
 export const BoardMenuButton = (props: StackProps) => {
   const { typebot, currentUserMode } = useTypebot()
@@ -78,9 +79,11 @@ export const BoardMenuButton = (props: StackProps) => {
             {t('editor.graph.menu.editorSettingsItem.label')}
           </MenuItem>
           {currentUserMode !== 'guest' ? (
-            <MenuItem icon={<DownloadIcon />} onClick={downloadFlow}>
-              {t('editor.graph.menu.exportFlowItem.label')}
-            </MenuItem>
+            <WithPermission permission="canDuplicateAndExport">
+              <MenuItem icon={<DownloadIcon />} onClick={downloadFlow}>
+                {t('editor.graph.menu.exportFlowItem.label')}
+              </MenuItem>
+            </WithPermission>
           ) : null}
         </MenuList>
         <EditorSettingsModal isOpen={isOpen} onClose={onClose} />

@@ -27,6 +27,7 @@ import { BillingSettingsLayout } from '@/features/billing/components/BillingSett
 import { useTranslate } from '@tolgee/react'
 import { useParentModal } from '@/features/graph/providers/ParentModalProvider'
 import { CredentialsSettingsForm } from '@/features/credentials/components/CredentialsSettingsForm'
+import WithPermission from '@/components/WithPermission'
 
 type Props = {
   isOpen: boolean
@@ -110,17 +111,18 @@ export const WorkspaceSettingsModal = ({
               >
                 {t('workspace.settings.modal.menu.myAccount.label')}
               </Button>
-              <Button
-                variant={selectedTab === 'billing' ? 'solid' : 'ghost'}
-                onClick={() => setSelectedTab('billing')}
-                leftIcon={<InfoIcon />}
-                size="sm"
-                justifyContent="flex-start"
-                pl="4"
-              >
-                {/* {t('workspace.settings.modal.menu.members.label')} */}
-                Monitorar Uso
-              </Button>
+              <WithPermission permission="canViewResults">
+                <Button
+                  variant={selectedTab === 'billing' ? 'solid' : 'ghost'}
+                  onClick={() => setSelectedTab('billing')}
+                  leftIcon={<InfoIcon />}
+                  size="sm"
+                  justifyContent="flex-start"
+                  pl="4"
+                >
+                  Monitorar Uso
+                </Button>
+              </WithPermission>
             </Stack>
           </Stack>
 
