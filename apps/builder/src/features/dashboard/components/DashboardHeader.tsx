@@ -11,6 +11,7 @@ import { WorkspaceDropdown } from '@/features/workspace/components/WorkspaceDrop
 import { WorkspaceSettingsModal } from '@/features/workspace/components/WorkspaceSettingsModal'
 import { ParentModalProvider } from '@/features/graph/providers/ParentModalProvider'
 import { useRouter } from 'next/router'
+import WithPermission from '@/components/WithPermission'
 
 export const DashboardHeader = () => {
   const { t } = useTranslate()
@@ -58,13 +59,15 @@ export const DashboardHeader = () => {
             </ParentModalProvider>
           )}
           {!workspace?.isPastDue && (
-            <Button
-              leftIcon={<SettingsIcon />}
-              onClick={onOpen}
-              isLoading={isNotDefined(workspace)}
-            >
-              {t('dashboard.header.settingsButton.label')}
-            </Button>
+            <WithPermission permission="canViewSettings">
+              <Button
+                leftIcon={<SettingsIcon />}
+                onClick={onOpen}
+                isLoading={isNotDefined(workspace)}
+              >
+                {t('dashboard.header.settingsButton.label')}
+              </Button>
+            </WithPermission>
           )}
           <WorkspaceDropdown
             currentWorkspace={workspace}

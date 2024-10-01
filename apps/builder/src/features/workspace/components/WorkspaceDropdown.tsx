@@ -17,6 +17,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { WorkspaceInApp } from '../WorkspaceProvider'
+import WithPermission from '@/components/WithPermission'
 
 type Props = {
   currentWorkspace?: WorkspaceInApp
@@ -70,9 +71,11 @@ export const WorkspaceDropdown = ({
               </HStack>
             </MenuItem>
           ))}
-        <MenuItem onClick={onCreateNewWorkspaceClick} icon={<PlusIcon />}>
-          {t('workspace.dropdown.newButton.label')}
-        </MenuItem>
+        <WithPermission permission="canCreateNewWorkspace">
+          <MenuItem onClick={onCreateNewWorkspaceClick} icon={<PlusIcon />}>
+            {t('workspace.dropdown.newButton.label')}
+          </MenuItem>
+        </WithPermission>
         {activeLogoff && (
           <>
             <MenuItem
