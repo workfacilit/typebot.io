@@ -74,6 +74,7 @@ const typebotContext = createContext<
       save?: boolean
       overwrite?: boolean
     }) => Promise<TypebotV6 | undefined>
+    setBlockUpdate: React.Dispatch<React.SetStateAction<boolean>>
     restorePublishedTypebot: () => void
   } & GroupsActions &
     BlocksActions &
@@ -97,6 +98,8 @@ export const TypebotProvider = ({
   const setGroupsCoordinates = useGroupsStore(
     (state) => state.setGroupsCoordinates
   )
+
+  const [blockUpdate, setBlockUpdate] = useState(false)
 
   const {
     data: typebotData,
@@ -221,7 +224,17 @@ export const TypebotProvider = ({
 
   const saveTypebot = useCallback(
     async (updates?: Partial<TypebotV6>, overwrite?: boolean) => {
-      if (!localTypebot || !typebot || isReadOnly) return
+      if (blockUpdate) {
+        showToast({
+          title: 'Permisão de edição',
+          description: 'Seu perfil não tem permissão para editar o fluxo',
+          status: 'info',
+        })
+        return
+      }
+      if (!localTypebot || !typebot || isReadOnly) {
+        return
+      }
       const typebotToSave = {
         ...localTypebot,
         ...updates,
@@ -251,12 +264,14 @@ export const TypebotProvider = ({
       }
     },
     [
-      isReadOnly,
+      blockUpdate,
       localTypebot,
-      setLocalTypebot,
-      setUpdateDate,
       typebot,
+      isReadOnly,
+      setLocalTypebot,
+      showToast,
       updateTypebot,
+      setUpdateDate,
     ]
   )
 
@@ -337,6 +352,7 @@ export const TypebotProvider = ({
         canUndo,
         canRedo,
         isPublished,
+        setBlockUpdate,
         updateTypebot: updateLocalTypebot,
         restorePublishedTypebot,
         ...groupsActions(setLocalTypebot as SetTypebot),

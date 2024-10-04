@@ -423,6 +423,7 @@ model ProfilePermission {
   canViewResults           Boolean   @default(false)
   canDuplicateAndExport    Boolean   @default(false)
   canDeleteFlow            Boolean   @default(false)
+  canEditFlow              Boolean   @default(false)
   user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace                Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }

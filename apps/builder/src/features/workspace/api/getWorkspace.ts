@@ -50,6 +50,7 @@ export const getWorkspace = authenticatedProcedure
         canViewResults: z.boolean(),
         canDuplicateAndExport: z.boolean(),
         canDeleteFlow: z.boolean(),
+        canEditFlow: z.boolean(),
       }),
     })
   )
@@ -82,6 +83,7 @@ export const getWorkspace = authenticatedProcedure
       canViewResults: false,
       canDuplicateAndExport: false,
       canDeleteFlow: false,
+      canEditFlow: false,
     }
 
     if (!workspace || isReadWorkspaceFobidden(workspace, user))
