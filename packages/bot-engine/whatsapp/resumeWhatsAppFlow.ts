@@ -125,7 +125,7 @@ export const resumeWhatsAppFlow = async ({
 
   let resumeResponse
 
-  if (reply?.text === '/sair' && workspaceId) {
+  if (reply?.type === 'text' && reply.text === '/sair' && workspaceId) {
     resumeResponse = workspaceId
       ? await startWhatsAppSession({
           incomingMessage: reply,
@@ -194,7 +194,11 @@ export const resumeWhatsAppFlow = async ({
         typebotId,
         'inbound',
         resultIdWA,
-        reply?.text ?? reply?.attachedFileUrls,
+        reply?.type === 'text'
+          ? reply.text
+          : reply?.type === 'audio'
+          ? reply.url
+          : (reply as any)?.attachedFileUrls ?? [],
         receivedMessage.from,
         'whatsapp'
       )
