@@ -27,11 +27,7 @@ export const SignInPage = ({ type }: Props) => {
         onClick={() => {
           throw new Error('Sentry is working')
         }}
-      >
-        {type === 'signin'
-          ? t('auth.signin.heading')
-          : t('auth.register.heading')}
-      </Heading>
+      ></Heading>
       {type === 'signin' ? (
         <Text>
           <TextLink href="/register"></TextLink>
