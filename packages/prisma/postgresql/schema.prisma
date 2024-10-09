@@ -53,7 +53,7 @@ model User {
   preferredAppAppearance      String?
   token                       String?
   profile                     Int?
-  profilePermission           ProfilePermission?
+  profilePermission           ProfilePermission[]
   accounts                    Account[]
   apiTokens                   ApiToken[]
   CollaboratorsOnTypebots     CollaboratorsOnTypebots[]
@@ -103,7 +103,7 @@ model Workspace {
   themeTemplates                ThemeTemplate[]
   messageLogs                   MessageLog[]
   ProfileInWorkspace            ProfileInWorkspace[]
-  profilePermissions            ProfilePermission?
+  profilePermissions            ProfilePermission[]
 }
 
 model MemberInWorkspace {
@@ -411,8 +411,8 @@ model MessageLog {
 
 model ProfilePermission {
   id                       String    @id @default(cuid())
-  workspaceId              String    @unique
-  userId                   String    @unique
+  workspaceId              String
+  userId                   String
   canCreateFlowOrFolder    Boolean   @default(false)
   canViewSettings          Boolean   @default(false)
   canCreateNewWorkspace    Boolean   @default(false)
@@ -426,6 +426,8 @@ model ProfilePermission {
   canEditFlow              Boolean   @default(false)
   user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace                Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
 }
 
 enum WorkspaceRole {

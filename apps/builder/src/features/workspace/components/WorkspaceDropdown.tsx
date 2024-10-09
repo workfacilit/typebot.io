@@ -37,7 +37,7 @@ export const WorkspaceDropdown = ({
 
   const workspaces = data?.workspaces ?? []
 
-  const activeLogoff = true
+  const activeLogoff = false
 
   return (
     <Menu placement="bottom-end">
