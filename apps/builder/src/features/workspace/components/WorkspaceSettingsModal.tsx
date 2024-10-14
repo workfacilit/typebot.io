@@ -13,6 +13,7 @@ import {
   // UsersIcon,
   InfoIcon,
   GlobeIcon,
+  FolderIcon,
 } from '@/components/icons'
 import { EmojiOrImageIcon } from '@/components/EmojiOrImageIcon'
 import { User, WorkspaceRole } from '@typebot.io/prisma'
@@ -110,6 +111,16 @@ export const WorkspaceSettingsModal = ({
                 pl="4"
               >
                 {t('workspace.settings.modal.menu.myAccount.label')}
+              </Button>
+              <Button
+                variant={selectedTab === 'credentials' ? 'solid' : 'ghost'}
+                onClick={() => setSelectedTab('credentials')}
+                leftIcon={<FolderIcon />}
+                size="sm"
+                justifyContent="flex-start"
+                pl="4"
+              >
+                Credenciais
               </Button>
               <WithPermission permission="canViewResults">
                 <Button
