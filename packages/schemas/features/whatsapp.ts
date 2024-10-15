@@ -132,15 +132,19 @@ export const incomingMessageSchema = z.discriminatedUnion('type', [
     type: z.literal('interactive'),
     interactive: z.object({
       type: z.enum(['button_reply', 'list_reply']),
-      button_reply: z.object({
-        id: z.string(),
-        title: z.string(),
-      }).optional(),
-      list_reply: z.object({
-        id: z.string(),
-        title: z.string(),
-        description: z.string(),
-      }).optional(),
+      button_reply: z
+        .object({
+          id: z.string(),
+          title: z.string(),
+        })
+        .optional(),
+      list_reply: z
+        .object({
+          id: z.string(),
+          title: z.string(),
+          description: z.string(),
+        })
+        .optional(),
     }),
     timestamp: z.string(),
   }),
@@ -215,6 +219,7 @@ export const whatsAppCredentialsSchema = z
     data: z.object({
       systemUserAccessToken: z.string(),
       phoneNumberId: z.string(),
+      bussinessWBId: z.string().optional(),
     }),
   })
   .merge(credentialsBaseSchema)

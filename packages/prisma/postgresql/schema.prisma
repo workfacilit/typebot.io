@@ -154,6 +154,7 @@ model Credentials {
   name        String
   type        String
   iv          String
+  identifier  String?
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 }
 
