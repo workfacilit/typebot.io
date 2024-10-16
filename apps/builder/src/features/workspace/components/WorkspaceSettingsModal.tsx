@@ -60,7 +60,12 @@ export const WorkspaceSettingsModal = ({
   const canEditWorkspace = currentRole === WorkspaceRole.ADMIN
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="4xl"
+      motionPreset="slideInBottom"
+    >
       <ModalOverlay />
       <ModalContent minH="600px" flexDir="row" ref={ref}>
         <Stack
