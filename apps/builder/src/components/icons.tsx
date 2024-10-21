@@ -115,6 +115,15 @@ export const ImageIcon = (props: IconProps) => (
   </Icon>
 )
 
+export const CredentialManagementIcon = (props: IconProps) => (
+  <Icon viewBox="0 0 24 24" {...featherIconsBaseProps} {...props}>
+    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+    <circle cx="16" cy="16" r="2"></circle>
+    <path d="M18 16h3"></path>
+    <path d="M21 16v2"></path>
+  </Icon>
+)
+
 export const CalendarIcon = (props: IconProps) => (
   <Icon viewBox="0 0 24 24" {...featherIconsBaseProps} {...props}>
     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>

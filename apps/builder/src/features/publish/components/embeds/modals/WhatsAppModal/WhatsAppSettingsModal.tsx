@@ -21,6 +21,7 @@ export const WhatsappSettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const defaultTab = 'wpp-settings'
   const [selectedTab, setSelectedTab] = useState<SettingsTab>(defaultTab)
   const { typebot } = useTypebot()
+  const showTemplates = false
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="6xl">
@@ -45,7 +46,7 @@ export const WhatsappSettingsModal = ({ isOpen, onClose }: ModalProps) => {
               >
                 Conectar Número
               </Button>
-              {typebot?.whatsAppCredentialsId && (
+              {typebot?.whatsAppCredentialsId && showTemplates && (
                 <Button
                   variant={selectedTab === 'templates' ? 'solid' : 'ghost'}
                   onClick={() => setSelectedTab('templates')}
