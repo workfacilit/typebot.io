@@ -5,6 +5,7 @@ import { stringify } from 'qs'
 import React from 'react'
 import { useTranslate } from '@tolgee/react'
 import { useTypebotDnd } from '../TypebotDndProvider'
+import WithPermission from '@/components/WithPermission'
 
 export const CreateBotButton = ({
   folderId,
@@ -22,31 +23,33 @@ export const CreateBotButton = ({
     )
 
   return (
-    <Button
-      style={{
-        width: '225px',
-        height: '270px',
-        backgroundColor: 'rgb(227, 242, 253)',
-        color: 'rgb(17, 114, 209)',
-      }}
-      onClick={handleClick}
-      paddingX={6}
-      whiteSpace={'normal'}
-      opacity={draggedTypebot ? 0.6 : 5}
-      {...props}
-    >
-      <VStack spacing="6">
-        <PlusIcon fontSize="40px" />
-        <Text
-          fontSize={18}
-          fontWeight="medium"
-          maxW={40}
-          textAlign="center"
-          mt="6"
-        >
-          {t('folders.createTypebotButton.label')}
-        </Text>
-      </VStack>
-    </Button>
+    <WithPermission permission="canCreateFlowOrFolder">
+      <Button
+        style={{
+          width: '225px',
+          height: '270px',
+          backgroundColor: 'rgb(227, 242, 253)',
+          color: 'rgb(17, 114, 209)',
+        }}
+        onClick={handleClick}
+        paddingX={6}
+        whiteSpace={'normal'}
+        opacity={draggedTypebot ? 0.6 : 5}
+        {...props}
+      >
+        <VStack spacing="6">
+          <PlusIcon fontSize="40px" />
+          <Text
+            fontSize={18}
+            fontWeight="medium"
+            maxW={40}
+            textAlign="center"
+            mt="6"
+          >
+            {t('folders.createTypebotButton.label')}
+          </Text>
+        </VStack>
+      </Button>
+    </WithPermission>
   )
 }

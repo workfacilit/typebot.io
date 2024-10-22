@@ -38,6 +38,7 @@ import { CorsError } from '@/utils/CorsError'
 import { Toaster, Toast } from '@ark-ui/solid'
 import { CloseIcon } from './icons/CloseIcon'
 import { toaster } from '@/utils/toaster'
+import { setBotContainer } from '@/utils/botContainerSignal'
 
 export type BotProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -150,8 +151,25 @@ export const Bot = (props: BotProps & { class?: string }) => {
       const initialChatInStorage = getInitialChatReplyFromStorage(
         data.typebot.id
       )
-      if (initialChatInStorage) {
-        setInitialChatReply(initialChatInStorage)
+      if (
+        initialChatInStorage &&
+        initialChatInStorage.typebot.publishedAt &&
+        data.typebot.publishedAt
+      ) {
+        if (
+          new Date(initialChatInStorage.typebot.publishedAt).getTime() ===
+          new Date(data.typebot.publishedAt).getTime()
+        ) {
+          setInitialChatReply(initialChatInStorage)
+        } else {
+          // Restart chat by resetting remembered state
+          wipeExistingChatStateInStorage(data.typebot.id)
+          setInitialChatReply(data)
+          setInitialChatReplyInStorage(data, {
+            typebotId: data.typebot.id,
+            storage,
+          })
+        }
       } else {
         setInitialChatReply(data)
         setInitialChatReplyInStorage(data, {
@@ -268,16 +286,17 @@ const BotContent = (props: BotContentProps) => {
       key: `typebot-${props.context.typebot.id}-progressValue`,
     }
   )
-  let botContainer: HTMLDivElement | undefined
+  let botContainerElement: HTMLDivElement | undefined
 
   const resizeObserver = new ResizeObserver((entries) => {
     return setIsMobile(entries[0].target.clientWidth < 400)
   })
 
   onMount(() => {
-    if (!botContainer) return
-    resizeObserver.observe(botContainer)
-    setBotContainerHeight(`${botContainer.clientHeight}px`)
+    if (!botContainerElement) return
+    setBotContainer(botContainerElement)
+    resizeObserver.observe(botContainerElement)
+    setBotContainerHeight(`${botContainerElement.clientHeight}px`)
   })
 
   createEffect(() => {
@@ -287,22 +306,22 @@ const BotContent = (props: BotContentProps) => {
         family: defaultFontFamily,
       }
     )
-    if (!botContainer) return
+    if (!botContainerElement) return
     setCssVariablesValue(
       props.initialChatReply.typebot.theme,
-      botContainer,
+      botContainerElement,
       props.context.isPreview
     )
   })
 
   onCleanup(() => {
-    if (!botContainer) return
-    resizeObserver.unobserve(botContainer)
+    if (!botContainerElement) return
+    resizeObserver.unobserve(botContainerElement)
   })
 
   return (
     <div
-      ref={botContainer}
+      ref={botContainerElement}
       class={clsx(
         'relative flex w-full h-full text-base overflow-hidden flex-col justify-center items-center typebot-container',
         props.class
@@ -341,7 +360,7 @@ const BotContent = (props: BotContentProps) => {
           props.initialChatReply.typebot.settings.general?.isBrandingEnabled
         }
       >
-        <LiteBadge botContainer={botContainer} />
+        <LiteBadge botContainer={botContainerElement} />
       </Show>
       <Toaster toaster={toaster}>
         {(toast) => (

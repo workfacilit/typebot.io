@@ -25,7 +25,7 @@ export const sendWhatsAppMessage = async ({
   typebotId,
 }: Props) => {
   ky.post(
-    `${env.WHATSAPP_CLOUD_API_URL}/v20.0/${credentials.phoneNumberId}/messages`,
+    `${env.WHATSAPP_CLOUD_API_URL}/v17.0/${credentials.phoneNumberId}/messages`,
     {
       headers: {
         Authorization: `Bearer ${credentials.systemUserAccessToken}`,

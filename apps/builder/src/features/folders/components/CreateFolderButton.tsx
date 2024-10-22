@@ -7,6 +7,7 @@ import { ChangePlanModal } from '@/features/billing/components/ChangePlanModal'
 import { LockTag } from '@/features/billing/components/LockTag'
 import { isFreePlan } from '@/features/billing/helpers/isFreePlan'
 import { useTranslate } from '@tolgee/react'
+import WithPermission from '@/components/WithPermission'
 
 type Props = { isLoading: boolean; onClick: () => void }
 
@@ -20,20 +21,22 @@ export const CreateFolderButton = ({ isLoading, onClick }: Props) => {
     onClick()
   }
   return (
-    <Button
-      leftIcon={<FolderPlusIcon />}
-      onClick={handleClick}
-      isLoading={isLoading}
-    >
-      <HStack>
-        <Text>{t('folders.createFolderButton.label')}</Text>
-        {isFreePlan(workspace) && <LockTag plan={Plan.STARTER} />}
-      </HStack>
-      <ChangePlanModal
-        isOpen={isOpen}
-        onClose={onClose}
-        type={t('billing.limitMessage.folder')}
-      />
-    </Button>
+    <WithPermission permission="canCreateFlowOrFolder">
+      <Button
+        leftIcon={<FolderPlusIcon />}
+        onClick={handleClick}
+        isLoading={isLoading}
+      >
+        <HStack>
+          <Text>{t('folders.createFolderButton.label')}</Text>
+          {isFreePlan(workspace) && <LockTag plan={Plan.STARTER} />}
+        </HStack>
+        <ChangePlanModal
+          isOpen={isOpen}
+          onClose={onClose}
+          type={t('billing.limitMessage.folder')}
+        />
+      </Button>
+    </WithPermission>
   )
 }

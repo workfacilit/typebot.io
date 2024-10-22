@@ -38,6 +38,7 @@ import { GuestTypebotHeader } from './UnauthenticatedTypebotHeader'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider'
 import { Plan } from '@typebot.io/prisma'
+import WithPermission from '@/components/WithPermission'
 
 export const TypebotHeader = () => {
   const { typebot, publishedTypebot, currentUserMode } = useTypebot()
@@ -306,7 +307,11 @@ const RightElements = ({
           Duplicar
         </Button>
       )}
-      {currentUserMode === 'write' && <PublishButton size="sm" />}
+      {currentUserMode === 'write' && (
+        <WithPermission permission="canPublish">
+          <PublishButton size="sm" />
+        </WithPermission>
+      )}
     </HStack>
   )
 }
@@ -333,43 +338,51 @@ const TypebotNav = ({
       >
         {t('editor.header.flowButton.label')}
       </Button>
-      <Button
-        as={Link}
-        href={`/typebots/${typebotId}/theme`}
-        colorScheme={router.pathname.endsWith('theme') ? 'blue' : 'gray'}
-        variant={router.pathname.endsWith('theme') ? 'outline' : 'ghost'}
-        size="sm"
-      >
-        {t('editor.header.themeButton.label')}
-      </Button>
-      <Button
-        as={Link}
-        href={`/typebots/${typebotId}/settings`}
-        colorScheme={router.pathname.endsWith('settings') ? 'blue' : 'gray'}
-        variant={router.pathname.endsWith('settings') ? 'outline' : 'ghost'}
-        size="sm"
-      >
-        {t('editor.header.settingsButton.label')}
-      </Button>
-      <Button
-        as={Link}
-        href={`/typebots/${typebotId}/share`}
-        colorScheme={router.pathname.endsWith('share') ? 'blue' : 'gray'}
-        variant={router.pathname.endsWith('share') ? 'outline' : 'ghost'}
-        size="sm"
-      >
-        {t('share.button.label')}
-      </Button>
-      {isResultsDisplayed && (
+      <WithPermission permission="canConfigureTheme">
         <Button
           as={Link}
-          href={`/typebots/${typebotId}/results`}
-          colorScheme={router.pathname.includes('results') ? 'blue' : 'gray'}
-          variant={router.pathname.includes('results') ? 'outline' : 'ghost'}
+          href={`/typebots/${typebotId}/theme`}
+          colorScheme={router.pathname.endsWith('theme') ? 'blue' : 'gray'}
+          variant={router.pathname.endsWith('theme') ? 'outline' : 'ghost'}
           size="sm"
         >
-          {t('editor.header.resultsButton.label')}
+          {t('editor.header.themeButton.label')}
         </Button>
+      </WithPermission>
+      <WithPermission permission="canConfigureFlowSettings">
+        <Button
+          as={Link}
+          href={`/typebots/${typebotId}/settings`}
+          colorScheme={router.pathname.endsWith('settings') ? 'blue' : 'gray'}
+          variant={router.pathname.endsWith('settings') ? 'outline' : 'ghost'}
+          size="sm"
+        >
+          {t('editor.header.settingsButton.label')}
+        </Button>
+      </WithPermission>
+      <WithPermission permission="canShareFlow">
+        <Button
+          as={Link}
+          href={`/typebots/${typebotId}/share`}
+          colorScheme={router.pathname.endsWith('share') ? 'blue' : 'gray'}
+          variant={router.pathname.endsWith('share') ? 'outline' : 'ghost'}
+          size="sm"
+        >
+          {t('share.button.label')}
+        </Button>
+      </WithPermission>
+      {isResultsDisplayed && (
+        <WithPermission permission="canViewResults">
+          <Button
+            as={Link}
+            href={`/typebots/${typebotId}/results`}
+            colorScheme={router.pathname.includes('results') ? 'blue' : 'gray'}
+            variant={router.pathname.includes('results') ? 'outline' : 'ghost'}
+            size="sm"
+          >
+            {t('editor.header.resultsButton.label')}
+          </Button>
+        </WithPermission>
       )}
     </HStack>
   )

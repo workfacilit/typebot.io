@@ -41,7 +41,8 @@ import {
   WhatsAppLogo,
   whatsAppBrandColor,
 } from '@/components/logos/WhatsAppLogo'
-import { WhatsAppModal } from './modals/WhatsAppModal/WhatsAppModal'
+// import { WhatsAppModal } from './modals/WhatsAppModal/WhatsAppModal'
+import { WhatsappSettingsModal } from './modals/WhatsAppModal/WhatsAppSettingsModal'
 import { ParentModalProvider } from '@/features/graph/providers/ParentModalProvider'
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider'
 import { hasProPerks } from '@/features/billing/helpers/hasProPerks'
@@ -115,7 +116,11 @@ export const integrationsList = [
           label="WhatsApp"
           lockTagPlan={hasProPerks(workspace) ? undefined : 'PRO'}
           modal={({ onClose, isOpen }) => (
-            <WhatsAppModal isOpen={isOpen} onClose={onClose} {...props} />
+            <WhatsappSettingsModal
+              isOpen={isOpen}
+              onClose={onClose}
+              {...props}
+            />
           )}
           {...props}
         />

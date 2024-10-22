@@ -98,10 +98,10 @@ export const CredentialsSettingsForm = () => {
         onClose={() => setEditingCredentials(undefined)}
       />
       <HStack justifyContent="space-between">
-        <Heading fontSize="2xl">Credentials</Heading>
+        <Heading fontSize="2xl">Credenciais</Heading>
         <Menu isLazy>
           <MenuButton as={Button} size="sm" leftIcon={<PlusIcon />}>
-            Create new
+            Adicionar
           </MenuButton>
           <MenuList>
             {credentialsTypes.map((type) => (

@@ -17,4 +17,6 @@ export const mockedUser: User = {
     ['graphGestureNotification']: true,
   },
   referral: null,
+  token: 'mockedToken',
+  profile: null,
 }

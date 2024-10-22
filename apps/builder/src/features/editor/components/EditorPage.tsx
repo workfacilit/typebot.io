@@ -21,8 +21,9 @@ import { VariablesDrawer } from '@/features/preview/components/VariablesDrawer'
 // import { VideoOnboardingFloatingWindow } from '@/features/onboarding/components/VideoOnboardingFloatingWindow'
 
 export const EditorPage = () => {
-  const { typebot, currentUserMode, is404 } = useTypebot()
-  const { workspace } = useWorkspace()
+  const { typebot, is404, setBlockUpdate } = useTypebot()
+  let { currentUserMode } = useTypebot()
+  const { workspace, permissions } = useWorkspace()
   const backgroundImage = useColorModeValue(
     'radial-gradient(#c6d0e1 1px, transparent 0)',
     'radial-gradient(#2f2f39 1px, transparent 0)'
@@ -30,6 +31,14 @@ export const EditorPage = () => {
   const bgColor = useColorModeValue('#f4f5f8', 'gray.850')
 
   const isSuspicious = typebot?.riskLevel === 100 && !workspace?.isVerified
+
+  if (permissions?.canEditFlow) {
+    currentUserMode = 'write'
+    setBlockUpdate(false)
+  } else if (!permissions?.canEditFlow) {
+    currentUserMode = 'guest'
+    setBlockUpdate(true)
+  }
 
   if (is404) return <TypebotNotFoundPage />
 

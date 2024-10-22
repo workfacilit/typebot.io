@@ -18,6 +18,8 @@ export const userSchema = z.object({
   graphNavigation: z.nativeEnum(GraphNavigation),
   preferredAppAppearance: z.string().nullable(),
   displayedInAppNotifications: displayedInAppNotificationsSchema.nullable(),
+  token: z.string().nullable(),
+  profile: z.number().nullable(),
 }) satisfies z.ZodType<PrismaUser>
 
 export type User = z.infer<typeof userSchema>

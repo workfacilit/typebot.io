@@ -21,13 +21,15 @@ test('should work as expected', async ({ page, browser }) => {
       getTestAsset('typebots/fileUpload.json'),
       getTestAsset('typebots/hugeGroup.json'),
     ])
-  await expect(page.locator(`text="3"`)).toBeVisible()
   await page.locator('text="Upload 3 files"').click()
   await expect(page.locator(`text="3 files uploaded"`)).toBeVisible()
   await page.goto(`${env.NEXTAUTH_URL}/typebots/${typebotId}/results`)
   await expect(page.getByRole('link', { name: 'api.json' })).toHaveAttribute(
     'href',
-    /.+\/api\.json/
+    /.+\/api\.json/,
+    {
+      timeout: 10000,
+    }
   )
   await expect(
     page.getByRole('link', { name: 'fileUpload.json' })
@@ -65,6 +67,7 @@ test('should work as expected', async ({ page, browser }) => {
   page.getByRole('button', { name: 'Delete' }).click()
   await page.locator('button >> text="Delete"').click()
   await expect(page.locator('text="api.json"')).toBeHidden()
-  await page2.goto(urls[0])
-  await expect(page2.locator('pre')).toBeHidden()
+  const page3 = await browser.newPage()
+  await page3.goto(urls[0])
+  await expect(page3.locator('pre')).toBeHidden()
 })

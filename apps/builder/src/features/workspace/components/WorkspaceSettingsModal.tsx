@@ -13,6 +13,7 @@ import {
   // UsersIcon,
   InfoIcon,
   GlobeIcon,
+  CredentialManagementIcon,
 } from '@/components/icons'
 import { EmojiOrImageIcon } from '@/components/EmojiOrImageIcon'
 import { User, WorkspaceRole } from '@typebot.io/prisma'
@@ -27,6 +28,7 @@ import { BillingSettingsLayout } from '@/features/billing/components/BillingSett
 import { useTranslate } from '@tolgee/react'
 import { useParentModal } from '@/features/graph/providers/ParentModalProvider'
 import { CredentialsSettingsForm } from '@/features/credentials/components/CredentialsSettingsForm'
+import WithPermission from '@/components/WithPermission'
 
 type Props = {
   isOpen: boolean
@@ -58,7 +60,12 @@ export const WorkspaceSettingsModal = ({
   const canEditWorkspace = currentRole === WorkspaceRole.ADMIN
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="4xl"
+      motionPreset="slideInBottom"
+    >
       <ModalOverlay />
       <ModalContent minH="600px" flexDir="row" ref={ref}>
         <Stack
@@ -111,16 +118,27 @@ export const WorkspaceSettingsModal = ({
                 {t('workspace.settings.modal.menu.myAccount.label')}
               </Button>
               <Button
-                variant={selectedTab === 'billing' ? 'solid' : 'ghost'}
-                onClick={() => setSelectedTab('billing')}
-                leftIcon={<InfoIcon />}
+                variant={selectedTab === 'credentials' ? 'solid' : 'ghost'}
+                onClick={() => setSelectedTab('credentials')}
+                leftIcon={<CredentialManagementIcon />}
                 size="sm"
                 justifyContent="flex-start"
                 pl="4"
               >
-                {/* {t('workspace.settings.modal.menu.members.label')} */}
-                Monitorar Uso
+                Credenciais
               </Button>
+              <WithPermission permission="canViewResults">
+                <Button
+                  variant={selectedTab === 'billing' ? 'solid' : 'ghost'}
+                  onClick={() => setSelectedTab('billing')}
+                  leftIcon={<InfoIcon />}
+                  size="sm"
+                  justifyContent="flex-start"
+                  pl="4"
+                >
+                  Monitorar Uso
+                </Button>
+              </WithPermission>
             </Stack>
           </Stack>
 

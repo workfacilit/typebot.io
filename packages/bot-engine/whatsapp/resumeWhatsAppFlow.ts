@@ -125,7 +125,7 @@ export const resumeWhatsAppFlow = async ({
 
   let resumeResponse
 
-  if (reply?.text === '/sair' && workspaceId) {
+  if (reply?.type === 'text' && reply.text === '/sair' && workspaceId) {
     resumeResponse = workspaceId
       ? await startWhatsAppSession({
           incomingMessage: reply,
@@ -194,7 +194,11 @@ export const resumeWhatsAppFlow = async ({
         typebotId,
         'inbound',
         resultIdWA,
-        reply?.text ?? reply?.attachedFileUrls,
+        reply?.type === 'text'
+          ? reply.text
+          : reply?.type === 'audio'
+          ? reply.url
+          : (reply as any)?.attachedFileUrls ?? [],
         receivedMessage.from,
         'whatsapp'
       )
@@ -308,7 +312,11 @@ const getIncomingMessageContent = async ({
 
         try {
           const fileVisibility =
-            block?.type === InputBlockType.FILE
+            block?.type === InputBlockType.TEXT &&
+            block.options?.audioClip?.isEnabled &&
+            message.type === 'audio'
+              ? block.options?.audioClip.visibility
+              : block?.type === InputBlockType.FILE
               ? block.options?.visibility
               : block?.type === InputBlockType.TEXT
               ? block.options?.attachments?.visibility
@@ -335,6 +343,11 @@ const getIncomingMessageContent = async ({
             })
             fileUrl = url
           }
+          if (message.type === 'audio')
+            return {
+              type: 'audio',
+              url: fileUrl,
+            }
           if (block?.type === InputBlockType.FILE) {
             if (text !== '') text += `, ${fileUrl}`
             else text = fileUrl

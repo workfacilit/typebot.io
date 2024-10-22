@@ -16,4 +16,5 @@ export const credentialsBaseSchema = z.object({
   workspaceId: z.string(),
   name: z.string(),
   iv: z.string(),
+  identifier: z.string(),
 }) satisfies z.ZodType<Omit<CredentialsFromPrisma, 'data' | 'type'>>
