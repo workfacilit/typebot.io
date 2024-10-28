@@ -16,16 +16,46 @@ import {
   MenuItem,
   IconButton,
 } from '@chakra-ui/react'
-import React from 'react'
+import { useState } from 'react'
+import type React from 'react'
 import { MoreInfoTooltip } from '@/components/MoreInfoTooltip'
 import { ChevronLeftIcon, PlusIcon } from '@/components/icons'
 
 export const WhatsAppAddTemplate = () => {
+  const [formData, setFormData] = useState({
+    templateName: '',
+    language: '',
+    category: '',
+    header: '',
+    body: '',
+    footer: '',
+  })
+
+  const handleInputChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = event.target
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }))
+  }
+
+  const formatInput = (value: string): string => {
+    return value
+      .toLowerCase() // Força minúsculas
+      .replace(/[^a-z0-9_]/g, '') // Remove caracteres que não são letras minúsculas, números ou _
+      .replace(/\s/g, '_') // Substitui espaços por _
+  }
+
   return (
     <Stack spacing="10" w="full">
       <Heading fontSize="2xl">Novo Template</Heading>
       <Flex>
         <Box flex="2" pr="4">
+          <small>{'(*) Campos obrigatórios'}</small>
           <FormControl>
             <FormControl>
               <Flex>
@@ -37,13 +67,25 @@ export const WhatsAppAddTemplate = () => {
                     mr="0"
                     mb="2"
                   >
-                    Nome do template
+                    Nome do template *
                     <MoreInfoTooltip>
                       O nome não deve conter espaços, deve ser minúsculo e pode
-                      ser separado por hífen.
+                      ser separado por underline {"('_')"}.
                     </MoreInfoTooltip>
                   </FormLabel>
-                  <Input required placeholder="Nome do template" />
+                  <Input
+                    required
+                    name="templateName"
+                    value={formData.templateName}
+                    onChange={(event) => {
+                      const formattedValue = formatInput(event.target.value)
+                      setFormData((prevFormData) => ({
+                        ...prevFormData,
+                        templateName: formattedValue,
+                      }))
+                    }}
+                    placeholder="Nome do template"
+                  />
                 </Box>
                 <Box flex="1" ml="2">
                   <FormLabel
@@ -54,12 +96,15 @@ export const WhatsAppAddTemplate = () => {
                     mb="2"
                     mt="2"
                   >
-                    Idioma
+                    Idioma *
                   </FormLabel>
                   <Select
                     variant="outline"
                     placeholder="Escolha o Idioma"
                     color="black"
+                    name="language"
+                    value={formData.language}
+                    onChange={handleInputChange}
                     required
                   >
                     <option value="option1">PT-BR</option>
@@ -78,12 +123,15 @@ export const WhatsAppAddTemplate = () => {
                 mb="2"
                 mt="2"
               >
-                Categoria
+                Categoria *
               </FormLabel>
               <Select
                 variant="outline"
                 placeholder="Escolha a Categoria"
                 color="black"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
                 required
               >
                 <option value="option1">MARKETING</option>
@@ -114,7 +162,9 @@ export const WhatsAppAddTemplate = () => {
               <Input
                 name="header"
                 maxLength={60}
-                placeholder="Nome do template"
+                placeholder="Cabeçalho"
+                value={formData.header}
+                onChange={handleInputChange}
               />
 
               <FormLabel
@@ -125,12 +175,18 @@ export const WhatsAppAddTemplate = () => {
                 mb="2"
                 mt="2"
               >
-                Corpo
+                Corpo *
                 <MoreInfoTooltip>
                   {'Crie Variáveis usando tags {{1}}, {{2}} ...'}
                 </MoreInfoTooltip>
               </FormLabel>
-              <Textarea required placeholder="Here is a sample placeholder" />
+              <Textarea
+                name="body"
+                value={formData.body}
+                onChange={handleInputChange}
+                required
+                placeholder="Mensagem do Template"
+              />
 
               <FormLabel
                 display="flex"
@@ -146,9 +202,11 @@ export const WhatsAppAddTemplate = () => {
                 </MoreInfoTooltip>
               </FormLabel>
               <Input
-                name="header"
+                name="footer"
                 maxLength={60}
-                placeholder="Nome do template"
+                value={formData.footer}
+                onChange={handleInputChange}
+                placeholder="Rodapé"
               />
             </FormControl>
 
@@ -233,12 +291,21 @@ export const WhatsAppAddTemplate = () => {
                 }}
               >
                 <Text fontSize="sm" fontWeight="bold">
-                  {'Cabeçalho'}
+                  {formData.header || ''}
                 </Text>
                 <Text fontSize="sm" mt="2">
-                  Esta é uma mensagem de exemplo do template do WhatsApp.
+                  {formData.body.split('\n').map((line) => (
+                    <Text
+                      key={line + Math.random()}
+                      fontSize="sm"
+                      mt={formData.body.split('\n').indexOf(line) === 0 ? 0 : 2}
+                    >
+                      {line}
+                    </Text>
+                  )) ||
+                    'Esta é uma mensagem de exemplo do template do WhatsApp.'}
                 </Text>
-                <Text fontSize="xs">Rodapé.</Text>
+                <Text fontSize="xs">{formData.footer || ''}</Text>
               </Box>
               <Box
                 bg="#FFF"
@@ -247,7 +314,7 @@ export const WhatsAppAddTemplate = () => {
                 maxWidth="90%"
                 mb="2"
                 borderTop="1px solid #ccc"
-              ></Box>
+              />
             </Box>
           </Box>
         </Box>
