@@ -19,7 +19,12 @@ import {
 import { useState } from 'react'
 import type React from 'react'
 import { MoreInfoTooltip } from '@/components/MoreInfoTooltip'
-import { ChevronLeftIcon, PlusIcon } from '@/components/icons'
+import {
+  ChevronLeftIcon,
+  PlusIcon,
+  ReplyIcon,
+  ShareButtonIcon,
+} from '@/components/icons'
 
 export const WhatsAppAddTemplate = () => {
   const [formData, setFormData] = useState({
@@ -252,11 +257,12 @@ export const WhatsAppAddTemplate = () => {
               left="0"
               right="0"
               height="40px"
-              bg="gray.200"
+              bg="#08856F"
               display="flex"
               alignItems="center"
               justifyContent="center"
               borderBottom="1px solid #ccc"
+              color={'white'}
             >
               <Text fontWeight="bold">WhatsApp</Text>
             </Box>
@@ -312,9 +318,34 @@ export const WhatsAppAddTemplate = () => {
                 borderRadius="0 0 4px 4px"
                 p="2"
                 maxWidth="90%"
+                borderTop="1px solid #ccc"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                color="#4C98C7"
+              >
+                <ShareButtonIcon fontSize="sm" />
+                <Text fontSize="sm" ml="2">
+                  Visit website
+                </Text>
+              </Box>
+              <Box
+                bg="#FFF"
+                borderRadius="0 0 4px 4px"
+                p="2"
+                maxWidth="90%"
                 mb="2"
                 borderTop="1px solid #ccc"
-              />
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                color="#4C98C7"
+              >
+                <ReplyIcon fontSize="sm" />
+                <Text fontSize="sm" ml="2">
+                  Quick Reply
+                </Text>
+              </Box>
             </Box>
           </Box>
         </Box>
