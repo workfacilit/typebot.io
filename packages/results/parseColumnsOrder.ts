@@ -1,4 +1,4 @@
-import { ResultHeaderCell } from '@typebot.io/schemas'
+import type { ResultHeaderCell } from '@typebot.io/schemas'
 
 export const parseColumnsOrder = (
   existingOrder: string[] | undefined,
@@ -12,4 +12,4 @@ export const parseColumnsOrder = (
           .map((h) => h.id),
         'logs',
       ]
-    : ['select', ...resultHeader.map((h) => h.id), 'logs']
+    : ['select', ...resultHeader.map((h) => h.id), 'logs', 'message']
