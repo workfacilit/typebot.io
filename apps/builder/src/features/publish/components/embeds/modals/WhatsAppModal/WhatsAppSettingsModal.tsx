@@ -21,7 +21,7 @@ export const WhatsappSettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const defaultTab = 'wpp-settings'
   const [selectedTab, setSelectedTab] = useState<SettingsTab>(defaultTab)
   const { typebot } = useTypebot()
-  const showTemplates = true
+  const showTemplates = false
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="6xl">
