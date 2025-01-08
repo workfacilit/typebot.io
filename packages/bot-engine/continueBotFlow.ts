@@ -70,10 +70,23 @@ export const continueBotFlow = async (
       textBubbleContentFormat,
     })
 
+  // console.log('state.currentBlockId', state.typebotsQueue[0].typebot)
+  // console.log('state.currentBlockId', state.currentBlockId)
+  // console.log('state', state)
+
   const { block, group, blockIndex } = getBlockById(
     state.currentBlockId,
     state.typebotsQueue[0].typebot.groups
   )
+
+  console.log('state.currentBlockId', state.currentBlockId)
+  console.log(
+    'state.typebotsQueue[0].typebot.groups',
+    state.typebotsQueue[0].typebot.groups[11]
+  )
+  console.log('block', block)
+  console.log('group', group)
+  console.log('blockIndex', blockIndex)
 
   if (!block)
     throw new TRPCError({

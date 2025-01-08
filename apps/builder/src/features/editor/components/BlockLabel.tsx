@@ -159,6 +159,12 @@ export const BlockLabel = ({ type, ...props }: Props): JSX.Element => {
           {t('editor.sidebarBlock.abTest.label')}
         </Text>
       )
+    case LogicBlockType.SCHEDULING:
+      return (
+        <Text fontSize="sm" {...props}>
+          {'Agendamento'}
+        </Text>
+      )
     case IntegrationBlockType.GOOGLE_SHEETS:
       return (
         <Text fontSize="sm" {...props}>

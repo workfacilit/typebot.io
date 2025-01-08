@@ -12,6 +12,7 @@ import {
 import { Block, BlockOptions, BlockWithOptions } from '@typebot.io/schemas'
 import { useRef, useState } from 'react'
 import { WaitSettings } from '@/features/blocks/logic/wait/components/WaitSettings'
+import { SchedulingSettings } from '@/features/blocks/logic/scheduling/components/SchedulingSettings'
 import { ScriptSettings } from '@/features/blocks/logic/script/components/ScriptSettings'
 import { JumpSettings } from '@/features/blocks/logic/jump/components/JumpSettings'
 import { MakeComSettings } from '@/features/blocks/integrations/makeCom/components/MakeComSettings'
@@ -272,6 +273,14 @@ export const BlockSettings = ({
     case LogicBlockType.AB_TEST: {
       return (
         <AbTestSettings
+          options={block.options}
+          onOptionsChange={updateOptions}
+        />
+      )
+    }
+    case LogicBlockType.SCHEDULING: {
+      return (
+        <SchedulingSettings
           options={block.options}
           onOptionsChange={updateOptions}
         />
