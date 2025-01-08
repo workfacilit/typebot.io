@@ -1,4 +1,5 @@
 import { env } from '@typebot.io/env'
+import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 
 type Props = {
   identifier: string
@@ -26,8 +27,8 @@ export const sendVerificationRequest = async ({ identifier, url }: Props) => {
         }
       )
     }
-  } catch (err) {
-    console.error(err)
+  } catch (error) {
+    await sendLogRequest('error@sendVerificationRequest', error)
     throw new Error(`Magic link email could not be sent. See error above.`)
   }
 }

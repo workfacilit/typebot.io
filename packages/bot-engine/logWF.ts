@@ -1,3 +1,6 @@
+import { env } from '@typebot.io/env'
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export async function sendLogRequest(tipo: string, data: any): Promise<any> {
   const dataRequest = {
     tipo,
@@ -5,7 +8,7 @@ export async function sendLogRequest(tipo: string, data: any): Promise<any> {
   }
 
   return await fetch(
-    'https://wfv2-dev07.workfacilit.com/app/prod/api/demandas/inserir-log',
+    `https://${env.WF_REQUEST_SERVER}.workfacilit.com/app/prod/api/demandas/inserir-log`,
     {
       method: 'POST',
       headers: {
