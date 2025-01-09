@@ -1,6 +1,6 @@
 import prisma from '@typebot.io/lib/prisma'
 import { authenticatedProcedure } from '@/helpers/server/trpc'
-import { messageSchema } from '@typebot.io/schemas'
+import { messageSchemaResult } from '@typebot.io/schemas'
 import { z } from 'zod'
 
 export const getMessages = authenticatedProcedure
@@ -18,7 +18,7 @@ export const getMessages = authenticatedProcedure
       resultId: z.string(),
     })
   )
-  .output(z.object({ messages: z.array(messageSchema) }))
+  .output(z.object({ messages: z.array(messageSchemaResult) }))
   .query(async ({ input: { resultId } }) => {
     const messages = await prisma.messageLog.findMany({
       where: {

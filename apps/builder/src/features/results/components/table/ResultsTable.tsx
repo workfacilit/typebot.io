@@ -84,7 +84,7 @@ export const ResultsTable = ({
     message: string | null
     direction: string
     timestamp: string
-    id: number
+    id: string // changed from number to string
     identifier?: string | null
     channel?: string | null
   }
@@ -113,6 +113,7 @@ export const ResultsTable = ({
         setMessages(
           fetchedMessages.messages.map((message) => ({
             ...message,
+            id: message.id.toString(),
             timestamp: message.timestamp.toISOString(),
           }))
         )
@@ -194,7 +195,8 @@ export const ResultsTable = ({
                   size="sm"
                   width="100%"
                   isActive={
-                    messages[messages.indexOf(message) + 1]?.message === row.id
+                    messages[messages.findIndex((m) => m.id === message.id) + 1]
+                      ?.message === row.id
                   }
                 >
                   <Text minW="8ch" color={textColor}>
@@ -231,8 +233,9 @@ export const ResultsTable = ({
                     size="sm"
                     width="100%"
                     isActive={
-                      messages[messages.indexOf(message) + 1]?.message ===
-                      button.reply.id
+                      messages[
+                        messages.findIndex((m) => m.id === message.id) + 1
+                      ]?.message === button.reply.id
                     }
                   >
                     <Text minW="8ch" color={textColor}>
@@ -260,8 +263,12 @@ export const ResultsTable = ({
       }
     } catch (e) {
       // If message is not JSON, check for previous interactive message
-      const previousMessage = messages[messages.indexOf(message) - 1]
-      if (previousMessage) {
+      const currentIndex = messages.findIndex((m) => m.id === message.id)
+      const previousMessageIndex = currentIndex - 1
+      const previousMessage =
+        previousMessageIndex >= 0 ? messages[previousMessageIndex] : null
+
+      if (previousMessage?.message) {
         try {
           const parsedPreviousMessage = JSON.parse(previousMessage.message)
           if (parsedPreviousMessage.type === 'interactive') {
@@ -309,7 +316,7 @@ export const ResultsTable = ({
                 {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
                 <audio controls>
                   <source src={message.message} type="audio/mpeg" />
-                  Your browser does not support the audio element.
+                  Seu navegador não suporta o elemento de áudio.
                 </audio>
               </Box>
             ) : (
@@ -329,7 +336,7 @@ export const ResultsTable = ({
               </Text>
             )
           }
-        } catch (e) {
+        } catch (prevError) {
           return message.message.includes('https') ? (
             <Box>
               {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
@@ -672,8 +679,9 @@ export const ResultsTable = ({
             <small style={{ fontSize: '11px' }}>Canal: </small>
             <small style={{ fontSize: '11px' }}>
               {messages[0]
-                ? messages[0].channel.charAt(0).toUpperCase() +
-                  messages[0].channel.slice(1)
+                ? `${
+                    messages[0]?.channel?.charAt(0)?.toUpperCase() ?? ''
+                  }${messages[0]?.channel?.slice(1)}`
                 : ''}
             </small>
             {' | '}
@@ -707,7 +715,12 @@ export const ResultsTable = ({
                       borderRadius="md"
                       maxW="80%"
                     >
-                      {renderMessageContent(message)}
+                      {renderMessageContent({
+                        message: message.message || '',
+                        direction: message.direction,
+                        timestamp: message.timestamp,
+                        id: message.id,
+                      })}
                       <Text
                         textAlign={
                           message.direction === 'outbound' ? 'left' : 'right'

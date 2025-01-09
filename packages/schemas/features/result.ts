@@ -48,7 +48,7 @@ export const logSchema = z.object({
   details: z.string().nullable(),
 }) satisfies z.ZodType<LogPrisma>
 
-export const messageSchema = z.object({
+export const messageSchemaResult = z.object({
   id: z.number(),
   timestamp: z.date(),
   workspaceId: z.string(),
