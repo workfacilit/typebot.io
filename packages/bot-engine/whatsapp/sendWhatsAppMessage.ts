@@ -24,19 +24,26 @@ export const sendWhatsAppMessage = async ({
   resultIdWA,
   typebotId,
 }: Props) => {
-  ky.post(
-    `${env.WHATSAPP_CLOUD_API_URL}/v17.0/${credentials.phoneNumberId}/messages`,
-    {
-      headers: {
-        Authorization: `Bearer ${credentials.systemUserAccessToken}`,
-      },
-      json: {
-        messaging_product: 'whatsapp',
-        to,
-        ...message,
-      },
-    }
-  )
+  try {
+    await ky.post(
+      `${env.WHATSAPP_CLOUD_API_URL}/v17.0/${credentials.phoneNumberId}/messages`,
+      {
+        headers: {
+          Authorization: `Bearer ${credentials.systemUserAccessToken}`,
+        },
+        json: {
+          messaging_product: 'whatsapp',
+          to,
+          ...message,
+        },
+      }
+    )
+  } catch (error) {
+    await sendLogRequest(
+      'errorSendingWhatsAppMessage@sendWhatsAppMessage',
+      error
+    )
+  }
   if (workspaceId) {
     try {
       await logMessage(
