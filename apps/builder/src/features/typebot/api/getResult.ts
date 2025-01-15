@@ -130,13 +130,17 @@ export const getResults = authenticatedProcedure
 
     return {
       results: z.array(resultWithAnswersSchema).parse(
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        results.map((r: { answersV2: any[]; answers: any }) => ({
-          ...r,
-          answers: r.answersV2
-            .concat(r.answers)
-            .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
-        }))
+        results.map(
+          (r: {
+            answersV2: { blockId: string; content: string; createdAt: Date }[]
+            answers: { blockId: string; content: string; createdAt: Date }[]
+          }) => ({
+            ...r,
+            answers: r.answersV2
+              .concat(r.answers)
+              .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
+          })
+        )
       ),
       nextCursor,
     }
