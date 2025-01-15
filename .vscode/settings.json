@@ -18,5 +18,8 @@
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
-  "i18n-ally.sourceLanguage": "pt-BR"
+  "i18n-ally.sourceLanguage": "pt-BR",
+  "cSpell.words": [
+    "typebot"
+  ]
 }

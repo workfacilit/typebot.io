@@ -1,11 +1,11 @@
 import { z } from '../../zod'
-import { blockBaseSchema } from './shared'
+import type { blockBaseSchema } from './shared'
 import { startBlockSchema } from './start/schemas'
-import { ItemV6 } from '../items/schema'
+import type { ItemV6 } from '../items/schema'
 import { bubbleBlockSchemas } from './bubbles/schema'
-import { LogicBlock, logicBlockSchemas } from './logic/schema'
-import { InputBlock, inputBlockSchemas } from './inputs/schema'
-import { IntegrationBlock, integrationBlockSchemas } from './integrations'
+import { type LogicBlock, logicBlockSchemas } from './logic/schema'
+import { type InputBlock, inputBlockSchemas } from './inputs/schema'
+import { type IntegrationBlock, integrationBlockSchemas } from './integrations'
 import { forgedBlockSchemas } from '@typebot.io/forge-repository/schemas'
 
 export type BlockWithOptions = Extract<Block, { options?: any }>

@@ -1,11 +1,11 @@
-import { Text, TextProps } from '@chakra-ui/react'
+import { Text, type TextProps } from '@chakra-ui/react'
 import React from 'react'
 import { useTranslate } from '@tolgee/react'
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { IntegrationBlockType } from '@typebot.io/schemas/features/blocks/integrations/constants'
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
-import { Block } from '@typebot.io/schemas'
+import type { Block } from '@typebot.io/schemas'
 import { ForgedBlockLabel } from '@/features/forge/ForgedBlockLabel'
 
 type Props = { type: Block['type'] } & TextProps
@@ -145,6 +145,12 @@ export const BlockLabel = ({ type, ...props }: Props): JSX.Element => {
       return (
         <Text fontSize="sm" {...props}>
           {t('editor.sidebarBlock.wait.label')}
+        </Text>
+      )
+    case LogicBlockType.WEBHOOK_REQUEST:
+      return (
+        <Text fontSize="sm" {...props}>
+          {'Webhook'}
         </Text>
       )
     case LogicBlockType.JUMP:

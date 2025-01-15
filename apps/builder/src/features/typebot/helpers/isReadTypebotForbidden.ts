@@ -1,5 +1,5 @@
 import { env } from '@typebot.io/env'
-import {
+import type {
   CollaboratorsOnTypebots,
   User,
   Workspace,
