@@ -1,10 +1,10 @@
-import { LogsStore, VariableStore } from '@typebot.io/forge/types'
-import {
+import type { LogsStore, VariableStore } from '@typebot.io/forge/types'
+import type {
   GenerateVariablesOptions,
   toolParametersSchema,
 } from './parseGenerateVariablesOptions'
-import { generateObject, LanguageModel } from 'ai'
-import { Variable } from '@typebot.io/variables/types'
+import { generateObject, type Schema, type LanguageModel } from 'ai'
+import type { Variable } from '@typebot.io/variables/types'
 import { z } from '@typebot.io/forge/zod'
 import { isNotEmpty } from '@typebot.io/lib/utils'
 
@@ -37,22 +37,26 @@ export const runGenerateVariables = async ({
     (variableToExtract) => variableToExtract.isRequired === false
   )
 
-  const { object } = await generateObject({
+  const { object } = (await generateObject({
     model,
-    schema,
+    schema: schema as unknown as Schema<unknown>,
     prompt:
+      // biome-ignore lint/style/useTemplate: <explanation>
       `${prompt}\n\nYou should generate a JSON object` +
       (hasOptionalVariables
         ? ' and provide empty values if the information is not there or if you are unsure.'
         : '.'),
-  })
+  })) as unknown as { [key: string]: unknown }
 
-  Object.entries(object).forEach(([key, value]) => {
-    if (value === null) return
-    const existingVariable = variables.find((v) => v.name === key)
-    if (!existingVariable) return
-    variablesStore.set(existingVariable.id, value)
-  })
+  // biome-ignore lint/complexity/noForEach: <explanation>
+  Object.entries(object as { [key: string]: unknown }).forEach(
+    ([key, value]) => {
+      if (value === null) return
+      const existingVariable = variables.find((v) => v.name === key)
+      if (!existingVariable) return
+      variablesStore.set(existingVariable.id, value)
+    }
+  )
 }
 
 const convertVariablesToExtractToSchema = ({
