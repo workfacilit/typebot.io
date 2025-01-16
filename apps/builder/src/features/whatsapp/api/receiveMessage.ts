@@ -1,10 +1,10 @@
 import { publicProcedure } from '@/helpers/server/trpc'
+import { resumeWhatsAppFlow } from '@typebot.io/bot-engine/whatsapp/resumeWhatsAppFlow'
 import {
-  whatsAppWebhookRequestBodySchema,
   WhatsAppWebhookRequestBody,
+  whatsAppWebhookRequestBodySchema,
 } from '@typebot.io/schemas/features/whatsapp'
 import { z } from 'zod'
-import { resumeWhatsAppFlow } from '@typebot.io/bot-engine/whatsapp/resumeWhatsAppFlow'
 
 const whatsAppSessionIdPrefix = 'wa-'
 

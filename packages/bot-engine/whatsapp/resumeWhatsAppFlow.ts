@@ -31,7 +31,8 @@ type Props = {
   credentialsId?: string
   phoneNumberId?: string
   workspaceId?: string
-  contact: NonNullable<SessionState['whatsApp']>['contact']
+  contact?: NonNullable<SessionState['whatsApp']>['contact']
+  origin?: 'webhook'
 }
 
 export const resumeWhatsAppFlow = async ({
