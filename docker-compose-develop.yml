@@ -1,0 +1,21 @@
+version: '3.3'
+
+volumes:
+  db-data:
+
+services:
+  typebot-builder:
+    image: samuellopes123/typebot:builder_dev
+    restart: always
+    ports:
+      - '8080:3000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    env_file: .env
+
+  typebot-viewer:
+    image: samuellopes123/typebot:viewer_dev
+    restart: always
+    ports:
+      - '8081:3000'
+    env_file: .env
