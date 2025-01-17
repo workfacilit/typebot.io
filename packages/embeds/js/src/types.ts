@@ -1,4 +1,7 @@
-import { ContinueChatResponse, StartChatResponse } from '@typebot.io/schemas'
+import type {
+  ContinueChatResponse,
+  StartChatResponse,
+} from '@typebot.io/schemas'
 
 export type BotContext = {
   typebot: StartChatResponse['typebot']
@@ -18,6 +21,7 @@ export type OutgoingLog = {
 export type ClientSideActionContext = {
   apiHost?: string
   sessionId: string
+  resultId?: string
 }
 
 export type ChatChunk = Pick<

@@ -22,7 +22,8 @@
     "ky": "1.2.4",
     "marked": "9.0.3",
     "solid-element": "1.7.1",
-    "solid-js": "1.7.8"
+    "solid-js": "1.7.8",
+    "partysocket": "1.0.2"
   },
   "devDependencies": {
     "@babel/preset-typescript": "7.22.5",

@@ -1,5 +1,5 @@
-import { Log } from '@typebot.io/prisma'
-import {
+import type { Log } from '@typebot.io/prisma'
+import type {
   Edge,
   Group,
   PublicTypebot,
@@ -8,8 +8,11 @@ import {
   Variable,
   VariableWithUnknowValue,
 } from '@typebot.io/schemas'
-import { TypebotViewerProps } from './components/TypebotViewer'
-import { LinkedTypebot } from './providers/TypebotProvider'
+import type { TypebotViewerProps } from './components/TypebotViewer'
+import type { LinkedTypebot } from './providers/TypebotProvider'
+import type { SessionState } from '@typebot.io/schemas'
+import type { SetVariableHistoryItem } from '@typebot.io/schemas'
+import type { ContinueChatResponse } from '@typebot.io/schemas'
 
 export type InputSubmitContent = {
   label?: string
@@ -18,6 +21,12 @@ export type InputSubmitContent = {
 }
 
 export type EdgeId = string
+
+export type ExecuteLogicResponse = {
+  outgoingEdgeId: string | undefined
+  newSessionState?: SessionState
+  newSetVariableHistory?: SetVariableHistoryItem[]
+} & Pick<ContinueChatResponse, 'clientSideActions' | 'logs'>
 
 export type LogicState = {
   isPreview: boolean

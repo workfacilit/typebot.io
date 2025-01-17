@@ -1,4 +1,4 @@
-import {
+import type {
   AnswerInSessionState,
   Block,
   ContinueChatResponse,
@@ -15,10 +15,9 @@ import { executeGroup, parseInput } from './executeGroup'
 import { getNextGroup } from './getNextGroup'
 import { formatEmail } from './blocks/inputs/email/formatEmail'
 import { formatPhoneNumber } from './blocks/inputs/phone/formatPhoneNumber'
-import { resumeWebhookExecution } from './blocks/integrations/webhook/resumeWebhookExecution'
 import { saveAnswer } from './queries/saveAnswer'
 import { parseButtonsReply } from './blocks/inputs/buttons/parseButtonsReply'
-import { ParsedReply, Reply } from './types'
+import type { ParsedReply, Reply } from './types'
 import { validateNumber } from './blocks/inputs/number/validateNumber'
 import { parseDateReply } from './blocks/inputs/date/parseDateReply'
 import { validateRatingReply } from './blocks/inputs/rating/validateRatingReply'
@@ -37,15 +36,17 @@ import { defaultEmailInputOptions } from '@typebot.io/schemas/features/blocks/in
 import { defaultChoiceInputOptions } from '@typebot.io/schemas/features/blocks/inputs/choice/constants'
 import { defaultPictureChoiceOptions } from '@typebot.io/schemas/features/blocks/inputs/pictureChoice/constants'
 import { defaultFileInputOptions } from '@typebot.io/schemas/features/blocks/inputs/file/constants'
-import { VisitedEdge } from '@typebot.io/prisma'
+import type { VisitedEdge } from '@typebot.io/prisma'
 import { getBlockById } from '@typebot.io/schemas/helpers'
-import { ForgedBlock } from '@typebot.io/forge-repository/types'
+import type { ForgedBlock } from '@typebot.io/forge-repository/types'
 import { forgedBlocks } from '@typebot.io/forge-repository/definitions'
 import { resumeChatCompletion } from './blocks/integrations/legacy/openai/resumeChatCompletion'
 import { env } from '@typebot.io/env'
 import { isURL } from '@typebot.io/lib/validators/isURL'
+import { stringifyError } from '@typebot.io/lib/stringifyError'
 import { isForgedBlockType } from '@typebot.io/schemas/features/blocks/forged/helpers'
 import { resetSessionState } from './resetSessionState'
+import { saveDataInResponseVariableMapping } from './blocks/integrations/webhook/saveDataInResponseVariableMapping'
 
 type Params = {
   version: 1 | 2
@@ -239,11 +240,31 @@ const processNonInputBlock = async ({
       })(reply.text)
       newSessionState = result.newSessionState
     }
-  } else if (reply && block.type === IntegrationBlockType.WEBHOOK) {
-    const result = resumeWebhookExecution({
+  } else if (
+    reply &&
+    (block.type === IntegrationBlockType.WEBHOOK ||
+      block.type === LogicBlockType.WEBHOOK_REQUEST)
+  ) {
+    let response: {
+      statusCode?: number
+      data?: unknown
+    }
+    try {
+      response = JSON.parse(reply.text)
+    } catch (err) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Provided response is not valid JSON',
+        cause: stringifyError(err),
+      })
+    }
+    const result = saveDataInResponseVariableMapping({
       state,
-      block,
-      response: JSON.parse(reply.text),
+      blockType: block.type,
+      blockId: block.id,
+      responseVariableMapping: block.options?.responseVariableMapping,
+      outgoingEdgeId: block.outgoingEdgeId,
+      response,
     })
     if (result.newSessionState) newSessionState = result.newSessionState
   } else if (isForgedBlockType(block.type)) {
@@ -523,7 +544,10 @@ const saveAnswerInDb =
       key: key ?? block.id,
       value:
         (attachedFileUrls ?? []).length > 0
-          ? `${attachedFileUrls!.join(', ')}\n\n${replyContent}`
+          ? `${
+              // biome-ignore lint/style/noNonNullAssertion: <explanation>
+              attachedFileUrls!.join(', ')
+            }\n\n${replyContent}`
           : replyContent,
     })
   }

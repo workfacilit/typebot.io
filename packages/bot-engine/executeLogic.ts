@@ -1,10 +1,10 @@
 import { executeWait } from './blocks/logic/wait/executeWait'
-import {
+import type {
   LogicBlock,
   SessionState,
   SetVariableHistoryItem,
 } from '@typebot.io/schemas'
-import { ExecuteLogicResponse } from './types'
+import type { ExecuteLogicResponse } from './types'
 import { executeScript } from './blocks/logic/script/executeScript'
 import { executeJumpBlock } from './blocks/logic/jump/executeJumpBlock'
 import { executeRedirect } from './blocks/logic/redirect/executeRedirect'
@@ -13,6 +13,7 @@ import { executeSetVariable } from './blocks/logic/setVariable/executeSetVariabl
 import { executeTypebotLink } from './blocks/logic/typebotLink/executeTypebotLink'
 import { executeAbTest } from './blocks/logic/abTest/executeAbTest'
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
+import { executeWebhookRequestBlock } from './blocks/logic/webhookRequest/executeWebhookRequestBlock'
 
 export const executeLogic =
   (state: SessionState) =>
@@ -37,5 +38,7 @@ export const executeLogic =
         return executeJumpBlock(state, block.options)
       case LogicBlockType.AB_TEST:
         return executeAbTest(state, block)
+      case LogicBlockType.WEBHOOK_REQUEST:
+        return executeWebhookRequestBlock(block)
     }
   }

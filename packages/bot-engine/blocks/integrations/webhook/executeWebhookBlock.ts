@@ -1,4 +1,4 @@
-import {
+import type {
   HttpRequestBlock,
   ZapierBlock,
   MakeComBlock,
@@ -16,7 +16,6 @@ import {
 import { stringify } from 'qs'
 import { isDefined, isEmpty, isNotDefined, omit } from '@typebot.io/lib'
 import ky, { HTTPError, Options, TimeoutError } from 'ky'
-import { resumeWebhookExecution } from './resumeWebhookExecution'
 import { ExecuteIntegrationResponse } from '../../../types'
 import { parseVariables } from '@typebot.io/variables/parseVariables'
 import prisma from '@typebot.io/lib/prisma'
@@ -29,6 +28,7 @@ import {
 import { env } from '@typebot.io/env'
 import { parseAnswers } from '@typebot.io/results/parseAnswers'
 import { JSONParse } from '@typebot.io/lib/JSONParse'
+import { saveDataInResponseVariableMapping } from './saveDataInResponseVariableMapping'
 
 type ParsedWebhook = ExecutableHttpRequest & {
   basicAuth: { username?: string; password?: string }
@@ -96,9 +96,12 @@ export const executeWebhookBlock = async (
   })
 
   return {
-    ...resumeWebhookExecution({
+    ...saveDataInResponseVariableMapping({
       state,
-      block,
+      blockType: block.type,
+      blockId: block.id,
+      responseVariableMapping: block.options?.responseVariableMapping,
+      outgoingEdgeId: block.outgoingEdgeId,
       logs: executeWebhookLogs,
       response: webhookResponse,
     }),

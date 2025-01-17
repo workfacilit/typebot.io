@@ -1,5 +1,5 @@
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
-import { Message } from '@typebot.io/schemas'
+import type { Message } from '@typebot.io/schemas'
 import { computeCurrentProgress } from '../computeCurrentProgress'
 import { filterPotentiallySensitiveLogs } from '../logs/filterPotentiallySensitiveLogs'
 import { restartSession } from '../queries/restartSession'
@@ -52,6 +52,7 @@ export const startChat = async ({
     },
   })
 
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let corsOrigin
 
   if (
@@ -76,7 +77,7 @@ export const startChat = async ({
         clientSideActions,
         visitedEdges,
         setVariableHistory,
-        hasEmbedBubbleWithWaitEvent: messages.some(
+        isWaitingForExternalEvent: messages.some(
           (message) =>
             message.type === 'custom-embed' ||
             (message.type === BubbleBlockType.EMBED &&
