@@ -24,7 +24,7 @@ type Props = {
   incomingMessage?: Reply
   workspaceId: string
   credentials: WhatsAppCredentials['data'] & Pick<WhatsAppCredentials, 'id'>
-  contact: NonNullable<SessionState['whatsApp']>['contact']
+  contact?: NonNullable<SessionState['whatsApp']>['contact']
 }
 
 export const startWhatsAppSession = async ({

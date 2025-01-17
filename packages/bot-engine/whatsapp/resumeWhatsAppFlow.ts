@@ -1,5 +1,5 @@
-import { Block, SessionState } from '@typebot.io/schemas'
-import {
+import type { Block, SessionState, ChatSession } from '@typebot.io/schemas'
+import type {
   WhatsAppCredentials,
   WhatsAppIncomingMessage,
 } from '@typebot.io/schemas/features/whatsapp'
@@ -12,7 +12,7 @@ import { decrypt } from '@typebot.io/lib/api/encryption/decrypt'
 import { saveStateToDatabase } from '../saveStateToDatabase'
 import prisma from '@typebot.io/lib/prisma'
 import { isDefined } from '@typebot.io/lib/utils'
-import { Reply } from '../types'
+import type { Reply } from '../types'
 import { setIsReplyingInChatSession } from '../queries/setIsReplyingInChatSession'
 import { removeIsReplyingInChatSession } from '../queries/removeIsReplyingInChatSession'
 import redis from '@typebot.io/lib/redis'
@@ -35,6 +35,11 @@ type Props = {
   origin?: 'webhook'
 }
 
+const isMessageTooOld = (receivedMessage: WhatsAppIncomingMessage) => {
+  const messageSendDate = new Date(Number(receivedMessage.timestamp) * 1000)
+  return messageSendDate.getTime() < Date.now() - 180000
+}
+
 export const resumeWhatsAppFlow = async ({
   receivedMessage,
   sessionId,
@@ -42,7 +47,8 @@ export const resumeWhatsAppFlow = async ({
   credentialsId,
   phoneNumberId,
   contact,
-}: Props): Promise<{ message: string }> => {
+  origin,
+}: Props) => {
   const messageSendDate = new Date(Number(receivedMessage.timestamp) * 1000)
   const messageSentBefore3MinutesAgo =
     messageSendDate.getTime() < Date.now() - 180000
@@ -53,39 +59,37 @@ export const resumeWhatsAppFlow = async ({
     }
   }
 
+  if (isMessageTooOld(receivedMessage)) {
+    console.log('Message is too old')
+    return
+  }
+
   const isPreview = workspaceId === undefined || credentialsId === undefined
 
   const credentials = await getCredentials({ credentialsId, isPreview })
 
   if (!credentials) {
     console.error('Could not find credentials')
-    return {
-      message: 'Message received',
-    }
+    return
   }
 
   if (credentials.phoneNumberId !== phoneNumberId && !isPreview) {
     console.error('Credentials point to another phone ID, skipping...')
-    return {
-      message: 'Message received',
-    }
+    return
   }
 
   const session = await getSession(sessionId)
 
-  const { incomingMessages, isReplyingWasSet } =
+  const aggregationResponse =
     await aggregateParallelMediaMessagesIfRedisEnabled({
       receivedMessage,
       existingSessionId: session?.id,
       newSessionId: sessionId,
     })
 
-  if (incomingMessages.length === 0) {
-    if (isReplyingWasSet) await removeIsReplyingInChatSession(sessionId)
-
-    return {
-      message: 'Message received',
-    }
+  if (aggregationResponse.status === 'found newer message') {
+    console.log('Found newer message, skipping this one')
+    return
   }
 
   const isSessionExpired =
@@ -93,13 +97,11 @@ export const resumeWhatsAppFlow = async ({
     isDefined(session.state.expiryTimeout) &&
     session?.updatedAt.getTime() + session.state.expiryTimeout < Date.now()
 
-  if (!isReplyingWasSet) {
-    if (session?.isReplying) {
+  if (aggregationResponse.status === 'treat as unique message') {
+    if (session?.isReplying && origin !== 'webhook') {
       if (!isSessionExpired) {
         console.log('Is currently replying, skipping...')
-        return {
-          message: 'Message received',
-        }
+        return
       }
     } else {
       await setIsReplyingInChatSession({
@@ -115,8 +117,8 @@ export const resumeWhatsAppFlow = async ({
       ? getBlockById(session.state.currentBlockId, currentTypebot.groups)
       : undefined) ?? {}
 
-  const reply = await getIncomingMessageContent({
-    messages: incomingMessages,
+  const reply = await convertWhatsAppMessageToTypebotMessage({
+    messages: aggregationResponse.incomingMessages,
     workspaceId,
     accessToken: credentials?.systemUserAccessToken,
     typebotId: currentTypebot?.id,
@@ -124,6 +126,7 @@ export const resumeWhatsAppFlow = async ({
     block,
   })
 
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let resumeResponse
 
   if (reply?.type === 'text' && reply.text === '/sair' && workspaceId) {
@@ -199,7 +202,8 @@ export const resumeWhatsAppFlow = async ({
           ? reply.text
           : reply?.type === 'audio'
           ? reply.url
-          : (reply as any)?.attachedFileUrls ?? [],
+          : // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            (reply as any)?.attachedFileUrls ?? [],
         receivedMessage.from,
         'whatsapp'
       )
@@ -243,7 +247,7 @@ export const resumeWhatsAppFlow = async ({
   }
 }
 
-const getIncomingMessageContent = async ({
+const convertWhatsAppMessageToTypebotMessage = async ({
   messages,
   workspaceId,
   accessToken,
@@ -258,7 +262,7 @@ const getIncomingMessageContent = async ({
   resultId?: string
   block?: Block
 }): Promise<Reply> => {
-  let text: string = ''
+  let text = ''
   const attachedFileUrls: string[] = []
   for (const message of messages) {
     switch (message.type) {
@@ -322,6 +326,7 @@ const getIncomingMessageContent = async ({
               : block?.type === InputBlockType.TEXT
               ? block.options?.attachments?.visibility
               : undefined
+          // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
           let fileUrl
           if (fileVisibility !== 'Public') {
             fileUrl =
@@ -436,10 +441,19 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
   receivedMessage: WhatsAppIncomingMessage
   existingSessionId?: string
   newSessionId: string
-}): Promise<{
-  isReplyingWasSet: boolean
-  incomingMessages: WhatsAppIncomingMessage[]
-}> => {
+}): Promise<
+  | {
+      status: 'treat as unique message'
+      incomingMessages: [WhatsAppIncomingMessage]
+    }
+  | {
+      status: 'found newer message'
+    }
+  | {
+      status: 'ready to reply'
+      incomingMessages: WhatsAppIncomingMessage[]
+    }
+> => {
   if (redis && ['document', 'video', 'image'].includes(receivedMessage.type)) {
     const redisKey = `wasession:${newSessionId}`
     try {
@@ -458,30 +472,24 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
 
       const newMessagesResponse = await redis.lrange(redisKey, 0, -1)
 
-      if (!newMessagesResponse || newMessagesResponse.length > len) {
-        // Current message was aggregated with other messages another webhook handler. Skipping...
-        return { isReplyingWasSet: true, incomingMessages: [] }
-      }
+      if (!newMessagesResponse || newMessagesResponse.length > len)
+        return { status: 'found newer message' }
 
       redis.del(redisKey).then()
 
       return {
-        isReplyingWasSet: true,
+        status: 'ready to reply',
         incomingMessages: newMessagesResponse.map((msgStr) =>
           JSON.parse(msgStr)
         ),
       }
     } catch (error) {
-      await sendLogRequest(
-        'aggregateParallelMediaMessagesIfRedisEnabled@resumeWhatsAppFlow',
-        error
-      )
       console.error('Failed to process webhook event:', error, receivedMessage)
     }
   }
 
   return {
-    isReplyingWasSet: false,
+    status: 'treat as unique message',
     incomingMessages: [receivedMessage],
   }
 }
