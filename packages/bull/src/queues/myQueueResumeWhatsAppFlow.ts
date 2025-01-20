@@ -1,11 +1,24 @@
 import Bull from 'bull'
-import type { Props as ResumeWhatsAppFlowProps } from '@typebot.io/whatsapp/src/resumeWhatsAppFlow'
+import type { SessionState } from '@typebot.io/schemas/features/chat/sessionState'
+import type { WhatsAppIncomingMessage } from '@typebot.io/schemas/features/whatsapp'
+
+type Props = {
+  receivedMessage: WhatsAppIncomingMessage
+  sessionId: string
+  credentialsId?: string
+  phoneNumberId?: string
+  workspaceId?: string
+  contact?: NonNullable<SessionState['whatsApp']>['contact']
+  origin?: 'webhook'
+  transitionBlock?: boolean
+  transitionData?: object
+}
 
 type JobData =
   | {
       scheduleId?: string
       functionName: 'resumeWhatsAppFlow'
-      args: [ResumeWhatsAppFlowProps]
+      args: [Props]
     }
   | {
       scheduleId?: string
@@ -17,7 +30,7 @@ export const myQueueResumeWhatsAppFlow = new Bull<JobData>(
   'resumeWhatsAppFlow',
   {
     redis: {
-      host: 'localhost',
+      host: '127.0.0.1',
       port: 6379,
     },
   }

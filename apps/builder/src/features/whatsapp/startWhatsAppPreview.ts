@@ -7,10 +7,10 @@ import { HTTPError } from 'ky'
 import prisma from '@typebot.io/lib/prisma'
 import { saveStateToDatabase } from '@typebot.io/bot-engine/saveStateToDatabase'
 import { restartSession } from '@typebot.io/bot-engine/queries/restartSession'
-import { sendChatReplyToWhatsApp } from '@typebot.io/bot-engine/whatsapp/sendChatReplyToWhatsApp'
-import { sendWhatsAppMessage } from '@typebot.io/bot-engine/whatsapp/sendWhatsAppMessage'
+import { sendChatReplyToWhatsApp } from '@typebot.io/whatsapp/src/sendChatReplyToWhatsApp'
+import { sendWhatsAppMessage } from '@typebot.io/whatsapp/src/sendWhatsAppMessage'
 import { isReadTypebotForbidden } from '../typebot/helpers/isReadTypebotForbidden'
-import { SessionState, startFromSchema } from '@typebot.io/schemas'
+import { type SessionState, startFromSchema } from '@typebot.io/schemas'
 
 export const startWhatsAppPreview = authenticatedProcedure
   .meta({
