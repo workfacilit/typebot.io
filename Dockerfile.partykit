@@ -1,0 +1,59 @@
+# Etapa base para instalação de dependências
+FROM node:20-bullseye-slim AS base
+
+WORKDIR /app
+
+COPY pnpm-workspace.yaml ./
+COPY packages ./packages
+
+RUN npm install -g pnpm@9.5.0
+
+# Instalar curl, wget, Python, make, gcc, g++ e unzip
+RUN apt-get update && apt-get install -y curl wget python3 python3-dev make gcc g++ unzip
+
+# Instalar o Bun
+RUN curl -fsSL https://bun.sh/install | bash
+
+# Adicionar Bun ao PATH diretamente no Dockerfile
+ENV PATH=/root/.bun/bin:$PATH
+
+# Instalar novamente o pnpm após o bun ser instalado
+RUN npm install -g pnpm@9.5.0
+
+# Verificar se o pnpm e bun estão funcionando
+RUN bun --version
+RUN pnpm --version
+
+# Copiar o token de autenticação para o contêiner
+COPY /packages/partykit/.partykit /root/.config/partykit
+
+# Instalar as dependências apenas para o pacote @typebot.io/partykit
+WORKDIR /app/packages/partykit
+RUN pnpm install
+
+# Etapa de build para produção
+FROM base AS builder
+WORKDIR /app/packages/partykit
+
+COPY ./packages/partykit/package.json ./
+COPY ./packages/partykit/src ./src
+
+RUN pnpm install
+
+# Executar o build usando o bun
+RUN bun pnpm run build
+
+RUN ls -la /app/packages/partykit
+
+# Preparar a imagem final para execução
+FROM node:20-bullseye-slim AS runner
+
+WORKDIR /app/packages/partykit
+
+COPY --from=builder /app/packages/partykit /app/packages/partykit
+
+COPY /packages/partykit/.partykit /root/.config/partykit
+
+EXPOSE 1999
+
+CMD ["pnpm", "start"]

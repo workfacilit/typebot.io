@@ -1,8 +1,10 @@
 {
   "name": "@typebot.io/partykit",
   "scripts": {
-    "dev": "partykit dev --live",
-    "deploy": "partykit deploy"
+    "dev": "partykit dev",
+    "deploy": "partykit deploy",
+    "start": "partykit serve",
+    "build": "partykit build"
   },
   "devDependencies": {
     "partykit": "0.0.110",

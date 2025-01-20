@@ -27,9 +27,6 @@ RUN pnpm install
 COPY --from=pruner /app/out/full/ .
 COPY turbo.json turbo.json
 
-# Inclui o diretório partykit na fase builder
-COPY ./packages/partykit ./packages/partykit
-
 RUN export NODE_OPTIONS="--max-old-space-size=4096" && SKIP_ENV_CHECK=true pnpm turbo run build --filter=${SCOPE}
 
 FROM base AS runner
@@ -58,16 +55,9 @@ COPY --from=builder /app/node_modules/.pnpm/prisma@5.12.1/node_modules/prisma ./
 COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
 RUN ./node_modules/.bin/prisma generate --schema=packages/prisma/postgresql/schema.prisma;
 
-## Copy PartyKit dependencies (já está incluso no builder)
-COPY --from=builder /app/packages/partykit ./packages/partykit
-COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
-COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
-
-## Set the PartyKit configuration for runtime
-ENV PARTYKIT_CONFIG="./packages/partykit/package.json"
-
-## Define the command to deploy PartyKit
-CMD ["partykit", "deploy", "--config", "./packages/partykit/package.json"]
+COPY scripts/${SCOPE}-entrypoint.sh ./
+RUN chmod +x ./${SCOPE}-entrypoint.sh
+ENTRYPOINT ./${SCOPE}-entrypoint.sh
 
 EXPOSE 3000
 ENV PORT 3000
