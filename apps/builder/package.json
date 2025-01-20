@@ -45,6 +45,7 @@
     "@typebot.io/js": "workspace:*",
     "@typebot.io/nextjs": "workspace:*",
     "@typebot.io/theme": "workspace:*",
+    "@typebot.io/whatsapp": "workspace:*",
     "@udecode/cn": "29.0.1",
     "@udecode/plate-basic-marks": "30.5.3",
     "@udecode/plate-common": "30.4.5",

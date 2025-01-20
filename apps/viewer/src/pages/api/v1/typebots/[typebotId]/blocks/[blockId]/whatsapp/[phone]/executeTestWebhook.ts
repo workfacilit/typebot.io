@@ -7,7 +7,7 @@ import { badRequest, forbidden, notFound } from '@typebot.io/lib/api/utils'
 import { byId } from '@typebot.io/lib/utils'
 import prisma from '@typebot.io/lib/prisma'
 import { isReadTypebotForbidden } from '@typebot.io/typebot/isReadTypebotForbidden'
-import { resumeWhatsAppFlow } from '@typebot.io/bot-engine/whatsapp/resumeWhatsAppFlow'
+import { resumeWhatsAppFlow } from '@typebot.io/whatsapp/src/resumeWhatsAppFlow'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {

@@ -22,6 +22,8 @@
     "@typebot.io/nextjs": "workspace:*",
     "@typebot.io/prisma": "workspace:*",
     "@typebot.io/typebot": "workspace:*",
+    "@typebot.io/bull": "workspace:*",
+    "@typebot.io/whatsapp": "workspace:*",
     "ai": "3.3.15",
     "bot-engine": "workspace:*",
     "cors": "2.8.5",
@@ -37,7 +39,12 @@
     "qs": "6.11.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "stripe": "12.13.0"
+    "stripe": "12.13.0",
+    "@bull-board/api": "^6.5.4",
+    "@bull-board/express": "^6.5.4",
+    "@bull-board/ui": "^6.5.4",
+    "bull": "^4.16.5",
+    "bull-board": "^1.7.2"
   },
   "devDependencies": {
     "@faire/mjml-react": "3.3.0",
@@ -68,6 +75,7 @@
     "papaparse": "5.4.1",
     "superjson": "1.12.4",
     "typescript": "5.4.5",
-    "zod": "3.22.4"
+    "zod": "3.22.4",
+    "@types/bull": "^3.15.9"
   }
 }

@@ -1,7 +1,7 @@
 import { publicProcedure } from '@/helpers/server/trpc'
-import { resumeWhatsAppFlow } from '@typebot.io/bot-engine/whatsapp/resumeWhatsAppFlow'
+import { resumeWhatsAppFlow } from '@typebot.io/whatsapp/src/resumeWhatsAppFlow'
 import {
-  WhatsAppWebhookRequestBody,
+  type WhatsAppWebhookRequestBody,
   whatsAppWebhookRequestBodySchema,
 } from '@typebot.io/schemas/features/whatsapp'
 import { z } from 'zod'

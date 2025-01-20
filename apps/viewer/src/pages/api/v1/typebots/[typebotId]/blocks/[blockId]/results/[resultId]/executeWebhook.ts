@@ -12,7 +12,7 @@ import {
 import { byId } from '@typebot.io/lib/utils'
 import prisma from '@typebot.io/lib/prisma'
 import { isReadTypebotForbidden } from '@typebot.io/typebot/isReadTypebotForbidden'
-import { resumeWhatsAppFlow } from '@typebot.io/bot-engine/whatsapp/resumeWhatsAppFlow'
+import { resumeWhatsAppFlow } from '@typebot.io/whatsapp/src/resumeWhatsAppFlow'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import PartySocket from 'partysocket'
 
