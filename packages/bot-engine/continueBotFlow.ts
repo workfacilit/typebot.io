@@ -56,7 +56,9 @@ type Params = {
 }
 export const continueBotFlow = async (
   reply: Reply,
-  { state, version, startTime, textBubbleContentFormat }: Params
+  { state, version, startTime, textBubbleContentFormat }: Params,
+  transitionBlock?: boolean,
+  transitionData?: { typebotId: string; groupId: string }
 ): Promise<
   ContinueChatResponse & {
     newSessionState: SessionState
@@ -180,7 +182,29 @@ export const continueBotFlow = async (
       setVariableHistory,
     }
 
-  const chatReply = await executeGroup(nextGroup.group, {
+  const groupJump: Group = {
+    id: 'smgababwob2lcnvtpz49hm9vasas',
+    title: 'pular fluxo',
+    graphCoordinates: {
+      x: 302,
+      y: 906,
+    },
+    blocks: [
+      {
+        id: 'tptcammmgde0zn592idlmdsbsas',
+        type: LogicBlockType.TYPEBOT_LINK,
+        options: {
+          typebotId: transitionData?.typebotId,
+          groupId: transitionData?.groupId,
+          mergeResults: true,
+        },
+      },
+    ],
+  }
+
+  const jumpToBlock = transitionBlock ? groupJump : nextGroup.group
+
+  const chatReply = await executeGroup(jumpToBlock, {
     version,
     state: newSessionState,
     firstBubbleWasStreamed,

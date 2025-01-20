@@ -1,0 +1,19 @@
+{
+  "name": "@typebot.io/bull",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@typebot.io/tsconfig": "workspace:*",
+    "@types/node": "^20.7.1",
+    "@types/bull": "^3.15.9"
+  },
+  "dependencies": {
+    "@bull-board/api": "^6.5.4",
+    "@bull-board/express": "^6.5.4",
+    "@bull-board/ui": "^6.5.4",
+    "bull": "^4.16.5",
+    "bull-board": "^1.7.2",
+    "dayjs": "^1.11.13",
+    "dayjs-plugin-utc": "^0.1.2",
+    "ioredis": "^5.4.2"
+  }
+}
