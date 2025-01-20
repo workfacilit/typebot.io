@@ -6,7 +6,7 @@ interface JobData {
 
 export const myQueue = new Bull<JobData>('my-queue', {
   redis: {
-    host: '127.0.0.1',
+    host: 'redis',
     port: 6379,
   },
 })
