@@ -95,7 +95,7 @@ export const continueBotFlow = async (
 
   let formattedReply: string | undefined
 
-  if (isInputBlock(block)) {
+  if (!transitionBlock && isInputBlock(block)) {
     const parsedReplyResult = await parseReply(newSessionState)(reply, block)
 
     if (parsedReplyResult.status === 'fail')

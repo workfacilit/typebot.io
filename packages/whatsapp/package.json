@@ -2,13 +2,14 @@
   "name": "@typebot.io/whatsapp",
   "version": "1.0.0",
   "dependencies": {
-    "@typebot.io/schemas": "workspace:*",
+    "@sentry/nextjs": "7.77.0",
+    "@typebot.io/bot-engine": "workspace:*",
+    "@typebot.io/bull": "workspace:*",
     "@typebot.io/env": "workspace:*",
     "@typebot.io/lib": "workspace:*",
-    "@typebot.io/bull": "workspace:*",
-    "@typebot.io/bot-engine": "workspace:*",
     "@typebot.io/prisma": "workspace:*",
+    "@typebot.io/schemas": "workspace:*",
     "ky": "1.2.4",
-    "@sentry/nextjs": "7.77.0"
+    "luxon": "^3.5.0"
   }
 }
