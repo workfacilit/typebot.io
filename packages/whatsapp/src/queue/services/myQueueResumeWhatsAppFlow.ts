@@ -1,7 +1,7 @@
 import Bull from 'bull'
 import type { SessionState } from '@typebot.io/schemas/features/chat/sessionState'
 import type { WhatsAppIncomingMessage } from '@typebot.io/schemas/features/whatsapp'
-PropsSchemaResumeWppFlow
+import { PropsSchemaResumeWppFlow } from '@typebot.io/schemas/features/whatsapp'
 import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { resumeWhatsAppFlow } from '../../resumeWhatsAppFlow'
 import { DateTime } from 'luxon' // Adicionada a importação de DateTime
