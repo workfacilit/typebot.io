@@ -24,7 +24,7 @@ import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { logMessage } from '@typebot.io/bot-engine/queries/saveMessageLog'
 import { parseGroups } from '@typebot.io/schemas'
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
-import { scheduleMyQueueResumeWhatsAppFlow } from './queue/scheduleMyQueueResumeWhatsAppFlow'
+import { scheduleMyQueueResumeWhatsAppFlow } from './queue/workers/scheduleMyQueueResumeWhatsAppFlow'
 
 const incomingMessageDebounce = 3000
 

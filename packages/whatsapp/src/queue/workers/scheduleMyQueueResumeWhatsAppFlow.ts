@@ -1,22 +1,13 @@
-import { myQueueResumeWhatsAppFlow } from '@typebot.io/bull/src/queues/myQueueResumeWhatsAppFlow'
-import type { Props as ResumeWhatsAppFlowProps } from '../resumeWhatsAppFlow'
-import { resumeWhatsAppFlow } from '../resumeWhatsAppFlow'
+import {
+  myQueueResumeWhatsAppFlow,
+  type Props,
+} from '../services/myQueueResumeWhatsAppFlow'
 import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { DateTime } from 'luxon'
 
-myQueueResumeWhatsAppFlow.process(async (job) => {
-  try {
-    const { args } = job.data
-    await resumeWhatsAppFlow(args as ResumeWhatsAppFlowProps)
-  } catch (error) {
-    await sendLogRequest('errorLogMessage@myQueueResumeWhatsAppFlow', error)
-  }
-  console.log('Processando a tarefa:', job.data.message)
-})
-
 export async function scheduleMyQueueResumeWhatsAppFlow(
   scheduleId: string,
-  args: ResumeWhatsAppFlowProps,
+  args: Props,
   minutes: number
 ) {
   const existingJob = await myQueueResumeWhatsAppFlow.getJob(scheduleId)
@@ -31,11 +22,11 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
     futureTime.toMillis() - nowInSaoPauloCurrent.toMillis()
 
   try {
+    // Adiciona o job à fila, passando os args como um objeto no formato correto
     await myQueueResumeWhatsAppFlow.add(
       {
-        scheduleId,
         functionName: 'resumeWhatsAppFlow',
-        args: [args],
+        args: [args], // Passando args como um array de Props
       },
       {
         jobId: scheduleId,
