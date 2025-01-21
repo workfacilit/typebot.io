@@ -250,7 +250,9 @@ export const resumeWhatsAppFlow = async (props: Props) => {
     setVariableHistory,
   })
 
+  await sendLogRequest('currentTypebot@resumeWhatsAppFlow', currentTypebot)
   if (currentTypebot) {
+    await sendLogRequest('props@resumeWhatsAppFlow', props)
     await scheduleTransitionBlock(currentTypebot, props)
   }
 
@@ -539,7 +541,7 @@ const scheduleTransitionBlock = async (
         (block.options.schedule.minutes ?? 0) > 0 &&
         (block.options.schedule.minutes ?? 0) < 60
     )
-
+  await sendLogRequest('blocks@resumeWhatsAppFlow', blocks)
   for (const block of blocks) {
     if (!hasScheduleOptions(block)) continue
     scheduleMyQueueResumeWhatsAppFlow(

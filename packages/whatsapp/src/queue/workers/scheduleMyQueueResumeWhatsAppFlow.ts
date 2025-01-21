@@ -21,6 +21,10 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
   const delayEmMilissegundos =
     futureTime.toMillis() - nowInSaoPauloCurrent.toMillis()
 
+  await sendLogRequest(
+    'delayEmMilissegundos@scheduleMyQueueResumeWhatsAppFlow',
+    delayEmMilissegundos
+  )
   try {
     // Adiciona o job à fila, passando os args como um objeto no formato correto
     await myQueueResumeWhatsAppFlow.add(
@@ -34,7 +38,7 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
       }
     )
   } catch (error) {
-    await sendLogRequest('error@myQueueResumeWhatsAppFlow', error)
+    await sendLogRequest('error@scheduleMyQueueResumeWhatsAppFlow', error)
   }
 
   console.log('Tarefa agendada com sucesso!')

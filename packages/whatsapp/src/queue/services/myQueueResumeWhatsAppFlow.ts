@@ -3,7 +3,7 @@ import type { SessionState } from '@typebot.io/schemas/features/chat/sessionStat
 import type { WhatsAppIncomingMessage } from '@typebot.io/schemas/features/whatsapp'
 import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { resumeWhatsAppFlow } from '../../resumeWhatsAppFlow'
-import { DateTime } from 'luxon'
+import { DateTime } from 'luxon' // Adicionada a importação de DateTime
 
 export type Props = {
   receivedMessage: WhatsAppIncomingMessage
@@ -56,6 +56,11 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
   const delayEmMilissegundos =
     futureTime.toMillis() - nowInSaoPauloCurrent.toMillis()
 
+  await sendLogRequest(
+    'errorProcess@myQueueResumeWhatsAppFlow',
+    delayEmMilissegundos
+  )
+
   try {
     // Defina o jobData com a tipagem correta
     const jobData: JobData = {
@@ -81,13 +86,14 @@ myQueueResumeWhatsAppFlow.process(async (job) => {
 
     // Validação para garantir que args seja do tipo esperado
     if (!isResumeWhatsAppFlowProps(args)) {
+      await sendLogRequest('errorFormato@myQueueResumeWhatsAppFlow', args)
       throw new Error('Formato de dados inválido para ResumeWhatsAppFlowProps')
     }
 
     // Agora args é validado como ResumeWhatsAppFlowProps
     await resumeWhatsAppFlow(args)
   } catch (error) {
-    await sendLogRequest('errorLogMessage@myQueueResumeWhatsAppFlow', error)
+    await sendLogRequest('errorProcess@myQueueResumeWhatsAppFlow', error)
   }
 })
 
