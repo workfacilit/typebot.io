@@ -550,8 +550,8 @@ const scheduleTransitionBlock = async (
         ...originalProps,
         transitionBlock: true,
         transitionData: {
-          typebotId: block.options.schedule.typebotId,
-          groupId: block.options.schedule.groupId,
+          typebotId: block.options.typebotId,
+          groupId: block.options.groupId,
         },
       },
       block.options.schedule.minutes ?? 1
