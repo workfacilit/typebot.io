@@ -238,6 +238,8 @@ export const resumeWhatsAppFlow = async (props: Props) => {
     workspaceId,
     resultIdWA,
     typebotId,
+    transitionBlock,
+    transitionData,
   })
 
   await saveStateToDatabase({
