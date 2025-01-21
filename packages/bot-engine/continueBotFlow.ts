@@ -138,10 +138,32 @@ export const continueBotFlow = async (
       ? formattedReply
       : undefined
 
+  const groupJump: Group = {
+    id: 'smgababwob2lcnvtpz49hm9vasas',
+    title: 'pular fluxo',
+    graphCoordinates: {
+      x: 302,
+      y: 906,
+    },
+    blocks: [
+      {
+        id: 'tptcammmgde0zn592idlmdsbsas',
+        type: LogicBlockType.TYPEBOT_LINK,
+        options: {
+          typebotId: transitionData?.typebotId,
+          groupId: transitionData?.groupId,
+          mergeResults: true,
+        },
+      },
+    ],
+  }
+
   if (groupHasMoreBlocks && !nextEdgeId) {
+    const jumpToBlock =
+      transitionBlock || transitionData?.typebotId ? groupJump : group
     const chatReply = await executeGroup(
       {
-        ...group,
+        ...jumpToBlock,
         blocks: group.blocks.slice(blockIndex + 1),
       } as Group,
       {
@@ -185,26 +207,6 @@ export const continueBotFlow = async (
       visitedEdges: nextGroup.visitedEdge ? [nextGroup.visitedEdge] : [],
       setVariableHistory,
     }
-
-  const groupJump: Group = {
-    id: 'smgababwob2lcnvtpz49hm9vasas',
-    title: 'pular fluxo',
-    graphCoordinates: {
-      x: 302,
-      y: 906,
-    },
-    blocks: [
-      {
-        id: 'tptcammmgde0zn592idlmdsbsas',
-        type: LogicBlockType.TYPEBOT_LINK,
-        options: {
-          typebotId: transitionData?.typebotId,
-          groupId: transitionData?.groupId,
-          mergeResults: true,
-        },
-      },
-    ],
-  }
 
   const jumpToBlock =
     transitionBlock || transitionData?.typebotId ? groupJump : nextGroup.group
