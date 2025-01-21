@@ -30,7 +30,7 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
     await myQueueResumeWhatsAppFlow.add(
       {
         functionName: 'resumeWhatsAppFlow',
-        args: [args], // Passando args como um array de Props
+        args: { ...args }, // Passando args como um array de Props
       },
       {
         jobId: scheduleId,

@@ -22,12 +22,12 @@ type JobData =
   | {
       scheduleId?: string
       functionName: 'resumeWhatsAppFlow'
-      args: [Props]
+      args: Props
     }
   | {
       scheduleId?: string
       functionName: 'sendMessage'
-      args: string[]
+      args: object
     }
 
 export const myQueueResumeWhatsAppFlow = new Bull<JobData>(
@@ -65,7 +65,7 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
     // Defina o jobData com a tipagem correta
     const jobData: JobData = {
       functionName: 'resumeWhatsAppFlow',
-      args: [args], // Passando args como um array de Props
+      args: args, // Passando args diretamente como Props
     }
 
     // Adiciona o job com o jobData na fila
