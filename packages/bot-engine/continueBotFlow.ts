@@ -128,7 +128,10 @@ export const continueBotFlow = async (
   }
 
   const groupHasMoreBlocks = blockIndex < group.blocks.length - 1
-  await sendLogRequest('continueBotFlow@groups', groupHasMoreBlocks)
+  await sendLogRequest(
+    'continueBotFlow@groupsgroupHasMoreBlocks',
+    groupHasMoreBlocks
+  )
   const { edgeId: nextEdgeId, isOffDefaultPath } = getOutgoingEdgeId(
     newSessionState
   )(block, formattedReply)

@@ -258,7 +258,11 @@ export const resumeWhatsAppFlow = async (props: Props) => {
   })
 
   await sendLogRequest('currentTypebot@resumeWhatsAppFlow', currentTypebot)
-  if (currentTypebot && !(reply?.type === 'text' && reply.text === '/sair')) {
+  if (
+    currentTypebot &&
+    !(reply?.type === 'text' && reply.text === '/sair') &&
+    !transitionBlock
+  ) {
     await sendLogRequest('props@resumeWhatsAppFlow', props)
     await scheduleTransitionBlock(currentTypebot, props)
   }

@@ -82,7 +82,7 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
 myQueueResumeWhatsAppFlow.process(async (job) => {
   try {
     const { args } = job.data
-
+    await sendLogRequest('args@myQueueResumeWhatsAppFlow', args)
     await resumeWhatsAppFlow(args as Props)
   } catch (error) {
     await sendLogRequest('errorProcess@myQueueResumeWhatsAppFlow', error)
