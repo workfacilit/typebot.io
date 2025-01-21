@@ -157,11 +157,16 @@ export const resumeWhatsAppFlow = async (props: Props) => {
   } else {
     resumeResponse =
       session && !isSessionExpired
-        ? await continueBotFlow(reply, {
-            version: 2,
-            state: { ...session.state, whatsApp: { contact } },
-            textBubbleContentFormat: 'richText',
-          })
+        ? await continueBotFlow(
+            reply,
+            {
+              version: 2,
+              state: { ...session.state, whatsApp: { contact } },
+              textBubbleContentFormat: 'richText',
+            },
+            transitionBlock,
+            transitionData as { typebotId: string; groupId: string }
+          )
         : workspaceId
         ? await startWhatsAppSession({
             incomingMessage: reply,
