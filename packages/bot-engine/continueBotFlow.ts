@@ -47,6 +47,7 @@ import { stringifyError } from '@typebot.io/lib/stringifyError'
 import { isForgedBlockType } from '@typebot.io/schemas/features/blocks/forged/helpers'
 import { resetSessionState } from './resetSessionState'
 import { saveDataInResponseVariableMapping } from './blocks/integrations/webhook/saveDataInResponseVariableMapping'
+import { sendLogRequest } from './logWF'
 
 type Params = {
   version: 1 | 2
@@ -95,7 +96,8 @@ export const continueBotFlow = async (
 
   let formattedReply: string | undefined
 
-  if (!transitionBlock && isInputBlock(block)) {
+  await sendLogRequest('transitionBlock@transitionBlock', transitionBlock)
+  if (!transitionBlock && !transitionData?.typebotId && isInputBlock(block)) {
     const parsedReplyResult = await parseReply(newSessionState)(reply, block)
 
     if (parsedReplyResult.status === 'fail')
@@ -202,7 +204,8 @@ export const continueBotFlow = async (
     ],
   }
 
-  const jumpToBlock = transitionBlock ? groupJump : nextGroup.group
+  const jumpToBlock =
+    transitionBlock || transitionData?.typebotId ? groupJump : nextGroup.group
 
   const chatReply = await executeGroup(jumpToBlock, {
     version,

@@ -1,7 +1,6 @@
 import Bull from 'bull'
 import type { SessionState } from '@typebot.io/schemas/features/chat/sessionState'
 import type { WhatsAppIncomingMessage } from '@typebot.io/schemas/features/whatsapp'
-import { PropsSchemaResumeWppFlow } from '@typebot.io/schemas/features/whatsapp'
 import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { resumeWhatsAppFlow } from '../../resumeWhatsAppFlow'
 import { DateTime } from 'luxon' // Adicionada a importação de DateTime
@@ -84,21 +83,8 @@ myQueueResumeWhatsAppFlow.process(async (job) => {
   try {
     const { args } = job.data
 
-    // Validação para garantir que args seja do tipo esperado
-    if (!isResumeWhatsAppFlowProps(args)) {
-      await sendLogRequest('errorFormato@myQueueResumeWhatsAppFlow', args)
-      throw new Error('Formato de dados inválido para ResumeWhatsAppFlowProps')
-    }
-
-    // Agora args é validado como ResumeWhatsAppFlowProps
-    await resumeWhatsAppFlow(args)
+    await resumeWhatsAppFlow(args as Props)
   } catch (error) {
     await sendLogRequest('errorProcess@myQueueResumeWhatsAppFlow', error)
   }
 })
-
-// Função de type guard para validar o tipo de args
-function isResumeWhatsAppFlowProps(obj: any): obj is Props {
-  const result = PropsSchemaResumeWppFlow.safeParse(obj)
-  return result.success
-}
