@@ -1,6 +1,7 @@
 import Bull from 'bull'
 import type { SessionState } from '@typebot.io/schemas/features/chat/sessionState'
 import type { WhatsAppIncomingMessage } from '@typebot.io/schemas/features/whatsapp'
+PropsSchemaResumeWppFlow
 import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { resumeWhatsAppFlow } from '../../resumeWhatsAppFlow'
 import { DateTime } from 'luxon' // Adicionada a importação de DateTime
@@ -56,10 +57,9 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
   const delayEmMilissegundos =
     futureTime.toMillis() - nowInSaoPauloCurrent.toMillis()
 
-  await sendLogRequest(
-    'errorProcess@myQueueResumeWhatsAppFlow',
-    delayEmMilissegundos
-  )
+  await sendLogRequest('errorProcess@myQueueResumeWhatsAppFlow', {
+    delayEmMilissegundos,
+  })
 
   try {
     // Defina o jobData com a tipagem correta
@@ -99,10 +99,6 @@ myQueueResumeWhatsAppFlow.process(async (job) => {
 
 // Função de type guard para validar o tipo de args
 function isResumeWhatsAppFlowProps(obj: any): obj is Props {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'receivedMessage' in obj &&
-    'sessionId' in obj
-  )
+  const result = PropsSchemaResumeWppFlow.safeParse(obj)
+  return result.success
 }

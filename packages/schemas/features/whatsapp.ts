@@ -261,6 +261,28 @@ export const whatsAppSettingsSchema = z.object({
     .describe('Expiration delay in hours after latest interaction'),
 })
 
+export const PropsSchemaResumeWppFlow = z.object({
+  receivedMessage: z.object({
+    from: z.string(),
+    type: z.string(),
+    text: z.object({ body: z.string() }).optional(),
+    timestamp: z.string(),
+  }),
+  sessionId: z.string(),
+  credentialsId: z.string().optional(),
+  phoneNumberId: z.string().optional(),
+  workspaceId: z.string().optional(),
+  contact: z
+    .object({
+      name: z.string().optional(),
+      phoneNumber: z.string(),
+    })
+    .optional(),
+  origin: z.literal('webhook').optional(),
+  transitionBlock: z.boolean().optional(),
+  transitionData: z.object({}).optional(),
+})
+
 export const defaultSessionExpiryTimeout = 4
 
 export type WhatsAppIncomingMessage = z.infer<typeof incomingMessageSchema>
