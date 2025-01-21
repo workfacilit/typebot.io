@@ -79,6 +79,8 @@ export const continueBotFlow = async (
     state.typebotsQueue[0].typebot.groups
   )
 
+  await sendLogRequest('continueBotFlow@groups', group)
+
   if (!block)
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -96,7 +98,7 @@ export const continueBotFlow = async (
 
   let formattedReply: string | undefined
 
-  await sendLogRequest('transitionBlock@transitionBlock', transitionBlock)
+  await sendLogRequest('continueBotFlow@transitionBlock', transitionBlock)
   if (!transitionBlock && !transitionData?.typebotId && isInputBlock(block)) {
     const parsedReplyResult = await parseReply(newSessionState)(reply, block)
 
@@ -126,7 +128,7 @@ export const continueBotFlow = async (
   }
 
   const groupHasMoreBlocks = blockIndex < group.blocks.length - 1
-
+  await sendLogRequest('continueBotFlow@groups', groupHasMoreBlocks)
   const { edgeId: nextEdgeId, isOffDefaultPath } = getOutgoingEdgeId(
     newSessionState
   )(block, formattedReply)
@@ -206,6 +208,8 @@ export const continueBotFlow = async (
 
   const jumpToBlock =
     transitionBlock || transitionData?.typebotId ? groupJump : nextGroup.group
+
+  await sendLogRequest('continueBotFlow@jumpToBlock', jumpToBlock)
 
   const chatReply = await executeGroup(jumpToBlock, {
     version,
