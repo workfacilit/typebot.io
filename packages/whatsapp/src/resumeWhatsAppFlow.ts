@@ -176,6 +176,8 @@ export const resumeWhatsAppFlow = async (props: Props) => {
           })
         : { error: 'workspaceId not found' }
 
+    await sendLogRequest('continueBotFlow@jumpToBlock', resumeResponse)
+
     if ('error' in resumeResponse) {
       await removeIsReplyingInChatSession(sessionId)
       console.log('Chat not starting:', resumeResponse.error)
