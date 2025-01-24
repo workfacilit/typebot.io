@@ -35,22 +35,32 @@ export const TypebotLinkNode = ({ block }: Props) => {
   if (!block.options?.typebotId)
     return <Text color="gray.500">Configure...</Text>
   return (
-    <Text>
-      Pular{' '}
-      {blockTitle ? (
-        <>
-          para <Tag>{blockTitle}</Tag>
-        </>
-      ) : (
-        <></>
-      )}{' '}
-      {!isCurrentTypebot ? (
-        <>
-          no fluxo <Tag colorScheme="blue">{linkedTypebot?.name}</Tag>
-        </>
-      ) : (
-        <></>
-      )}
-    </Text>
+    <>
+      <Text>
+        Pular{' '}
+        {blockTitle ? (
+          <>
+            para <Tag>{blockTitle}</Tag>
+          </>
+        ) : (
+          <></>
+        )}{' '}
+        {!isCurrentTypebot ? (
+          <>
+            no fluxo <Tag colorScheme="blue">{linkedTypebot?.name}</Tag>
+          </>
+        ) : (
+          <></>
+        )}
+        <br />
+        {block.options?.schedule?.actived && (
+          <>
+            Agendado para{' '}
+            <Tag colorScheme="blue">{block.options?.schedule?.minutes}</Tag>{' '}
+            minutos
+          </>
+        )}
+      </Text>
+    </>
   )
 }

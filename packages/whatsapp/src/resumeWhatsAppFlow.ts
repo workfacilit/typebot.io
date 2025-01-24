@@ -57,20 +57,6 @@ export const resumeWhatsAppFlow = async (props: Props) => {
     transitionBlock,
     transitionData,
   } = props
-  const messageSendDate = new Date(Number(receivedMessage.timestamp) * 1000)
-  const messageSentBefore3MinutesAgo =
-    messageSendDate.getTime() < Date.now() - 180000
-  if (messageSentBefore3MinutesAgo) {
-    console.log('Message is too old', messageSendDate.getTime())
-    return {
-      message: 'Message received',
-    }
-  }
-
-  if (isMessageTooOld(receivedMessage)) {
-    console.log('Message is too old')
-    return
-  }
 
   const isPreview = workspaceId === undefined || credentialsId === undefined
 
@@ -137,7 +123,11 @@ export const resumeWhatsAppFlow = async (props: Props) => {
   // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let resumeResponse
 
-  if (reply?.type === 'text' && reply.text === '/sair' && workspaceId) {
+  if (
+    reply?.type === 'text' &&
+    (reply.text === '/sair' || reply.text === '/nps') &&
+    workspaceId
+  ) {
     resumeResponse = workspaceId
       ? await startWhatsAppSession({
           incomingMessage: reply,
@@ -176,7 +166,7 @@ export const resumeWhatsAppFlow = async (props: Props) => {
           })
         : { error: 'workspaceId not found' }
 
-    await sendLogRequest('continueBotFlow@jumpToBlock', resumeResponse)
+    // await sendLogRequest('resumeWhatsAppFlow@resumeResponse', resumeResponse)
 
     if ('error' in resumeResponse) {
       await removeIsReplyingInChatSession(sessionId)
@@ -259,14 +249,13 @@ export const resumeWhatsAppFlow = async (props: Props) => {
     setVariableHistory,
   })
 
-  await sendLogRequest('currentTypebot@resumeWhatsAppFlow', currentTypebot)
-  if (
-    currentTypebot &&
-    !(reply?.type === 'text' && reply.text === '/sair') &&
-    !transitionBlock
-  ) {
-    await sendLogRequest('props@resumeWhatsAppFlow', props)
-    await scheduleTransitionBlock(currentTypebot, props)
+  if (!(reply?.type === 'text' && reply.text === '/sair')) {
+    // await sendLogRequest('props@resumeWhatsAppFlow', props)
+    await scheduleTransitionBlock(
+      resumeResponse.newSessionState.typebotsQueue[0].typebot,
+      props,
+      sessionId
+    )
   }
 
   return {
@@ -540,10 +529,17 @@ function hasScheduleOptions(block: Block): block is Block & {
 
 const scheduleTransitionBlock = async (
   typebot: NonNullable<SessionState['typebotsQueue'][0]['typebot']>,
-  originalProps: Props
+  originalProps: Props,
+  sessionId: string
 ) => {
-  const blocks = parseGroups(typebot.groups, {
-    typebotVersion: typebot.version,
+  const session = await getSession(sessionId)
+  const currentTypebot = session?.state.typebotsQueue[0].typebot
+  if (!currentTypebot) {
+    console.error('currentTypebot is undefined')
+    return
+  }
+  const blocks = parseGroups(currentTypebot.groups, {
+    typebotVersion: currentTypebot.version,
   })
     .flatMap((group): Block[] => group.blocks as Block[])
     .filter(
@@ -554,11 +550,15 @@ const scheduleTransitionBlock = async (
         (block.options.schedule.minutes ?? 0) > 0 &&
         (block.options.schedule.minutes ?? 0) < 60
     )
-  await sendLogRequest('blocks@resumeWhatsAppFlow', blocks)
+  await sendLogRequest('blocks@resumeWhatsAppFlow', currentTypebot)
   for (const block of blocks) {
     if (!hasScheduleOptions(block)) continue
+    // await sendLogRequest(
+    //   'session@resumeWhatsAppFlow',
+    //   block.options.schedule.session
+    // )
     scheduleMyQueueResumeWhatsAppFlow(
-      typebot.id,
+      sessionId,
       {
         ...originalProps,
         transitionBlock: true,

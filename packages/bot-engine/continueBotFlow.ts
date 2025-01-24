@@ -79,7 +79,7 @@ export const continueBotFlow = async (
     state.typebotsQueue[0].typebot.groups
   )
 
-  await sendLogRequest('continueBotFlow@groups', group)
+  // await sendLogRequest('continueBotFlow@groups', group)
 
   if (!block)
     throw new TRPCError({
@@ -98,7 +98,7 @@ export const continueBotFlow = async (
 
   let formattedReply: string | undefined
 
-  await sendLogRequest('continueBotFlow@transitionBlock', transitionBlock)
+  // await sendLogRequest('continueBotFlow@transitionBlock', transitionBlock)
   if (!transitionBlock && !transitionData?.typebotId && isInputBlock(block)) {
     const parsedReplyResult = await parseReply(newSessionState)(reply, block)
 
@@ -128,10 +128,10 @@ export const continueBotFlow = async (
   }
 
   const groupHasMoreBlocks = blockIndex < group.blocks.length - 1
-  await sendLogRequest(
-    'continueBotFlow@groupsgroupHasMoreBlocks',
-    groupHasMoreBlocks
-  )
+  // await sendLogRequest(
+  //   'continueBotFlow@groupsgroupHasMoreBlocks',
+  //   groupHasMoreBlocks
+  // )
   const { edgeId: nextEdgeId, isOffDefaultPath } = getOutgoingEdgeId(
     newSessionState
   )(block, formattedReply)
@@ -186,9 +186,9 @@ export const continueBotFlow = async (
   }
 
   if (!nextEdgeId && state.typebotsQueue.length === 1) {
-    await sendLogRequest('continueBotFlow@!nextEdgeId', {
-      nextEdgeId,
-    })
+    // await sendLogRequest('continueBotFlow@!nextEdgeId', {
+    //   nextEdgeId,
+    // })
 
     if (transitionBlock) {
       const chatReply = await executeGroup(groupJump, {
@@ -225,25 +225,25 @@ export const continueBotFlow = async (
   newSessionState = nextGroup.newSessionState
 
   if (!nextGroup.group) {
-    await sendLogRequest('continueBotFlow@!nextGroup.group', {
-      nextEdgeId,
-    })
-    if (transitionBlock) {
-      const chatReply = await executeGroup(groupJump, {
-        version,
-        state: newSessionState,
-        firstBubbleWasStreamed,
-        visitedEdges: nextGroup.visitedEdge ? [nextGroup.visitedEdge] : [],
-        setVariableHistory,
-        startTime,
-        textBubbleContentFormat,
-      })
+    // await sendLogRequest('continueBotFlow@!nextGroup.group', {
+    //   nextEdgeId,
+    // })
+    // if (transitionBlock) {
+    //   const chatReply = await executeGroup(groupJump, {
+    //     version,
+    //     state: newSessionState,
+    //     firstBubbleWasStreamed,
+    //     visitedEdges: nextGroup.visitedEdge ? [nextGroup.visitedEdge] : [],
+    //     setVariableHistory,
+    //     startTime,
+    //     textBubbleContentFormat,
+    //   })
 
-      return {
-        ...chatReply,
-        lastMessageNewFormat,
-      }
-    }
+    //   return {
+    //     ...chatReply,
+    //     lastMessageNewFormat,
+    //   }
+    // }
 
     return {
       messages: [],
@@ -257,7 +257,7 @@ export const continueBotFlow = async (
   const jumpToBlock =
     transitionBlock || transitionData?.typebotId ? groupJump : nextGroup.group
 
-  await sendLogRequest('continueBotFlow@jumpToBlock', jumpToBlock)
+  // await sendLogRequest('continueBotFlow@jumpToBlock', jumpToBlock)
 
   const chatReply = await executeGroup(jumpToBlock, {
     version,

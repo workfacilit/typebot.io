@@ -57,6 +57,12 @@ export const TypebotLinkForm = ({ options, onOptionsChange }: Props) => {
       schedule: { ...options?.schedule, actived },
     })
 
+  // const updateScheduleSession = (session: boolean) =>
+  //   onOptionsChange({
+  //     ...options,
+  //     schedule: { ...options?.schedule, session },
+  //   })
+
   const isCurrentTypebotSelected =
     (typebot && options?.typebotId === typebot.id) ||
     options?.typebotId === 'current'
@@ -133,6 +139,13 @@ export const TypebotLinkForm = ({ options, onOptionsChange }: Props) => {
               initialValue={options?.schedule?.actived}
               onCheckChange={updateScheduleActived}
             />
+            {/* <SwitchWithLabel
+              mb="2"
+              mt="2"
+              label="Encerrar sessão"
+              initialValue={options?.schedule?.session}
+              onCheckChange={updateScheduleSession}
+            /> */}
           </AccordionPanel>
         </AccordionItem>
       </Accordion>

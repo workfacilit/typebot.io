@@ -1,7 +1,7 @@
 import { authenticateUser } from '@/helpers/authenticateUser'
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
 import { getSession } from '@typebot.io/bot-engine/queries/getSession'
-import { env } from '@typebot.io/env'
+// import { env } from '@typebot.io/env'
 import { parseGroups } from '@typebot.io/schemas'
 import {
   forbidden,
@@ -14,11 +14,11 @@ import prisma from '@typebot.io/lib/prisma'
 import { isReadTypebotForbidden } from '@typebot.io/typebot/isReadTypebotForbidden'
 import { resumeWhatsAppFlow } from '@typebot.io/whatsapp/src/resumeWhatsAppFlow'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import PartySocket from 'partysocket'
+// import PartySocket from 'partysocket'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
-    if (!env.NEXT_PUBLIC_PARTYKIT_HOST) return notFound(res)
+    // if (!env.NEXT_PUBLIC_PARTYKIT_HOST) return notFound(res)
     const user = await authenticateUser(req)
     if (!user) return forbidden(res, 'User not authenticated')
     const typebotId = req.query.typebotId as string
@@ -108,21 +108,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(200).send('OK')
     }
 
-    try {
-      await PartySocket.fetch(
-        { host: env.NEXT_PUBLIC_PARTYKIT_HOST, room: `${resultId}/webhooks` },
-        {
-          method: 'POST',
-          body:
-            typeof req.body === 'string'
-              ? req.body
-              : JSON.stringify(req.body, null, 2),
-        }
-      )
-    } catch (error) {
-      console.error('PartySocket.fetch error:', error)
-      return internalServerError(res, 'PartySocket.fetch error')
-    }
+    // try {
+    //   await PartySocket.fetch(
+    //     { host: env.NEXT_PUBLIC_PARTYKIT_HOST, room: `${resultId}/webhooks` },
+    //     {
+    //       method: 'POST',
+    //       body:
+    //         typeof req.body === 'string'
+    //           ? req.body
+    //           : JSON.stringify(req.body, null, 2),
+    //     }
+    //   )
+    // } catch (error) {
+    //   console.error('PartySocket.fetch error:', error)
+    //   return internalServerError(res, 'PartySocket.fetch error')
+    // }
 
     return res.status(200).send('OK')
   }

@@ -15,6 +15,7 @@ export type Props = {
   origin?: 'webhook'
   transitionBlock?: boolean
   transitionData?: object
+  blockTransition?: boolean
 }
 
 type JobData =
@@ -33,7 +34,7 @@ export const myQueueResumeWhatsAppFlow = new Bull<JobData>(
   'resumeWhatsAppFlow',
   {
     redis: {
-      host: 'redis',
+      host: 'localhost',
       port: 6379,
     },
   }
@@ -48,6 +49,7 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
   const existingJob = await myQueueResumeWhatsAppFlow.getJob(scheduleId)
   if (existingJob) {
     await existingJob.remove()
+    console.log(`Tarefa removida com sucesso! - ${scheduleId}`)
   }
 
   const nowInSaoPaulo = DateTime.now().setZone('America/Sao_Paulo')
@@ -76,7 +78,7 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
     await sendLogRequest('error@myQueueResumeWhatsAppFlow', error)
   }
 
-  console.log('Tarefa agendada com sucesso!')
+  console.log(`Tarefa agendada com sucesso! - ${scheduleId}`)
 }
 
 myQueueResumeWhatsAppFlow.process(async (job) => {
