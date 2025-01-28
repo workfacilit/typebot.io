@@ -365,6 +365,12 @@ const wfEnv = {
   },
 }
 
+const redisQueue = {
+  server: {
+    REDIS_QUEUE_SERVER: z.string().min(1).optional(),
+  },
+}
+
 const sentryEnv = {
   client: {
     NEXT_PUBLIC_SENTRY_DSN: z.string().min(1).optional(),
@@ -459,6 +465,7 @@ export const env = createEnv({
     ...telemetryEnv.server,
     ...wfEnv.server,
     ...keycloakEnv.server,
+    ...redisQueue.server,
   },
   client: {
     ...baseEnv.client,
