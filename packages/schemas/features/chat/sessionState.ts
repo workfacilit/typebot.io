@@ -63,10 +63,12 @@ const sessionStateSchemaV2 = z.object({
   isStreamEnabled: z.boolean().optional(),
   whatsApp: z
     .object({
-      contact: z.object({
-        name: z.string(),
-        phoneNumber: z.string(),
-      }),
+      contact: z
+        .object({
+          name: z.string(),
+          phoneNumber: z.string(),
+        })
+        .optional(),
     })
     .optional(),
   expiryTimeout: z

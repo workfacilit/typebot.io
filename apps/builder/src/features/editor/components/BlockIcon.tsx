@@ -1,4 +1,4 @@
-import { IconProps, useColorModeValue } from '@chakra-ui/react'
+import { type IconProps, useColorModeValue } from '@chakra-ui/react'
 import React from 'react'
 import { WaitIcon } from '@/features/blocks/logic/wait/components/WaitIcon'
 import { ScriptIcon } from '@/features/blocks/logic/script/components/ScriptIcon'
@@ -35,11 +35,12 @@ import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/con
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { IntegrationBlockType } from '@typebot.io/schemas/features/blocks/integrations/constants'
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
-import { Block } from '@typebot.io/schemas'
+import type { Block } from '@typebot.io/schemas'
 import { OpenAILogo } from '@/features/blocks/integrations/openai/components/OpenAILogo'
 import { ForgedBlockIcon } from '@/features/forge/ForgedBlockIcon'
 import { SendEmailIcon } from '@/features/blocks/integrations/sendEmail/components/SendEmailIcon'
 import { FlagIcon, ThunderIcon } from '@/components/icons'
+import { WebhookIcon } from '@/features/blocks/logic/webhookRequest/components/WebhookIcon'
 
 type BlockIconProps = { type: Block['type'] } & IconProps
 
@@ -98,6 +99,8 @@ export const BlockIcon = ({ type, ...props }: BlockIconProps): JSX.Element => {
       return <TypebotLinkIcon color={purple} {...props} />
     case LogicBlockType.AB_TEST:
       return <AbTestIcon color={purple} {...props} />
+    case LogicBlockType.WEBHOOK_REQUEST:
+      return <WebhookIcon {...props} />
     case IntegrationBlockType.GOOGLE_SHEETS:
       return <GoogleSheetsLogo {...props} />
     case IntegrationBlockType.GOOGLE_ANALYTICS:

@@ -1,11 +1,20 @@
-import { Stack } from '@chakra-ui/react'
+import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
+  Stack,
+  Text,
+  Input,
+} from '@chakra-ui/react'
 import { useTypebot } from '@/features/editor/providers/TypebotProvider'
 import { GroupsDropdown } from './GroupsDropdown'
 import { TypebotsDropdown } from './TypebotsDropdown'
 import { trpc } from '@/lib/trpc'
 import { isNotEmpty } from '@typebot.io/lib'
 import { SwitchWithLabel } from '@/components/inputs/SwitchWithLabel'
-import { TypebotLinkBlock } from '@typebot.io/schemas'
+import type { TypebotLinkBlock } from '@typebot.io/schemas'
 import { defaultTypebotLinkOptions } from '@typebot.io/schemas/features/blocks/logic/typebotLink/constants'
 
 type Props = {
@@ -35,6 +44,24 @@ export const TypebotLinkForm = ({ options, onOptionsChange }: Props) => {
 
   const updateMergeResults = (mergeResults: boolean) =>
     onOptionsChange({ ...options, mergeResults })
+
+  const updateScheduleMinutes = (event: React.ChangeEvent<HTMLInputElement>) =>
+    onOptionsChange({
+      ...options,
+      schedule: { ...options?.schedule, minutes: Number(event.target.value) },
+    })
+
+  const updateScheduleActived = (actived: boolean) =>
+    onOptionsChange({
+      ...options,
+      schedule: { ...options?.schedule, actived },
+    })
+
+  // const updateScheduleSession = (session: boolean) =>
+  //   onOptionsChange({
+  //     ...options,
+  //     schedule: { ...options?.schedule, session },
+  //   })
 
   const isCurrentTypebotSelected =
     (typebot && options?.typebotId === typebot.id) ||
@@ -70,14 +97,58 @@ export const TypebotLinkForm = ({ options, onOptionsChange }: Props) => {
       )}
       {!isCurrentTypebotSelected && (
         <SwitchWithLabel
-          label="Merge answers"
-          moreInfoContent="If enabled, the answers collected in the linked typebot will be merged with the results of the current typebot."
+          label="Mesclar respostas"
+          moreInfoContent="Se habilitado, as respostas coletadas no typebot vinculado serão mescladas com os resultados do typebot atual."
           initialValue={
             options?.mergeResults ?? defaultTypebotLinkOptions.mergeResults
           }
           onCheckChange={updateMergeResults}
         />
       )}
+      <Accordion allowToggle>
+        <AccordionItem>
+          <AccordionButton justifyContent="space-between">
+            Agendamento
+            <AccordionIcon />
+          </AccordionButton>
+          <AccordionPanel py="1">
+            <Stack p="1" borderRadius="md" spacing="3">
+              <Text fontSize="sm">
+                Configure uma transição programada minutos depois que o usuário
+                interagir com o bot.(Para Whatsapp)
+              </Text>
+            </Stack>
+            <Input
+              mb="2"
+              mt="2"
+              defaultValue={options?.schedule?.minutes}
+              onChange={(event) => {
+                const value = Number(event.target.value)
+                if (value >= 1 && value <= 60) {
+                  updateScheduleMinutes(event)
+                }
+              }}
+              type="number"
+              min={1}
+              max={60}
+            />
+            <SwitchWithLabel
+              mb="2"
+              mt="2"
+              label="Ativar agendamento"
+              initialValue={options?.schedule?.actived}
+              onCheckChange={updateScheduleActived}
+            />
+            {/* <SwitchWithLabel
+              mb="2"
+              mt="2"
+              label="Encerrar sessão"
+              initialValue={options?.schedule?.session}
+              onCheckChange={updateScheduleSession}
+            /> */}
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
     </Stack>
   )
 }

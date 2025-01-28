@@ -1,4 +1,4 @@
-import {
+import type {
   AnswerInSessionState,
   Block,
   ContinueChatResponse,
@@ -15,10 +15,9 @@ import { executeGroup, parseInput } from './executeGroup'
 import { getNextGroup } from './getNextGroup'
 import { formatEmail } from './blocks/inputs/email/formatEmail'
 import { formatPhoneNumber } from './blocks/inputs/phone/formatPhoneNumber'
-import { resumeWebhookExecution } from './blocks/integrations/webhook/resumeWebhookExecution'
 import { saveAnswer } from './queries/saveAnswer'
 import { parseButtonsReply } from './blocks/inputs/buttons/parseButtonsReply'
-import { ParsedReply, Reply } from './types'
+import type { ParsedReply, Reply } from './types'
 import { validateNumber } from './blocks/inputs/number/validateNumber'
 import { parseDateReply } from './blocks/inputs/date/parseDateReply'
 import { validateRatingReply } from './blocks/inputs/rating/validateRatingReply'
@@ -37,15 +36,18 @@ import { defaultEmailInputOptions } from '@typebot.io/schemas/features/blocks/in
 import { defaultChoiceInputOptions } from '@typebot.io/schemas/features/blocks/inputs/choice/constants'
 import { defaultPictureChoiceOptions } from '@typebot.io/schemas/features/blocks/inputs/pictureChoice/constants'
 import { defaultFileInputOptions } from '@typebot.io/schemas/features/blocks/inputs/file/constants'
-import { VisitedEdge } from '@typebot.io/prisma'
+import type { VisitedEdge } from '@typebot.io/prisma'
 import { getBlockById } from '@typebot.io/schemas/helpers'
-import { ForgedBlock } from '@typebot.io/forge-repository/types'
+import type { ForgedBlock } from '@typebot.io/forge-repository/types'
 import { forgedBlocks } from '@typebot.io/forge-repository/definitions'
 import { resumeChatCompletion } from './blocks/integrations/legacy/openai/resumeChatCompletion'
 import { env } from '@typebot.io/env'
 import { isURL } from '@typebot.io/lib/validators/isURL'
+import { stringifyError } from '@typebot.io/lib/stringifyError'
 import { isForgedBlockType } from '@typebot.io/schemas/features/blocks/forged/helpers'
 import { resetSessionState } from './resetSessionState'
+import { saveDataInResponseVariableMapping } from './blocks/integrations/webhook/saveDataInResponseVariableMapping'
+import { sendLogRequest } from './logWF'
 
 type Params = {
   version: 1 | 2
@@ -55,7 +57,9 @@ type Params = {
 }
 export const continueBotFlow = async (
   reply: Reply,
-  { state, version, startTime, textBubbleContentFormat }: Params
+  { state, version, startTime, textBubbleContentFormat }: Params,
+  transitionBlock?: boolean,
+  transitionData?: { typebotId: string; groupId: string }
 ): Promise<
   ContinueChatResponse & {
     newSessionState: SessionState
@@ -75,6 +79,8 @@ export const continueBotFlow = async (
     state.typebotsQueue[0].typebot.groups
   )
 
+  // await sendLogRequest('continueBotFlow@groups', group)
+
   if (!block)
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -92,10 +98,58 @@ export const continueBotFlow = async (
 
   let formattedReply: string | undefined
 
-  if (isInputBlock(block)) {
+  const groupJump: Group = {
+    id: 'smgababwob2lcnvtpz49hm9vasas',
+    title: 'pular fluxo',
+    graphCoordinates: {
+      x: 302,
+      y: 906,
+    },
+    blocks: [
+      {
+        id: 'tptcammmgde0zn592idlmdsbsas',
+        type: LogicBlockType.TYPEBOT_LINK,
+        options: {
+          typebotId: transitionData?.typebotId,
+          groupId: transitionData?.groupId,
+          mergeResults: true,
+        },
+      },
+    ],
+  }
+
+  // await sendLogRequest('continueBotFlow@transitionBlock', transitionBlock)
+  if (!transitionBlock && !transitionData?.typebotId && isInputBlock(block)) {
     const parsedReplyResult = await parseReply(newSessionState)(reply, block)
 
-    if (parsedReplyResult.status === 'fail')
+    formattedReply =
+      'reply' in parsedReplyResult && reply?.type === 'text'
+        ? parsedReplyResult.reply
+        : undefined
+
+    if (parsedReplyResult.status === 'fail') {
+      console.error('parsedReplyResult.status === fail')
+      if (transitionBlock) {
+        const lastMessageNewFormat =
+          reply?.type === 'text' && formattedReply !== reply?.text
+            ? formattedReply
+            : undefined
+
+        const chatReply = await executeGroup(groupJump, {
+          version,
+          state: newSessionState,
+          firstBubbleWasStreamed,
+          visitedEdges: [],
+          setVariableHistory,
+          startTime,
+          textBubbleContentFormat,
+        })
+
+        return {
+          ...chatReply,
+          lastMessageNewFormat,
+        }
+      }
       return {
         ...(await parseRetryMessage(newSessionState)(
           block,
@@ -105,11 +159,8 @@ export const continueBotFlow = async (
         visitedEdges: [],
         setVariableHistory: [],
       }
+    }
 
-    formattedReply =
-      'reply' in parsedReplyResult && reply?.type === 'text'
-        ? parsedReplyResult.reply
-        : undefined
     newSessionState = await processAndSaveAnswer(
       state,
       block
@@ -121,7 +172,10 @@ export const continueBotFlow = async (
   }
 
   const groupHasMoreBlocks = blockIndex < group.blocks.length - 1
-
+  // await sendLogRequest(
+  //   'continueBotFlow@groupsgroupHasMoreBlocks',
+  //   groupHasMoreBlocks
+  // )
   const { edgeId: nextEdgeId, isOffDefaultPath } = getOutgoingEdgeId(
     newSessionState
   )(block, formattedReply)
@@ -132,9 +186,11 @@ export const continueBotFlow = async (
       : undefined
 
   if (groupHasMoreBlocks && !nextEdgeId) {
+    const jumpToBlock =
+      transitionBlock || transitionData?.typebotId ? groupJump : group
     const chatReply = await executeGroup(
       {
-        ...group,
+        ...jumpToBlock,
         blocks: group.blocks.slice(blockIndex + 1),
       } as Group,
       {
@@ -153,7 +209,28 @@ export const continueBotFlow = async (
     }
   }
 
-  if (!nextEdgeId && state.typebotsQueue.length === 1)
+  if (!nextEdgeId && state.typebotsQueue.length === 1) {
+    // await sendLogRequest('continueBotFlow@!nextEdgeId', {
+    //   nextEdgeId,
+    // })
+
+    if (transitionBlock) {
+      const chatReply = await executeGroup(groupJump, {
+        version,
+        state: newSessionState,
+        firstBubbleWasStreamed,
+        visitedEdges: [],
+        setVariableHistory,
+        startTime,
+        textBubbleContentFormat,
+      })
+
+      return {
+        ...chatReply,
+        lastMessageNewFormat,
+      }
+    }
+
     return {
       messages: [],
       newSessionState,
@@ -161,6 +238,7 @@ export const continueBotFlow = async (
       visitedEdges: [],
       setVariableHistory,
     }
+  }
 
   const nextGroup = await getNextGroup({
     state: newSessionState,
@@ -170,7 +248,27 @@ export const continueBotFlow = async (
 
   newSessionState = nextGroup.newSessionState
 
-  if (!nextGroup.group)
+  if (!nextGroup.group) {
+    // await sendLogRequest('continueBotFlow@!nextGroup.group', {
+    //   nextEdgeId,
+    // })
+    if (transitionBlock) {
+      const chatReply = await executeGroup(groupJump, {
+        version,
+        state: newSessionState,
+        firstBubbleWasStreamed,
+        visitedEdges: nextGroup.visitedEdge ? [nextGroup.visitedEdge] : [],
+        setVariableHistory,
+        startTime,
+        textBubbleContentFormat,
+      })
+
+      return {
+        ...chatReply,
+        lastMessageNewFormat,
+      }
+    }
+
     return {
       messages: [],
       newSessionState,
@@ -178,8 +276,14 @@ export const continueBotFlow = async (
       visitedEdges: nextGroup.visitedEdge ? [nextGroup.visitedEdge] : [],
       setVariableHistory,
     }
+  }
 
-  const chatReply = await executeGroup(nextGroup.group, {
+  const jumpToBlock =
+    transitionBlock || transitionData?.typebotId ? groupJump : nextGroup.group
+
+  // await sendLogRequest('continueBotFlow@jumpToBlock', jumpToBlock)
+
+  const chatReply = await executeGroup(jumpToBlock, {
     version,
     state: newSessionState,
     firstBubbleWasStreamed,
@@ -239,11 +343,31 @@ const processNonInputBlock = async ({
       })(reply.text)
       newSessionState = result.newSessionState
     }
-  } else if (reply && block.type === IntegrationBlockType.WEBHOOK) {
-    const result = resumeWebhookExecution({
+  } else if (
+    reply &&
+    (block.type === IntegrationBlockType.WEBHOOK ||
+      block.type === LogicBlockType.WEBHOOK_REQUEST)
+  ) {
+    let response: {
+      statusCode?: number
+      data?: unknown
+    }
+    try {
+      response = JSON.parse(reply.text)
+    } catch (err) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Provided response is not valid JSON',
+        cause: stringifyError(err),
+      })
+    }
+    const result = saveDataInResponseVariableMapping({
       state,
-      block,
-      response: JSON.parse(reply.text),
+      blockType: block.type,
+      blockId: block.id,
+      responseVariableMapping: block.options?.responseVariableMapping,
+      outgoingEdgeId: block.outgoingEdgeId,
+      response,
     })
     if (result.newSessionState) newSessionState = result.newSessionState
   } else if (isForgedBlockType(block.type)) {
@@ -523,7 +647,10 @@ const saveAnswerInDb =
       key: key ?? block.id,
       value:
         (attachedFileUrls ?? []).length > 0
-          ? `${attachedFileUrls!.join(', ')}\n\n${replyContent}`
+          ? `${
+              // biome-ignore lint/style/noNonNullAssertion: <explanation>
+              attachedFileUrls!.join(', ')
+            }\n\n${replyContent}`
           : replyContent,
     })
   }

@@ -163,6 +163,10 @@ const nextConfig = {
             source: '/healthz',
             destination: '/api/health',
           },
+          {
+            source: '/bull-board/:path*',
+            destination: '/api/bull-board/:path*',
+          },
         ])
         .concat(
           process.env.NEXTAUTH_URL

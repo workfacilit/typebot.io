@@ -168,14 +168,11 @@ const getExpressionToEvaluate =
   > => {
     switch (options?.type) {
       case 'Contact name':
-        return state.whatsApp?.contact.name
-          ? { type: 'value', value: state.whatsApp.contact.name }
-          : null
-      case 'Phone number': {
-        return state.whatsApp?.contact.phoneNumber
-          ? { type: 'value', value: state.whatsApp.contact.phoneNumber }
-          : null
-      }
+        if (!state.whatsApp?.contact?.name) return null
+        return { type: 'value', value: state.whatsApp.contact.name }
+      case 'Phone number':
+        if (!state.whatsApp?.contact?.phoneNumber) return null
+        return { type: 'value', value: state.whatsApp.contact.phoneNumber }
       case 'Now': {
         const timeZone = parseVariables(
           state.typebotsQueue[0].typebot.variables

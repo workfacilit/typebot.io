@@ -3,6 +3,7 @@ version: '3.3'
 volumes:
   db-data:
   redis-data:
+  redis-data:
 
 services:
   typebot-builder:
@@ -13,6 +14,8 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     env_file: .env
+    depends_on:
+      - redis
     depends_on:
       - redis
 

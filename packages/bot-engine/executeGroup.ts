@@ -1,4 +1,4 @@
-import {
+import type {
   ContinueChatResponse,
   Group,
   InputBlock,
@@ -23,13 +23,13 @@ import { getPrefilledInputValue } from './getPrefilledValue'
 import { parseDateInput } from './blocks/inputs/date/parseDateInput'
 import { deepParseVariables } from '@typebot.io/variables/deepParseVariables'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
-import { VisitedEdge } from '@typebot.io/prisma'
+import type { VisitedEdge } from '@typebot.io/prisma'
 import { env } from '@typebot.io/env'
 import { TRPCError } from '@trpc/server'
-import { ExecuteIntegrationResponse, ExecuteLogicResponse } from './types'
+import type { ExecuteIntegrationResponse, ExecuteLogicResponse } from './types'
 import { createId } from '@paralleldrive/cuid2'
 import {
-  BubbleBlockWithDefinedContent,
+  type BubbleBlockWithDefinedContent,
   parseBubbleBlock,
 } from './parseBubbleBlock'
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'

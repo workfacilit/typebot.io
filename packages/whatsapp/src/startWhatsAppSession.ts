@@ -1,5 +1,5 @@
 import prisma from '@typebot.io/lib/prisma'
-import {
+import type {
   ContinueChatResponse,
   PublicTypebot,
   SessionState,
@@ -8,23 +8,23 @@ import {
   Typebot,
 } from '@typebot.io/schemas'
 import {
-  WhatsAppCredentials,
+  type WhatsAppCredentials,
   defaultSessionExpiryTimeout,
 } from '@typebot.io/schemas/features/whatsapp'
 import { isNotDefined } from '@typebot.io/lib/utils'
-import { startSession } from '../startSession'
+import { startSession } from '@typebot.io/bot-engine/startSession'
 import {
   LogicalOperator,
   ComparisonOperators,
 } from '@typebot.io/schemas/features/blocks/logic/condition/constants'
-import { VisitedEdge } from '@typebot.io/prisma'
-import { Reply } from '../types'
+import type { VisitedEdge } from '@typebot.io/prisma'
+import type { Reply } from '@typebot.io/bot-engine/types'
 
 type Props = {
   incomingMessage?: Reply
   workspaceId: string
   credentials: WhatsAppCredentials['data'] & Pick<WhatsAppCredentials, 'id'>
-  contact: NonNullable<SessionState['whatsApp']>['contact']
+  contact?: NonNullable<SessionState['whatsApp']>['contact']
 }
 
 export const startWhatsAppSession = async ({

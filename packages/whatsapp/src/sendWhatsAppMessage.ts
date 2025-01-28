@@ -1,11 +1,11 @@
-import {
+import type {
   WhatsAppCredentials,
   WhatsAppSendingMessage,
 } from '@typebot.io/schemas/features/whatsapp'
 import { env } from '@typebot.io/env'
 import ky from 'ky'
-import { logMessage } from '../queries/saveMessageLog'
-import { sendLogRequest } from '../logWF'
+import { logMessage } from '@typebot.io/bot-engine/queries/saveMessageLog'
+import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 
 type Props = {
   to: string

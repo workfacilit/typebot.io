@@ -1,4 +1,4 @@
-import { BlockIndices, BlockV6 } from '@typebot.io/schemas'
+import type { BlockIndices, BlockV6 } from '@typebot.io/schemas'
 import { WaitNodeContent } from '@/features/blocks/logic/wait/components/WaitNodeContent'
 import { ScriptNodeContent } from '@/features/blocks/logic/script/components/ScriptNodeContent'
 import { ButtonsBlockNode } from '@/features/blocks/inputs/buttons/components/ButtonsBlockNode'
@@ -38,6 +38,7 @@ import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/consta
 import { IntegrationBlockType } from '@typebot.io/schemas/features/blocks/integrations/constants'
 import { ForgedBlockNodeContent } from '@/features/forge/components/ForgedBlockNodeContent'
 import { OpenAINodeBody } from '@/features/blocks/integrations/openai/components/OpenAINodeBody'
+import { WebhookNodeContent } from '@/features/blocks/logic/webhookRequest/components/WebhookNodeContent'
 
 type Props = {
   block: BlockV6
@@ -120,6 +121,8 @@ export const BlockNodeContent = ({
       return <TypebotLinkNode block={block} />
     case LogicBlockType.CONDITION:
       return <ItemNodesList block={block} indices={indices} />
+    case LogicBlockType.WEBHOOK_REQUEST:
+      return <WebhookNodeContent options={block.options} />
     case IntegrationBlockType.GOOGLE_SHEETS: {
       return <GoogleSheetsNodeContent options={block.options} />
     }

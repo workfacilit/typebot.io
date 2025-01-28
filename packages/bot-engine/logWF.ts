@@ -7,6 +7,8 @@ export async function sendLogRequest(tipo: string, data: any): Promise<any> {
     data,
   }
 
+  // console.log('Sending log request to WF:', JSON.stringify(dataRequest))
+
   return await fetch(
     `https://${env.WF_REQUEST_SERVER}.workfacilit.com/app/prod/api/demandas/inserir-log`,
     {

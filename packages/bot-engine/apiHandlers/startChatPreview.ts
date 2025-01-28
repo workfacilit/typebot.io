@@ -1,4 +1,4 @@
-import { Message, StartFrom, StartTypebot } from '@typebot.io/schemas'
+import type { Message, StartFrom, StartTypebot } from '@typebot.io/schemas'
 import { restartSession } from '../queries/restartSession'
 import { saveStateToDatabase } from '../saveStateToDatabase'
 import { startSession } from '../startSession'
@@ -70,7 +70,7 @@ export const startChatPreview = async ({
         clientSideActions,
         visitedEdges,
         setVariableHistory,
-        hasEmbedBubbleWithWaitEvent: messages.some(
+        isWaitingForExternalEvent: messages.some(
           (message) =>
             message.type === 'custom-embed' ||
             (message.type === BubbleBlockType.EMBED &&

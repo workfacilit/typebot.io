@@ -1,0 +1,27 @@
+{
+  "name": "@typebot.io/whatsapp",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sentry/nextjs": "7.77.0",
+    "@typebot.io/bot-engine": "workspace:*",
+    "@typebot.io/env": "workspace:*",
+    "@typebot.io/lib": "workspace:*",
+    "@typebot.io/prisma": "workspace:*",
+    "@typebot.io/schemas": "workspace:*",
+    "ky": "1.2.4",
+    "luxon": "^3.5.0",
+    "@bull-board/api": "^6.5.4",
+    "@bull-board/express": "^6.5.4",
+    "@bull-board/ui": "^6.5.4",
+    "bull": "^4.16.5",
+    "bull-board": "^1.7.2",
+    "dayjs": "^1.11.13",
+    "dayjs-plugin-utc": "^0.1.2",
+    "ioredis": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.7.1",
+    "@types/bull": "^3.15.9",
+    "@types/luxon": "^3.4.2"
+  }
+}
