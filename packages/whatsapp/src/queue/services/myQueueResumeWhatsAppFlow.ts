@@ -34,7 +34,7 @@ export const myQueueResumeWhatsAppFlow = new Bull<JobData>(
   'resumeWhatsAppFlow',
   {
     redis: {
-      host: 'localhost',
+      host: 'redis',
       port: 6379,
     },
   }
@@ -46,11 +46,7 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
   args: Props,
   minutes: number
 ) {
-  const existingJob = await myQueueResumeWhatsAppFlow.getJob(scheduleId)
-  if (existingJob) {
-    await existingJob.remove()
-    console.log(`Tarefa removida com sucesso! - ${scheduleId}`)
-  }
+  await removeScheduleMyQueueResumeWhatsAppFlow(scheduleId)
 
   const nowInSaoPaulo = DateTime.now().setZone('America/Sao_Paulo')
   const futureTime = nowInSaoPaulo.plus({ minutes })
@@ -58,33 +54,39 @@ export async function scheduleMyQueueResumeWhatsAppFlow(
   const delayEmMilissegundos =
     futureTime.toMillis() - nowInSaoPauloCurrent.toMillis()
 
-  await sendLogRequest('errorProcess@myQueueResumeWhatsAppFlow', {
-    delayEmMilissegundos,
-  })
-
   try {
-    // Defina o jobData com a tipagem correta
-    const jobData: JobData = {
-      functionName: 'resumeWhatsAppFlow',
-      args: args, // Passando args diretamente como Props
-    }
-
-    // Adiciona o job com o jobData na fila
-    await myQueueResumeWhatsAppFlow.add(jobData, {
-      jobId: scheduleId,
-      delay: delayEmMilissegundos,
-    })
+    // Adiciona o job à fila, passando os args como um objeto no formato correto
+    await myQueueResumeWhatsAppFlow.add(
+      {
+        functionName: 'resumeWhatsAppFlow',
+        args: { ...args }, // Passando args como um array de Props
+      },
+      {
+        jobId: scheduleId,
+        delay: delayEmMilissegundos,
+      }
+    )
+    console.log('Tarefa agendada com sucesso!' + scheduleId)
   } catch (error) {
-    await sendLogRequest('error@myQueueResumeWhatsAppFlow', error)
+    console.log('Erro ao agendar tarefa!')
+    await sendLogRequest('error@scheduleMyQueueResumeWhatsAppFlow', error)
   }
+}
 
-  console.log(`Tarefa agendada com sucesso! - ${scheduleId}`)
+export async function removeScheduleMyQueueResumeWhatsAppFlow(
+  scheduleId: string
+) {
+  const existingJob = await myQueueResumeWhatsAppFlow.getJob(scheduleId)
+  if (existingJob) {
+    await existingJob.remove()
+    console.log('Tarefa removida com sucesso!' + scheduleId)
+  }
 }
 
 myQueueResumeWhatsAppFlow.process(async (job) => {
   try {
     const { args } = job.data
-    await sendLogRequest('args@myQueueResumeWhatsAppFlow', args)
+    // await sendLogRequest('args@myQueueResumeWhatsAppFlow', args)
     await resumeWhatsAppFlow(args as Props)
   } catch (error) {
     await sendLogRequest('errorProcess@myQueueResumeWhatsAppFlow', error)

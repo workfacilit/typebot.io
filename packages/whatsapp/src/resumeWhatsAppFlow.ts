@@ -24,7 +24,10 @@ import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { logMessage } from '@typebot.io/bot-engine/queries/saveMessageLog'
 import { parseGroups } from '@typebot.io/schemas'
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
-import { scheduleMyQueueResumeWhatsAppFlow } from './queue/workers/scheduleMyQueueResumeWhatsAppFlow'
+import {
+  scheduleMyQueueResumeWhatsAppFlow,
+  removeScheduleMyQueueResumeWhatsAppFlow,
+} from './queue/services/myQueueResumeWhatsAppFlow'
 
 const incomingMessageDebounce = 3000
 
@@ -125,7 +128,7 @@ export const resumeWhatsAppFlow = async (props: Props) => {
 
   if (
     reply?.type === 'text' &&
-    (reply.text === '/sair' || reply.text === '/nps') &&
+    (reply.text === '/sair' || (reply.text === '/nps' && !transitionBlock)) &&
     workspaceId
   ) {
     resumeResponse = workspaceId
@@ -248,6 +251,10 @@ export const resumeWhatsAppFlow = async (props: Props) => {
     visitedEdges,
     setVariableHistory,
   })
+
+  if (reply?.type === 'text' && reply.text === '/sair') {
+    await removeScheduleMyQueueResumeWhatsAppFlow(sessionId)
+  }
 
   if (!(reply?.type === 'text' && reply.text === '/sair')) {
     // await sendLogRequest('props@resumeWhatsAppFlow', props)
@@ -535,6 +542,7 @@ const scheduleTransitionBlock = async (
   const session = await getSession(sessionId)
   const currentTypebot = session?.state.typebotsQueue[0].typebot
   if (!currentTypebot) {
+    await removeScheduleMyQueueResumeWhatsAppFlow(sessionId)
     console.error('currentTypebot is undefined')
     return
   }
@@ -550,13 +558,14 @@ const scheduleTransitionBlock = async (
         (block.options.schedule.minutes ?? 0) > 0 &&
         (block.options.schedule.minutes ?? 0) < 60
     )
-  await sendLogRequest('blocks@resumeWhatsAppFlow', currentTypebot)
+
+  if (blocks.length === 0) {
+    await removeScheduleMyQueueResumeWhatsAppFlow(sessionId)
+  }
+  // await sendLogRequest('typebotId@resumeWhatsAppFlow', currentTypebot.id)
+  // await sendLogRequest('originalProps@resumeWhatsAppFlow', originalProps)
   for (const block of blocks) {
     if (!hasScheduleOptions(block)) continue
-    // await sendLogRequest(
-    //   'session@resumeWhatsAppFlow',
-    //   block.options.schedule.session
-    // )
     scheduleMyQueueResumeWhatsAppFlow(
       sessionId,
       {

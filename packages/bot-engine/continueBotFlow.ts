@@ -98,11 +98,58 @@ export const continueBotFlow = async (
 
   let formattedReply: string | undefined
 
+  const groupJump: Group = {
+    id: 'smgababwob2lcnvtpz49hm9vasas',
+    title: 'pular fluxo',
+    graphCoordinates: {
+      x: 302,
+      y: 906,
+    },
+    blocks: [
+      {
+        id: 'tptcammmgde0zn592idlmdsbsas',
+        type: LogicBlockType.TYPEBOT_LINK,
+        options: {
+          typebotId: transitionData?.typebotId,
+          groupId: transitionData?.groupId,
+          mergeResults: true,
+        },
+      },
+    ],
+  }
+
   // await sendLogRequest('continueBotFlow@transitionBlock', transitionBlock)
   if (!transitionBlock && !transitionData?.typebotId && isInputBlock(block)) {
     const parsedReplyResult = await parseReply(newSessionState)(reply, block)
 
-    if (parsedReplyResult.status === 'fail')
+    formattedReply =
+      'reply' in parsedReplyResult && reply?.type === 'text'
+        ? parsedReplyResult.reply
+        : undefined
+
+    if (parsedReplyResult.status === 'fail') {
+      console.error('parsedReplyResult.status === fail')
+      if (transitionBlock) {
+        const lastMessageNewFormat =
+          reply?.type === 'text' && formattedReply !== reply?.text
+            ? formattedReply
+            : undefined
+
+        const chatReply = await executeGroup(groupJump, {
+          version,
+          state: newSessionState,
+          firstBubbleWasStreamed,
+          visitedEdges: [],
+          setVariableHistory,
+          startTime,
+          textBubbleContentFormat,
+        })
+
+        return {
+          ...chatReply,
+          lastMessageNewFormat,
+        }
+      }
       return {
         ...(await parseRetryMessage(newSessionState)(
           block,
@@ -112,11 +159,8 @@ export const continueBotFlow = async (
         visitedEdges: [],
         setVariableHistory: [],
       }
+    }
 
-    formattedReply =
-      'reply' in parsedReplyResult && reply?.type === 'text'
-        ? parsedReplyResult.reply
-        : undefined
     newSessionState = await processAndSaveAnswer(
       state,
       block
@@ -140,26 +184,6 @@ export const continueBotFlow = async (
     reply?.type === 'text' && formattedReply !== reply?.text
       ? formattedReply
       : undefined
-
-  const groupJump: Group = {
-    id: 'smgababwob2lcnvtpz49hm9vasas',
-    title: 'pular fluxo',
-    graphCoordinates: {
-      x: 302,
-      y: 906,
-    },
-    blocks: [
-      {
-        id: 'tptcammmgde0zn592idlmdsbsas',
-        type: LogicBlockType.TYPEBOT_LINK,
-        options: {
-          typebotId: transitionData?.typebotId,
-          groupId: transitionData?.groupId,
-          mergeResults: true,
-        },
-      },
-    ],
-  }
 
   if (groupHasMoreBlocks && !nextEdgeId) {
     const jumpToBlock =
@@ -228,22 +252,22 @@ export const continueBotFlow = async (
     // await sendLogRequest('continueBotFlow@!nextGroup.group', {
     //   nextEdgeId,
     // })
-    // if (transitionBlock) {
-    //   const chatReply = await executeGroup(groupJump, {
-    //     version,
-    //     state: newSessionState,
-    //     firstBubbleWasStreamed,
-    //     visitedEdges: nextGroup.visitedEdge ? [nextGroup.visitedEdge] : [],
-    //     setVariableHistory,
-    //     startTime,
-    //     textBubbleContentFormat,
-    //   })
+    if (transitionBlock) {
+      const chatReply = await executeGroup(groupJump, {
+        version,
+        state: newSessionState,
+        firstBubbleWasStreamed,
+        visitedEdges: nextGroup.visitedEdge ? [nextGroup.visitedEdge] : [],
+        setVariableHistory,
+        startTime,
+        textBubbleContentFormat,
+      })
 
-    //   return {
-    //     ...chatReply,
-    //     lastMessageNewFormat,
-    //   }
-    // }
+      return {
+        ...chatReply,
+        lastMessageNewFormat,
+      }
+    }
 
     return {
       messages: [],
