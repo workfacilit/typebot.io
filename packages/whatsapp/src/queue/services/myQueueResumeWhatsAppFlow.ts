@@ -4,6 +4,7 @@ import type { WhatsAppIncomingMessage } from '@typebot.io/schemas/features/whats
 import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
 import { resumeWhatsAppFlow } from '../../resumeWhatsAppFlow'
 import { DateTime } from 'luxon' // Adicionada a importação de DateTime
+import { env } from '@typebot.io/env'
 
 export type Props = {
   receivedMessage: WhatsAppIncomingMessage
@@ -34,7 +35,7 @@ export const myQueueResumeWhatsAppFlow = new Bull<JobData>(
   'resumeWhatsAppFlow',
   {
     redis: {
-      host: 'redis',
+      host: env.WF_REQUEST_SERVER,
       port: 6379,
     },
   }
