@@ -34,12 +34,3 @@ services:
     volumes:
       - redis-data:/data
   
-  minio:
-    image: minio/minio:RELEASE.2022-06-02T02-11-04Z
-    container_name: minio-azure
-    restart: always
-    ports:
-      - "9000:9000" # API S3
-      - "9001:9001" # UI do MinIO
-    env_file: .env
-    command: gateway
