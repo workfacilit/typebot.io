@@ -42,4 +42,4 @@ services:
       - "9000:9000" # API S3
       - "9001:9001" # UI do MinIO
     env_file: .env
-    command: gatway
+    command: gateway
