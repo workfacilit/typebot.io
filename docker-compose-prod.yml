@@ -3,7 +3,6 @@ version: '3.3'
 volumes:
   db-data:
 
-
 services:
   typebot-builder:
     image: samuellopes123/typebot:builder_prod
@@ -20,3 +19,13 @@ services:
     ports:
       - '8081:3000'
     env_file: .env
+
+  minio:
+    image: minio/minio
+    container_name: minio-azure
+    restart: always
+    ports:
+      - "9000:9000" 
+      - "9001:9001" 
+    env_file: .env  
+    command: gateway azure
