@@ -18,6 +18,7 @@ import { useWorkspace } from '../WorkspaceProvider'
 import { TextInput } from '@/components/inputs'
 import { useTranslate } from '@tolgee/react'
 import { CopyButton } from '@/components/CopyButton'
+import { trpc } from '@/lib/trpc'
 
 export const WorkspaceSettingsForm = ({ onClose }: { onClose: () => void }) => {
   const { t } = useTranslate()
@@ -34,6 +35,14 @@ export const WorkspaceSettingsForm = ({ onClose }: { onClose: () => void }) => {
   const handleDeleteClick = async () => {
     await deleteCurrentWorkspace()
     onClose()
+  }
+
+  const duplicateWorkspaceMutation =
+    trpc.workspace.duplicateWorkspace.useMutation()
+
+  const handleCloneWorkspace = () => {
+    if (!workspace?.id) return
+    duplicateWorkspaceMutation.mutate({ workspaceId: workspace.id })
   }
 
   return (
@@ -85,6 +94,9 @@ export const WorkspaceSettingsForm = ({ onClose }: { onClose: () => void }) => {
           workspaceName={workspace?.name}
         />
       )}
+      <Flex justifyContent="flex-init">
+        <Button onClick={handleCloneWorkspace}>Clonar Workspace</Button>
+      </Flex>
     </Stack>
   )
 }
