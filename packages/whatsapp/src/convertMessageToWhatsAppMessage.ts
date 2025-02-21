@@ -1,8 +1,8 @@
-import {
+import type {
   ContinueChatResponse,
   EmbeddableVideoBubbleContentType,
 } from '@typebot.io/schemas'
-import { WhatsAppSendingMessage } from '@typebot.io/schemas/features/whatsapp'
+import type { WhatsAppSendingMessage } from '@typebot.io/schemas/features/whatsapp'
 import { isSvgSrc } from '@typebot.io/lib/utils'
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
 import {

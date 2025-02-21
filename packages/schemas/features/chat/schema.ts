@@ -27,7 +27,7 @@ import { preprocessTypebot } from '../typebot/helpers/preprocessTypebot'
 import { typebotV5Schema, typebotV6Schema } from '../typebot/typebot'
 import { BubbleBlockType } from '../blocks/bubbles/constants'
 import { clientSideActionSchema } from './clientSideAction'
-import { ChatSession as ChatSessionFromPrisma } from '@typebot.io/prisma'
+import type { ChatSession as ChatSessionFromPrisma } from '@typebot.io/prisma'
 
 export const messageSchema = z.preprocess(
   (val) => (typeof val === 'string' ? { type: 'text', text: val } : val),

@@ -10,11 +10,11 @@ import { SettingsIcon, FolderIcon } from '@/components/icons'
 import { useState } from 'react'
 import { useParentModal } from '@/features/graph/providers/ParentModalProvider'
 import { WhatsAppModal } from './WhatsAppModal'
-import { ModalProps } from '../../EmbedButton'
+import type { ModalProps } from '../../EmbedButton'
 import { WhatsAppTemplates } from './WhatsAppTemplates'
 import { useTypebot } from '@/features/editor/providers/TypebotProvider'
 import { WhatsAppAddTemplate } from './WhatsAppAddTemplate'
-import { SettingsTab } from '@/features/publish/types/SettingsTab'
+import type { SettingsTab } from '@/features/publish/types/SettingsTab'
 
 export const WhatsappSettingsModal = ({ isOpen, onClose }: ModalProps) => {
   const { ref } = useParentModal()
@@ -61,7 +61,7 @@ export const WhatsappSettingsModal = ({ isOpen, onClose }: ModalProps) => {
             </Stack>
           </Stack>
 
-          <Flex justify="center" pt="10"></Flex>
+          <Flex justify="center" pt="10" />
         </Stack>
 
         {isOpen && (

@@ -1,5 +1,5 @@
 import prisma from '@typebot.io/lib/prisma'
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { getAuthenticatedUser } from '@/features/auth/helpers/getAuthenticatedUser'
 import {
   methodNotAllowed,
@@ -7,9 +7,9 @@ import {
   notFound,
 } from '@typebot.io/lib/api'
 import { isReadWorkspaceFobidden } from '@/features/workspace/helpers/isReadWorkspaceFobidden'
-import { WhatsAppCredentials } from '@typebot.io/schemas/features/whatsapp'
+import type { WhatsAppCredentials } from '@typebot.io/schemas/features/whatsapp'
 import { decrypt } from '@typebot.io/lib/api/encryption/decrypt'
-import { downloadMedia } from '@typebot.io/bot-engine/whatsapp/downloadMedia'
+import { downloadMedia } from '@typebot.io/whatsapp/src/downloadMedia'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'GET') {

@@ -1,13 +1,14 @@
 import { z } from '../zod'
 import { answerInputSchema, answerSchema } from './answer'
 import { listVariableValue, variableWithValueSchema } from './typebot/variable'
-import {
+import type {
   Result as ResultPrisma,
   Log as LogPrisma,
   SetVariableHistoryItem as SetVariableHistoryItemPrisma,
   VisitedEdge,
+  MessageLog as MessagePrisma,
 } from '@typebot.io/prisma'
-import { InputBlockType } from './blocks/inputs/constants'
+import type { InputBlockType } from './blocks/inputs/constants'
 
 export const resultSchema = z.object({
   id: z.string(),
@@ -46,6 +47,18 @@ export const logSchema = z.object({
   description: z.string(),
   details: z.string().nullable(),
 }) satisfies z.ZodType<LogPrisma>
+
+export const messageSchemaResult = z.object({
+  id: z.number(),
+  timestamp: z.date(),
+  workspaceId: z.string(),
+  resultId: z.string().nullable(),
+  typebotId: z.string(),
+  identifier: z.string().nullable(),
+  direction: z.enum(['inbound', 'outbound']),
+  message: z.string().nullable(),
+  channel: z.string().nullable(),
+}) satisfies z.ZodType<MessagePrisma>
 
 export type Result = z.infer<typeof resultSchema>
 export type ResultWithAnswers = z.infer<typeof resultWithAnswersSchema>

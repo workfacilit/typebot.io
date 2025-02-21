@@ -2,7 +2,7 @@ import {
   createMultiStyleConfigHelpers,
   defineStyleConfig,
   extendTheme,
-  StyleFunctionProps,
+  type StyleFunctionProps,
   type ThemeConfig,
 } from '@chakra-ui/react'
 import { mode } from '@chakra-ui/theme-tools'
@@ -13,6 +13,7 @@ import {
   modalAnatomy,
   popoverAnatomy,
   switchAnatomy,
+  tabsAnatomy,
 } from '@chakra-ui/anatomy'
 
 const config: ThemeConfig = {
@@ -188,6 +189,36 @@ const Switch = createMultiStyleConfigHelpers(
   }),
 })
 
+const Tabs = createMultiStyleConfigHelpers(
+  tabsAnatomy.keys
+).defineMultiStyleConfig({
+  baseStyle: ({ colorMode }) => ({
+    tablist: {
+      gap: 2,
+    },
+    tab: {
+      px: '3',
+      borderRadius: 'md',
+      fontWeight: 'semibold',
+      _selected: {
+        bg: colorMode === 'dark' ? 'gray.800' : 'gray.100',
+      },
+      _hover: {
+        bg: colorMode === 'dark' ? 'gray.800' : 'gray.100',
+      },
+      _active: {
+        bg: colorMode === 'dark' ? 'gray.700' : 'gray.200',
+      },
+    },
+    tabpanel: {
+      px: 0,
+    },
+  }),
+  defaultProps: {
+    variant: 'unstyled',
+  },
+})
+
 const components = {
   Modal,
   Popover,
@@ -226,6 +257,7 @@ const components = {
       rounded: 'md',
     },
   },
+  Tabs,
 }
 
 const styles = {

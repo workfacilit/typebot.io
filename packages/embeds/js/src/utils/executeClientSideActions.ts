@@ -10,9 +10,10 @@ import { executeSetVariable } from '@/features/blocks/logic/setVariable/executeS
 import { executeWait } from '@/features/blocks/logic/wait/utils/executeWait'
 import { executeWebhook } from '@/features/blocks/integrations/webhook/executeWebhook'
 import { executePixel } from '@/features/blocks/integrations/pixel/executePixel'
-import { ClientSideActionContext } from '@/types'
+import type { ClientSideActionContext } from '@/types'
 import type { ContinueChatResponse, ChatLog } from '@typebot.io/schemas'
 import { injectStartProps } from './injectStartProps'
+import { listenForWebhook } from '@/features/blocks/logic/webhookRequest/listenForWebhook'
 
 type Props = {
   clientSideAction: NonNullable<ContinueChatResponse['clientSideActions']>[0]
@@ -87,5 +88,11 @@ export const executeClientSideAction = async ({
   }
   if ('codeToExecute' in clientSideAction) {
     return executeCode(clientSideAction.codeToExecute)
+  }
+  if (clientSideAction.type === 'listenForWebhook') {
+    return listenForWebhook({
+      sessionId: context.sessionId,
+      resultId: context.resultId,
+    })
   }
 }

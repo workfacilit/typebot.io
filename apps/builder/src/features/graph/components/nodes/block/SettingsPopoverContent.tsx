@@ -9,7 +9,7 @@ import {
   SlideFade,
   Flex,
 } from '@chakra-ui/react'
-import { Block, BlockOptions, BlockWithOptions } from '@typebot.io/schemas'
+import type { Block, BlockOptions, BlockWithOptions } from '@typebot.io/schemas'
 import { useRef, useState } from 'react'
 import { WaitSettings } from '@/features/blocks/logic/wait/components/WaitSettings'
 import { ScriptSettings } from '@/features/blocks/logic/script/components/ScriptSettings'
@@ -44,6 +44,7 @@ import { IntegrationBlockType } from '@typebot.io/schemas/features/blocks/integr
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
 import { ForgedBlockSettings } from '../../../../forge/components/ForgedBlockSettings'
 import { OpenAISettings } from '@/features/blocks/integrations/openai/components/OpenAISettings'
+import { WebhookSettings } from '@/features/blocks/logic/webhookRequest/components/WebhookSettings'
 import { useForgedBlock } from '@/features/forge/hooks/useForgedBlock'
 import { VideoOnboardingPopover } from '@/features/onboarding/components/VideoOnboardingPopover'
 import { hasOnboardingVideo } from '@/features/onboarding/helpers/hasOnboardingVideo'
@@ -339,6 +340,14 @@ export const BlockSettings = ({
     }
     case LogicBlockType.CONDITION:
       return null
+    case LogicBlockType.WEBHOOK_REQUEST:
+      return (
+        <WebhookSettings
+          blockId={block.id}
+          options={block.options}
+          onOptionsChange={updateOptions}
+        />
+      )
     default: {
       return (
         <ForgedBlockSettings block={block} onOptionsChange={updateOptions} />

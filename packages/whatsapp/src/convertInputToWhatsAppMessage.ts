@@ -1,5 +1,5 @@
-import { ButtonItem, ContinueChatResponse } from '@typebot.io/schemas'
-import { WhatsAppSendingMessage } from '@typebot.io/schemas/features/whatsapp'
+import type { ButtonItem, ContinueChatResponse } from '@typebot.io/schemas'
+import type { WhatsAppSendingMessage } from '@typebot.io/schemas/features/whatsapp'
 import { isDefined, isEmpty } from '@typebot.io/lib/utils'
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'

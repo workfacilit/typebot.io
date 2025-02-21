@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getRuntimeVariable } from './getRuntimeVariable'
 
 declare const window: {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   __ENV?: any
 }
 
@@ -358,10 +359,15 @@ const redisEnv = {
   },
 }
 
-
 const wfEnv = {
   server: {
     WF_REQUEST_SERVER: z.string().min(1).optional(),
+  },
+}
+
+const redisQueue = {
+  server: {
+    REDIS_QUEUE_SERVER: z.string().min(1).optional(),
   },
 }
 
@@ -430,6 +436,15 @@ const keycloakEnv = {
   },
 }
 
+const partykitEnv = {
+  client: {
+    NEXT_PUBLIC_PARTYKIT_HOST: z.string().min(1).optional(),
+  },
+  runtimeEnv: {
+    NEXT_PUBLIC_PARTYKIT_HOST: getRuntimeVariable('NEXT_PUBLIC_PARTYKIT_HOST'),
+  },
+}
+
 export const env = createEnv({
   server: {
     ...baseEnv.server,
@@ -450,6 +465,7 @@ export const env = createEnv({
     ...telemetryEnv.server,
     ...wfEnv.server,
     ...keycloakEnv.server,
+    ...redisQueue.server,
   },
   client: {
     ...baseEnv.client,
@@ -463,6 +479,7 @@ export const env = createEnv({
     ...sentryEnv.client,
     ...posthogEnv.client,
     ...tolgeeEnv.client,
+    ...partykitEnv.client,
   },
   experimental__runtimeEnv: {
     ...baseEnv.runtimeEnv,
@@ -476,6 +493,7 @@ export const env = createEnv({
     ...sentryEnv.runtimeEnv,
     ...posthogEnv.runtimeEnv,
     ...tolgeeEnv.runtimeEnv,
+    ...partykitEnv.runtimeEnv,
   },
   skipValidation:
     process.env.SKIP_ENV_CHECK === 'true' ||

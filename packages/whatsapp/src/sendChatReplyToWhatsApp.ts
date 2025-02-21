@@ -1,9 +1,9 @@
-import {
+import type {
   ContinueChatResponse,
   SessionState,
   Settings,
 } from '@typebot.io/schemas'
-import {
+import type {
   WhatsAppCredentials,
   WhatsAppSendingMessage,
 } from '@typebot.io/schemas/features/whatsapp'
@@ -13,8 +13,8 @@ import * as Sentry from '@sentry/nextjs'
 import { HTTPError } from 'ky'
 import { convertInputToWhatsAppMessages } from './convertInputToWhatsAppMessage'
 import { isNotDefined } from '@typebot.io/lib/utils'
-import { computeTypingDuration } from '../computeTypingDuration'
-import { continueBotFlow } from '../continueBotFlow'
+import { computeTypingDuration } from '@typebot.io/bot-engine/computeTypingDuration'
+import { continueBotFlow } from '@typebot.io/bot-engine/continueBotFlow'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { defaultSettings } from '@typebot.io/schemas/features/typebot/settings/constants'
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
@@ -31,6 +31,8 @@ type Props = {
   workspaceId?: string
   resultIdWA: string
   typebotId: string
+  transitionBlock?: boolean
+  transitionData?: object
 } & Pick<ContinueChatResponse, 'messages' | 'input' | 'clientSideActions'>
 
 export const sendChatReplyToWhatsApp = async ({
@@ -45,6 +47,8 @@ export const sendChatReplyToWhatsApp = async ({
   workspaceId,
   resultIdWA,
   typebotId,
+  transitionBlock,
+  transitionData,
 }: Props): Promise<void> => {
   const messagesBeforeInput = isLastMessageIncludedInInput(
     input,
@@ -77,7 +81,9 @@ export const sendChatReplyToWhatsApp = async ({
           version: 2,
           state,
           textBubbleContentFormat: 'richText',
-        }
+        },
+        transitionBlock,
+        transitionData as { typebotId: string; groupId: string }
       )
 
     return sendChatReplyToWhatsApp({
@@ -91,6 +97,8 @@ export const sendChatReplyToWhatsApp = async ({
       state: newSessionState,
       resultIdWA,
       typebotId,
+      transitionBlock,
+      transitionData,
     })
   }
 
@@ -162,7 +170,9 @@ export const sendChatReplyToWhatsApp = async ({
               version: 2,
               state,
               textBubbleContentFormat: 'richText',
-            }
+            },
+            transitionBlock,
+            transitionData as { typebotId: string; groupId: string }
           )
 
         return sendChatReplyToWhatsApp({
@@ -176,6 +186,8 @@ export const sendChatReplyToWhatsApp = async ({
           state: newSessionState,
           resultIdWA,
           typebotId,
+          transitionBlock,
+          transitionData,
         })
       }
     } catch (err) {

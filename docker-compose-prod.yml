@@ -2,6 +2,7 @@ version: '3.3'
 
 volumes:
   db-data:
+  redis-data:
 
 services:
   typebot-builder:
@@ -12,6 +13,8 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     env_file: .env
+    depends_on:
+      - redis
 
   typebot-viewer:
     image: samuellopes123/typebot:viewer_prod
@@ -19,13 +22,24 @@ services:
     ports:
       - '8081:3000'
     env_file: .env
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.0
+    container_name: redis-chatbot
+    restart: always
+    ports:
+      - '6390:6379'
+    volumes:
+      - redis-data:/data
 
   minio:
     image: minio/minio
     container_name: minio-azure
     restart: always
     ports:
-      - "9000:9000" 
-      - "9001:9001" 
-    env_file: .env  
+      - '9000:9000'
+      - '9001:9001'
+    env_file: .env
     command: gateway azure

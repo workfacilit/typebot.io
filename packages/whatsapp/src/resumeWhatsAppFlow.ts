@@ -1,56 +1,65 @@
-import { Block, SessionState } from '@typebot.io/schemas'
-import {
+import type { Block, SessionState, ChatSession } from '@typebot.io/schemas'
+import type {
   WhatsAppCredentials,
   WhatsAppIncomingMessage,
 } from '@typebot.io/schemas/features/whatsapp'
 import { env } from '@typebot.io/env'
 import { sendChatReplyToWhatsApp } from './sendChatReplyToWhatsApp'
 import { startWhatsAppSession } from './startWhatsAppSession'
-import { getSession } from '../queries/getSession'
-import { continueBotFlow } from '../continueBotFlow'
+import { getSession } from '@typebot.io/bot-engine/queries/getSession'
+import { continueBotFlow } from '@typebot.io/bot-engine/continueBotFlow'
 import { decrypt } from '@typebot.io/lib/api/encryption/decrypt'
-import { saveStateToDatabase } from '../saveStateToDatabase'
+import { saveStateToDatabase } from '@typebot.io/bot-engine/saveStateToDatabase'
 import prisma from '@typebot.io/lib/prisma'
 import { isDefined } from '@typebot.io/lib/utils'
-import { Reply } from '../types'
-import { setIsReplyingInChatSession } from '../queries/setIsReplyingInChatSession'
-import { removeIsReplyingInChatSession } from '../queries/removeIsReplyingInChatSession'
+import type { Reply } from '@typebot.io/bot-engine/types'
+import { setIsReplyingInChatSession } from '@typebot.io/bot-engine/queries/setIsReplyingInChatSession'
+import { removeIsReplyingInChatSession } from '@typebot.io/bot-engine/queries/removeIsReplyingInChatSession'
 import redis from '@typebot.io/lib/redis'
 import { downloadMedia } from './downloadMedia'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { uploadFileToBucket } from '@typebot.io/lib/s3/uploadFileToBucket'
 import { getBlockById } from '@typebot.io/schemas/helpers'
-import { sendLogRequest } from '../logWF'
-import { logMessage } from '../queries/saveMessageLog'
+import { sendLogRequest } from '@typebot.io/bot-engine/logWF'
+import { logMessage } from '@typebot.io/bot-engine/queries/saveMessageLog'
+import { parseGroups } from '@typebot.io/schemas'
+import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
+import {
+  scheduleMyQueueResumeWhatsAppFlow,
+  removeScheduleMyQueueResumeWhatsAppFlow,
+} from './queue/services/myQueueResumeWhatsAppFlow'
 
 const incomingMessageDebounce = 3000
 
-type Props = {
+export type Props = {
   receivedMessage: WhatsAppIncomingMessage
   sessionId: string
   credentialsId?: string
   phoneNumberId?: string
   workspaceId?: string
-  contact: NonNullable<SessionState['whatsApp']>['contact']
+  contact?: NonNullable<SessionState['whatsApp']>['contact']
+  origin?: 'webhook'
+  transitionBlock?: boolean
+  transitionData?: object
 }
 
-export const resumeWhatsAppFlow = async ({
-  receivedMessage,
-  sessionId,
-  workspaceId,
-  credentialsId,
-  phoneNumberId,
-  contact,
-}: Props): Promise<{ message: string }> => {
+const isMessageTooOld = (receivedMessage: WhatsAppIncomingMessage) => {
   const messageSendDate = new Date(Number(receivedMessage.timestamp) * 1000)
-  const messageSentBefore3MinutesAgo =
-    messageSendDate.getTime() < Date.now() - 180000
-  if (messageSentBefore3MinutesAgo) {
-    console.log('Message is too old', messageSendDate.getTime())
-    return {
-      message: 'Message received',
-    }
-  }
+  return messageSendDate.getTime() < Date.now() - 180000
+}
+
+export const resumeWhatsAppFlow = async (props: Props) => {
+  const {
+    receivedMessage,
+    sessionId,
+    workspaceId,
+    credentialsId,
+    phoneNumberId,
+    contact,
+    origin,
+    transitionBlock,
+    transitionData,
+  } = props
 
   const isPreview = workspaceId === undefined || credentialsId === undefined
 
@@ -58,33 +67,26 @@ export const resumeWhatsAppFlow = async ({
 
   if (!credentials) {
     console.error('Could not find credentials')
-    return {
-      message: 'Message received',
-    }
+    return
   }
 
   if (credentials.phoneNumberId !== phoneNumberId && !isPreview) {
     console.error('Credentials point to another phone ID, skipping...')
-    return {
-      message: 'Message received',
-    }
+    return
   }
 
   const session = await getSession(sessionId)
 
-  const { incomingMessages, isReplyingWasSet } =
+  const aggregationResponse =
     await aggregateParallelMediaMessagesIfRedisEnabled({
       receivedMessage,
       existingSessionId: session?.id,
       newSessionId: sessionId,
     })
 
-  if (incomingMessages.length === 0) {
-    if (isReplyingWasSet) await removeIsReplyingInChatSession(sessionId)
-
-    return {
-      message: 'Message received',
-    }
+  if (aggregationResponse.status === 'found newer message') {
+    console.log('Found newer message, skipping this one')
+    return
   }
 
   const isSessionExpired =
@@ -92,13 +94,11 @@ export const resumeWhatsAppFlow = async ({
     isDefined(session.state.expiryTimeout) &&
     session?.updatedAt.getTime() + session.state.expiryTimeout < Date.now()
 
-  if (!isReplyingWasSet) {
-    if (session?.isReplying) {
+  if (aggregationResponse.status === 'treat as unique message') {
+    if (session?.isReplying && origin !== 'webhook') {
       if (!isSessionExpired) {
         console.log('Is currently replying, skipping...')
-        return {
-          message: 'Message received',
-        }
+        return
       }
     } else {
       await setIsReplyingInChatSession({
@@ -114,8 +114,8 @@ export const resumeWhatsAppFlow = async ({
       ? getBlockById(session.state.currentBlockId, currentTypebot.groups)
       : undefined) ?? {}
 
-  const reply = await getIncomingMessageContent({
-    messages: incomingMessages,
+  const reply = await convertWhatsAppMessageToTypebotMessage({
+    messages: aggregationResponse.incomingMessages,
     workspaceId,
     accessToken: credentials?.systemUserAccessToken,
     typebotId: currentTypebot?.id,
@@ -123,9 +123,14 @@ export const resumeWhatsAppFlow = async ({
     block,
   })
 
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let resumeResponse
 
-  if (reply?.type === 'text' && reply.text === '/sair' && workspaceId) {
+  if (
+    reply?.type === 'text' &&
+    (reply.text === '/sair' || (reply.text === '/nps' && !transitionBlock)) &&
+    workspaceId
+  ) {
     resumeResponse = workspaceId
       ? await startWhatsAppSession({
           incomingMessage: reply,
@@ -145,11 +150,16 @@ export const resumeWhatsAppFlow = async ({
   } else {
     resumeResponse =
       session && !isSessionExpired
-        ? await continueBotFlow(reply, {
-            version: 2,
-            state: { ...session.state, whatsApp: { contact } },
-            textBubbleContentFormat: 'richText',
-          })
+        ? await continueBotFlow(
+            reply,
+            {
+              version: 2,
+              state: { ...session.state, whatsApp: { contact } },
+              textBubbleContentFormat: 'richText',
+            },
+            transitionBlock,
+            transitionData as { typebotId: string; groupId: string }
+          )
         : workspaceId
         ? await startWhatsAppSession({
             incomingMessage: reply,
@@ -158,6 +168,8 @@ export const resumeWhatsAppFlow = async ({
             contact,
           })
         : { error: 'workspaceId not found' }
+
+    // await sendLogRequest('resumeWhatsAppFlow@resumeResponse', resumeResponse)
 
     if ('error' in resumeResponse) {
       await removeIsReplyingInChatSession(sessionId)
@@ -198,7 +210,8 @@ export const resumeWhatsAppFlow = async ({
           ? reply.text
           : reply?.type === 'audio'
           ? reply.url
-          : (reply as any)?.attachedFileUrls ?? [],
+          : // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            (reply as any)?.attachedFileUrls ?? [],
         receivedMessage.from,
         'whatsapp'
       )
@@ -220,6 +233,8 @@ export const resumeWhatsAppFlow = async ({
     workspaceId,
     resultIdWA,
     typebotId,
+    transitionBlock,
+    transitionData,
   })
 
   await saveStateToDatabase({
@@ -237,12 +252,25 @@ export const resumeWhatsAppFlow = async ({
     setVariableHistory,
   })
 
+  if (reply?.type === 'text' && reply.text === '/sair') {
+    await removeScheduleMyQueueResumeWhatsAppFlow(sessionId)
+  }
+
+  if (!(reply?.type === 'text' && reply.text === '/sair')) {
+    // await sendLogRequest('props@resumeWhatsAppFlow', props)
+    await scheduleTransitionBlock(
+      resumeResponse.newSessionState.typebotsQueue[0].typebot,
+      props,
+      sessionId
+    )
+  }
+
   return {
     message: 'Message received',
   }
 }
 
-const getIncomingMessageContent = async ({
+const convertWhatsAppMessageToTypebotMessage = async ({
   messages,
   workspaceId,
   accessToken,
@@ -257,7 +285,7 @@ const getIncomingMessageContent = async ({
   resultId?: string
   block?: Block
 }): Promise<Reply> => {
-  let text: string = ''
+  let text = ''
   const attachedFileUrls: string[] = []
   for (const message of messages) {
     switch (message.type) {
@@ -321,6 +349,7 @@ const getIncomingMessageContent = async ({
               : block?.type === InputBlockType.TEXT
               ? block.options?.attachments?.visibility
               : undefined
+          // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
           let fileUrl
           if (fileVisibility !== 'Public') {
             fileUrl =
@@ -435,10 +464,19 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
   receivedMessage: WhatsAppIncomingMessage
   existingSessionId?: string
   newSessionId: string
-}): Promise<{
-  isReplyingWasSet: boolean
-  incomingMessages: WhatsAppIncomingMessage[]
-}> => {
+}): Promise<
+  | {
+      status: 'treat as unique message'
+      incomingMessages: [WhatsAppIncomingMessage]
+    }
+  | {
+      status: 'found newer message'
+    }
+  | {
+      status: 'ready to reply'
+      incomingMessages: WhatsAppIncomingMessage[]
+    }
+> => {
   if (redis && ['document', 'video', 'image'].includes(receivedMessage.type)) {
     const redisKey = `wasession:${newSessionId}`
     try {
@@ -457,30 +495,88 @@ const aggregateParallelMediaMessagesIfRedisEnabled = async ({
 
       const newMessagesResponse = await redis.lrange(redisKey, 0, -1)
 
-      if (!newMessagesResponse || newMessagesResponse.length > len) {
-        // Current message was aggregated with other messages another webhook handler. Skipping...
-        return { isReplyingWasSet: true, incomingMessages: [] }
-      }
+      if (!newMessagesResponse || newMessagesResponse.length > len)
+        return { status: 'found newer message' }
 
       redis.del(redisKey).then()
 
       return {
-        isReplyingWasSet: true,
+        status: 'ready to reply',
         incomingMessages: newMessagesResponse.map((msgStr) =>
           JSON.parse(msgStr)
         ),
       }
     } catch (error) {
-      await sendLogRequest(
-        'aggregateParallelMediaMessagesIfRedisEnabled@resumeWhatsAppFlow',
-        error
-      )
       console.error('Failed to process webhook event:', error, receivedMessage)
     }
   }
 
   return {
-    isReplyingWasSet: false,
+    status: 'treat as unique message',
     incomingMessages: [receivedMessage],
+  }
+}
+
+function hasScheduleOptions(block: Block): block is Block & {
+  options: {
+    schedule: {
+      actived?: boolean
+      minutes?: number
+      typebotId?: string
+      groupId?: string
+    }
+  }
+} {
+  return (
+    'options' in block &&
+    typeof block.options === 'object' &&
+    'schedule' in block.options
+  )
+}
+
+const scheduleTransitionBlock = async (
+  typebot: NonNullable<SessionState['typebotsQueue'][0]['typebot']>,
+  originalProps: Props,
+  sessionId: string
+) => {
+  const session = await getSession(sessionId)
+  const currentTypebot = session?.state.typebotsQueue[0].typebot
+  if (!currentTypebot) {
+    await removeScheduleMyQueueResumeWhatsAppFlow(sessionId)
+    console.error('currentTypebot is undefined')
+    return
+  }
+  const blocks = parseGroups(currentTypebot.groups, {
+    typebotVersion: currentTypebot.version,
+  })
+    .flatMap((group): Block[] => group.blocks as Block[])
+    .filter(
+      (block) =>
+        block.type === LogicBlockType.TYPEBOT_LINK &&
+        hasScheduleOptions(block) &&
+        block.options.schedule.actived &&
+        (block.options.schedule.minutes ?? 0) > 0 &&
+        (block.options.schedule.minutes ?? 0) < 60
+    )
+
+  if (blocks.length === 0) {
+    await removeScheduleMyQueueResumeWhatsAppFlow(sessionId)
+  }
+  // await sendLogRequest('typebotId@resumeWhatsAppFlow', currentTypebot.id)
+  // await sendLogRequest('originalProps@resumeWhatsAppFlow', originalProps)
+  for (const block of blocks) {
+    if (!hasScheduleOptions(block)) continue
+    scheduleMyQueueResumeWhatsAppFlow(
+      sessionId,
+      {
+        ...originalProps,
+        transitionBlock: true,
+        transitionData: {
+          typebotId: block.options.typebotId,
+          groupId: block.options.groupId,
+        },
+      },
+      block.options.schedule.minutes ?? 1
+    )
   }
 }

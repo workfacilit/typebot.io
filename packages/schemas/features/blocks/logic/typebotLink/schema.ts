@@ -6,6 +6,13 @@ export const typebotLinkOptionsSchema = z.object({
   typebotId: z.string().optional(),
   groupId: z.string().optional(),
   mergeResults: z.boolean().optional(),
+  schedule: z
+    .object({
+      minutes: z.number().int().optional(),
+      session: z.boolean().optional(),
+      actived: z.boolean().optional(),
+    })
+    .optional(),
 })
 
 export const typebotLinkBlockSchema = blockBaseSchema.merge(

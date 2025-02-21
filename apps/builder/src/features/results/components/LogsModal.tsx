@@ -17,7 +17,7 @@ import {
   Text,
   Tag,
 } from '@chakra-ui/react'
-import { Log } from '@typebot.io/prisma'
+import type { Log } from '@typebot.io/prisma'
 import { isDefined } from '@typebot.io/lib'
 import { useLogs } from '../hooks/useLogs'
 
@@ -37,11 +37,12 @@ export const LogsModal = ({ typebotId, resultId, onClose }: Props) => {
         <ModalCloseButton />
         <ModalBody as={Stack}>
           {logs?.map((log, idx) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <LogCard key={idx} log={log} />
           ))}
           {isLoading && <Spinner />}
           {!isLoading && (logs ?? []).length === 0 && (
-            <Text>No logs found.</Text>
+            <Text>Logs não encontrados.</Text>
           )}
         </ModalBody>
 

@@ -13,9 +13,9 @@ import {
   Menu,
 } from '@chakra-ui/react'
 import { useWorkspace } from '@/features/workspace/WorkspaceProvider'
-import React from 'react'
+import type React from 'react'
 import { EditIcon, PlusIcon, TrashIcon, EyeIcon } from '@/components/icons'
-import { SettingsTab } from '@/features/publish/types/SettingsTab'
+import type { SettingsTab } from '@/features/publish/types/SettingsTab'
 import { trpc } from '@/lib/trpc'
 import { useTypebot } from '@/features/editor/providers/TypebotProvider'
 

@@ -34,6 +34,15 @@ services:
       /usr/bin/mc anonymous set public minio/typebot/public;
       exit 0;
       "
+  redis:
+    image: redis:7.0
+    container_name: redis-chatbot
+    restart: always
+    ports:
+      - '6388:6379'
+    volumes:
+      - redis-data:/data
 volumes:
   db_data:
   s3_data:
+  redis-data:

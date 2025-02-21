@@ -7,7 +7,7 @@ import { parseDynamicTheme } from '../parseDynamicTheme'
 import { saveStateToDatabase } from '../saveStateToDatabase'
 import { computeCurrentProgress } from '../computeCurrentProgress'
 import { BubbleBlockType } from '@typebot.io/schemas/features/blocks/bubbles/constants'
-import { Message } from '@typebot.io/schemas'
+import type { Message } from '@typebot.io/schemas'
 
 type Props = {
   origin: string | undefined
@@ -41,6 +41,7 @@ export const continueChat = async ({
       message: 'Session expired. You need to start a new session.',
     })
 
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
   let corsOrigin
 
   if (
@@ -79,7 +80,7 @@ export const continueChat = async ({
       clientSideActions,
       visitedEdges,
       setVariableHistory,
-      hasEmbedBubbleWithWaitEvent: messages.some(
+      isWaitingForExternalEvent: messages.some(
         (message) =>
           message.type === 'custom-embed' ||
           (message.type === BubbleBlockType.EMBED &&

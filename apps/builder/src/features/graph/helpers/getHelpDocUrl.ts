@@ -1,5 +1,5 @@
-import { ForgedBlockDefinition } from '@typebot.io/forge-repository/types'
-import { BlockWithOptions } from '@typebot.io/schemas'
+import type { ForgedBlockDefinition } from '@typebot.io/forge-repository/types'
+import type { BlockWithOptions } from '@typebot.io/schemas'
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { IntegrationBlockType } from '@typebot.io/schemas/features/blocks/integrations/constants'
 import { LogicBlockType } from '@typebot.io/schemas/features/blocks/logic/constants'
@@ -67,6 +67,8 @@ export const getHelpDocUrl = (
       return 'https://docs.typebot.io/editor/blocks/integrations/pixel'
     case LogicBlockType.CONDITION:
       return 'https://docs.typebot.io/editor/blocks/logic/condition'
+    case LogicBlockType.WEBHOOK_REQUEST:
+      return 'https://docs.typebot.io/editor/blocks/logic/webhook'
     default:
       return blockDef?.docsUrl
   }
