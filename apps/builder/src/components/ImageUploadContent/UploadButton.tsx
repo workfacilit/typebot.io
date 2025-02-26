@@ -34,7 +34,12 @@ export const UploadButton = ({
       formData.append('file', file)
       const upload = await fetch(data.presignedUrl, {
         method: 'PUT',
-        body: formData,
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+          'Content-Length': file.size.toString(),
+          'x-ms-blob-type': 'BlockBlob',
+        },
       })
 
       if (!upload.ok) {

@@ -2,6 +2,8 @@ import {
   BlobServiceClient,
   StorageSharedKeyCredential,
   BlobSASPermissions,
+  generateBlobSASQueryParameters,
+  BlobSASSignatureValues,
 } from '@azure/storage-blob'
 import { env } from '@typebot.io/env'
 
@@ -27,27 +29,33 @@ export const getAzureContainerClient = () => {
   return blobServiceClient.getContainerClient(env.AZURE_CONTAINER_NAME)
 }
 
-interface GenerateSasUrlOptions {
+interface SasOptions {
   expiresOn: Date
-  permissions: import('@azure/storage-blob').BlobSASPermissions
+  permissions: BlobSASPermissions
+  contentType: string
 }
 
 export const generateSasUrl = async (
-  containerClient: import('@azure/storage-blob').ContainerClient,
+  containerClient: ReturnType<BlobServiceClient['getContainerClient']>,
   filePath: string
 ): Promise<string> => {
-  const blobClient = containerClient.getBlockBlobClient(filePath)
-  const permissions = new BlobSASPermissions()
-  permissions.write = true
-  permissions.read = true
-  permissions.create = true
-  permissions.delete = true
-
-  const options: GenerateSasUrlOptions = {
-    expiresOn: new Date(new Date().valueOf() + 86400 * 1000), // 1 day from now
-    permissions,
+  const sasOptions: BlobSASSignatureValues = {
+    containerName: env.AZURE_CONTAINER_NAME as string,
+    blobName: filePath,
+    expiresOn: new Date(new Date().valueOf() + 86400 * 1000), // 24 hours
+    permissions: BlobSASPermissions.parse('rcwd'), // read, create, write, delete
+    contentType: 'BlockBlob',
   }
 
-  const sasToken = await blobClient.generateSasUrl(options)
-  return sasToken
+  const sasToken = generateBlobSASQueryParameters(
+    sasOptions,
+    new StorageSharedKeyCredential(
+      env.AZURE_ACCOUNT_NAME as string,
+      env.AZURE_ACCOUNT_KEY as string
+    )
+  ).toString()
+
+  const blobClient = containerClient.getBlobClient(filePath)
+
+  return `${blobClient.url}?${sasToken}`
 }

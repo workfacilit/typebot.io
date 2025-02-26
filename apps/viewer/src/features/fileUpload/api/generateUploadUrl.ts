@@ -15,6 +15,14 @@ import { getBlockById } from '@typebot.io/schemas/helpers'
 import { PublicTypebot } from '@typebot.io/prisma'
 import { generateSasUrl, getAzureContainerClient } from '@typebot.io/lib/azure'
 
+const sanitizeFileName = (name: string): string => {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9.\-_]/g, '')
+}
+
 export const generateUploadUrl = publicProcedure
   .meta({
     openapi: {
@@ -112,20 +120,24 @@ export const generateUploadUrl = publicProcedure
       'workspaceId' in typebot && typebot.workspaceId && resultId
         ? `${visibility === 'Private' ? 'private' : 'public'}/workspaces/${
             typebot.workspaceId
-          }/typebots/${typebotId}/results/${resultId}/${fileName}`
-        : `public/tmp/${typebotId}/${fileName}`
+          }/typebots/${typebotId}/results/${resultId}/${sanitizeFileName(
+            fileName
+          )}`
+        : `public/tmp/${typebotId}/${sanitizeFileName(fileName)}`
 
     if (isAzureConfigured) {
       const containerClient = getAzureContainerClient()
       const sasUrl = await generateSasUrl(containerClient, filePath)
 
+      const presignedPostPolicy = await generatePresignedPostPolicy({
+        fileType,
+        filePath,
+        maxFileSize,
+      })
+
       return {
         presignedUrl: sasUrl,
-        formData: {
-          'Content-Type': fileType,
-          'Cache-Control': 'public, max-age=86400',
-          'x-ms-blob-type': 'BlockBlob',
-        },
+        formData: presignedPostPolicy.formData,
         fileUrl: `${env.AZURE_BLOB_PUBLIC_ENDPOINT}/${filePath}`,
       }
     }
@@ -141,7 +153,11 @@ export const generateUploadUrl = publicProcedure
       formData: presignedPostPolicy.formData,
       fileUrl:
         visibility === 'Private' && !isPreview
-          ? `${env.NEXTAUTH_URL}/api/typebots/${typebotId}/results/${resultId}/${fileName}`
+          ? `${
+              env.NEXTAUTH_URL
+            }/api/typebots/${typebotId}/results/${resultId}/${sanitizeFileName(
+              fileName
+            )}`
           : env.S3_PUBLIC_CUSTOM_DOMAIN
           ? `${env.S3_PUBLIC_CUSTOM_DOMAIN}/${filePath}`
           : `${presignedPostPolicy.postURL}/${presignedPostPolicy.formData.key}`,
