@@ -269,6 +269,16 @@ const s3Env = {
   },
 }
 
+const azureStorageEnv = {
+  server: {
+    AZURE_STORAGE_CONNECTION_STRING: z.string().min(1).optional(),
+    AZURE_CONTAINER_NAME: z.string().min(1).optional(),
+    AZURE_ACCOUNT_NAME: z.string().min(1).optional(),
+    AZURE_ACCOUNT_KEY: z.string().min(1).optional(),
+    AZURE_BLOB_PUBLIC_ENDPOINT: z.string().url().optional(),
+  },
+}
+
 const giphyEnv = {
   client: {
     NEXT_PUBLIC_GIPHY_API_KEY: z.string().min(1).optional(),
@@ -454,6 +464,7 @@ export const env = createEnv({
     ...googleEnv.server,
     ...stripeEnv.server,
     ...s3Env.server,
+    ...azureStorageEnv.server,
     ...vercelEnv.server,
     ...sleekPlanEnv.server,
     ...whatsAppEnv.server,

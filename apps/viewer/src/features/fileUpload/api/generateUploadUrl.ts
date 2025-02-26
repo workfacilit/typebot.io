@@ -13,6 +13,7 @@ import {
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { getBlockById } from '@typebot.io/schemas/helpers'
 import { PublicTypebot } from '@typebot.io/prisma'
+import { generateSasUrl, getAzureContainerClient } from '@typebot.io/lib/azure'
 
 export const generateUploadUrl = publicProcedure
   .meta({
@@ -38,11 +39,20 @@ export const generateUploadUrl = publicProcedure
     })
   )
   .mutation(async ({ input: { fileName, sessionId, fileType } }) => {
-    if (!env.S3_ENDPOINT || !env.S3_ACCESS_KEY || !env.S3_SECRET_KEY)
+    const isAzureConfigured =
+      env.AZURE_STORAGE_CONNECTION_STRING &&
+      env.AZURE_CONTAINER_NAME &&
+      env.AZURE_ACCOUNT_NAME &&
+      env.AZURE_ACCOUNT_KEY
+
+    const isS3Configured =
+      env.S3_ENDPOINT && env.S3_ACCESS_KEY && env.S3_SECRET_KEY
+
+    if (!isS3Configured && !isAzureConfigured)
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message:
-          'S3 not properly configured. Missing one of those variables: S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY',
+          'S3 or Azure not properly configured. Missing one of those variables.',
       })
 
     const session = await getSession(sessionId)
@@ -104,6 +114,21 @@ export const generateUploadUrl = publicProcedure
             typebot.workspaceId
           }/typebots/${typebotId}/results/${resultId}/${fileName}`
         : `public/tmp/${typebotId}/${fileName}`
+
+    if (isAzureConfigured) {
+      const containerClient = getAzureContainerClient()
+      const sasUrl = await generateSasUrl(containerClient, filePath)
+
+      return {
+        presignedUrl: sasUrl,
+        formData: {
+          'Content-Type': fileType,
+          'Cache-Control': 'public, max-age=86400',
+          'x-ms-blob-type': 'BlockBlob',
+        },
+        fileUrl: `${env.AZURE_BLOB_PUBLIC_ENDPOINT}/${filePath}`,
+      }
+    }
 
     const presignedPostPolicy = await generatePresignedPostPolicy({
       fileType,

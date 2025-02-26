@@ -50,7 +50,7 @@ export const uploadFiles = async ({
       })
       formData.append('file', file)
       const upload = await fetch(data.presignedUrl, {
-        method: 'POST',
+        method: 'PUT',
         body: formData,
       })
 
