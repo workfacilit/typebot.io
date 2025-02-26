@@ -35,7 +35,7 @@ export const myQueueResumeWhatsAppFlow = new Bull<JobData>(
   'resumeWhatsAppFlow',
   {
     redis: {
-      host: env.WF_REQUEST_SERVER,
+      host: env.REDIS_QUEUE_SERVER,
       port: 6379,
     },
   }
