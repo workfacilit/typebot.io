@@ -13,6 +13,15 @@ import {
 import { InputBlockType } from '@typebot.io/schemas/features/blocks/inputs/constants'
 import { getBlockById } from '@typebot.io/schemas/helpers'
 import { PublicTypebot } from '@typebot.io/prisma'
+import { generateSasUrl, getAzureContainerClient } from '@typebot.io/lib/azure'
+
+const sanitizeFileName = (name: string): string => {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9.\-_]/g, '')
+}
 
 export const generateUploadUrl = publicProcedure
   .meta({
@@ -38,11 +47,20 @@ export const generateUploadUrl = publicProcedure
     })
   )
   .mutation(async ({ input: { fileName, sessionId, fileType } }) => {
-    if (!env.S3_ENDPOINT || !env.S3_ACCESS_KEY || !env.S3_SECRET_KEY)
+    const isAzureConfigured =
+      env.AZURE_STORAGE_CONNECTION_STRING &&
+      env.AZURE_CONTAINER_NAME &&
+      env.AZURE_ACCOUNT_NAME &&
+      env.AZURE_ACCOUNT_KEY
+
+    const isS3Configured =
+      env.S3_ENDPOINT && env.S3_ACCESS_KEY && env.S3_SECRET_KEY
+
+    if (!isS3Configured && !isAzureConfigured)
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
         message:
-          'S3 not properly configured. Missing one of those variables: S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY',
+          'S3 or Azure not properly configured. Missing one of those variables.',
       })
 
     const session = await getSession(sessionId)
@@ -102,8 +120,27 @@ export const generateUploadUrl = publicProcedure
       'workspaceId' in typebot && typebot.workspaceId && resultId
         ? `${visibility === 'Private' ? 'private' : 'public'}/workspaces/${
             typebot.workspaceId
-          }/typebots/${typebotId}/results/${resultId}/${fileName}`
-        : `public/tmp/${typebotId}/${fileName}`
+          }/typebots/${typebotId}/results/${resultId}/${sanitizeFileName(
+            fileName
+          )}`
+        : `public/tmp/${typebotId}/${sanitizeFileName(fileName)}`
+
+    if (isAzureConfigured) {
+      const containerClient = getAzureContainerClient()
+      const sasUrl = await generateSasUrl(containerClient, filePath)
+
+      const presignedPostPolicy = await generatePresignedPostPolicy({
+        fileType,
+        filePath,
+        maxFileSize,
+      })
+
+      return {
+        presignedUrl: sasUrl,
+        formData: presignedPostPolicy.formData,
+        fileUrl: `${env.AZURE_BLOB_PUBLIC_ENDPOINT}/${filePath}`,
+      }
+    }
 
     const presignedPostPolicy = await generatePresignedPostPolicy({
       fileType,
@@ -116,7 +153,11 @@ export const generateUploadUrl = publicProcedure
       formData: presignedPostPolicy.formData,
       fileUrl:
         visibility === 'Private' && !isPreview
-          ? `${env.NEXTAUTH_URL}/api/typebots/${typebotId}/results/${resultId}/${fileName}`
+          ? `${
+              env.NEXTAUTH_URL
+            }/api/typebots/${typebotId}/results/${resultId}/${sanitizeFileName(
+              fileName
+            )}`
           : env.S3_PUBLIC_CUSTOM_DOMAIN
           ? `${env.S3_PUBLIC_CUSTOM_DOMAIN}/${filePath}`
           : `${presignedPostPolicy.postURL}/${presignedPostPolicy.formData.key}`,

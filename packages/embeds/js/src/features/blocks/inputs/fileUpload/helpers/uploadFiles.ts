@@ -44,19 +44,35 @@ export const uploadFiles = async ({
 
     if (!data?.presignedUrl) continue
     else {
-      const formData = new FormData()
-      Object.entries(data.formData).forEach(([key, value]) => {
-        formData.append(key, value)
+      const isAzure = data.presignedUrl.includes('blob.core.windows.net')
+      let uploadResponse
+      if (isAzure) {
+        uploadResponse = await fetch(data.presignedUrl, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': file.type,
+            'Content-Length': file.size.toString(),
+            'x-ms-blob-type': 'BlockBlob',
+          },
+        })
+      } else {
+        const formData = new FormData()
+        Object.entries(data.formData).forEach(([key, value]) => {
+          formData.append(key, value)
+        })
+        formData.append('file', file)
+        uploadResponse = await fetch(data.presignedUrl, {
+          method: 'PUT',
+          body: formData,
+          // Para S3, os headers são definidos automaticamente pelo browser
+        })
+      }
+      if (!uploadResponse.ok) continue
+      urls.push({
+        url: data.fileUrl,
+        type: file.type,
       })
-      formData.append('file', file)
-      const upload = await fetch(data.presignedUrl, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!upload.ok) continue
-
-      urls.push({ url: data.fileUrl, type: file.type })
     }
   }
   return urls
