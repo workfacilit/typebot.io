@@ -104,6 +104,7 @@ model Workspace {
   messageLogs                   MessageLog[]
   ProfileInWorkspace            ProfileInWorkspace[]
   profilePermissions            ProfilePermission[]
+  originId                      String?
 }
 
 model MemberInWorkspace {
@@ -211,6 +212,7 @@ model Typebot {
   riskLevel               Int?
   bannedIps               BannedIp[]
   messageLogs             MessageLog[]
+  originId                String?
 
   @@index([workspaceId])
   @@index([isArchived, createdAt(sort: Desc)])
