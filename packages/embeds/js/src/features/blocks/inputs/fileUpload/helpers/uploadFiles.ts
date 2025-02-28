@@ -70,7 +70,7 @@ export const uploadFiles = async ({
       }
       if (!uploadResponse.ok) continue
       urls.push({
-        url: isAzure ? data.presignedUrl : data.fileUrl,
+        url: data.fileUrl,
         type: file.type,
       })
     }
